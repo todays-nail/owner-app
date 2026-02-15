@@ -61,3 +61,12 @@ Codex 작업 규칙과 프로젝트 컨텍스트를 정의합니다. (이 저장
 
 - 병합(merge) 또는 PR 생성 전에 반드시 `main` 브랜치의 최신 변경 사항을 현재 작업 브랜치에 먼저 반영한다.
 - 반영 과정에서 발생한 충돌/병합 이슈는 현재 브랜치에서 해결한 뒤에만 PR을 올린다.
+
+## Git Commit Convention
+
+효율적인 이력 관리와 협업을 위해 커밋 규칙을 준수한다.
+
+- **Commit Message Format**: `type(scope): message` 패턴을 사용한다. (예: `feat(bookings): 예약 칸반 UI 구현`, `refactor(shell): 사이드바 분리`)
+- **Functional Units**: 변경 사항이 클 경우, 하나의 커밋에 몰아넣지 않고 논리적으로 연관된 기능 단위(Functional Unit)로 나누어 커밋한다.
+  - 예: 의존성 추가(chore), 로직 리팩토링(refactor), 신규 UI 구현(feat)은 되도록 분리한다.
+- **Commit Planning**: 에이전트는 복잡한 다수 파일 변경 시, 커밋을 수행하기 전 사용자에게 기능 단위 커밋 계획을 먼저 제안하고 승인 후 실행한다.
