@@ -56,8 +56,8 @@ coverage/
 
 # Env / secrets (keep example files)
 .env
-.env.*
-!.env.example
+.env
+!.env
 
 # Supabase local
 supabase/.temp/
