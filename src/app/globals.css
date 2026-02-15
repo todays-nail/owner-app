@@ -27,6 +27,20 @@ body {
   color: hsl(var(--foreground));
 }
 
+.kanban-scrollbar::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.kanban-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.kanban-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #efe9e4;
+  border-radius: 20px;
+}
+
 @layer components {
   .owner-dashboard-root {
     @apply min-h-screen bg-background-light text-slate-800 antialiased;
