@@ -10,7 +10,10 @@ const config: Config = {
   theme: {
     extend: {
       borderRadius: {
-        lg: "var(--radius)",
+        DEFAULT: "0.5rem",
+        lg: "1rem",
+        xl: "1.5rem",
+        full: "9999px",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)"
       },
@@ -22,9 +25,13 @@ const config: Config = {
           foreground: "hsl(var(--card-foreground))"
         },
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))"
+          DEFAULT: "#eb5547",
+          foreground: "#ffffff"
         },
+        "background-light": "#f8f6f6",
+        "background-dark": "#211211",
+        "nude-soft": "#faf7f5",
+        "nude-medium": "#efe9e4",
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))"
@@ -32,6 +39,9 @@ const config: Config = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))"
+      },
+      fontFamily: {
+        display: ["Manrope", "sans-serif"]
       }
     }
   },
