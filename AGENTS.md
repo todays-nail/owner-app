@@ -56,3 +56,8 @@ Codex 작업 규칙과 프로젝트 컨텍스트를 정의합니다. (이 저장
 ## When To Add Overrides
 
 - If a specific subdirectory/package needs different rules, add `AGENTS.override.md` in that directory (closest file wins).
+
+## Branch / PR Workflow
+
+- 병합(merge) 또는 PR 생성 전에 반드시 `main` 브랜치의 최신 변경 사항을 현재 작업 브랜치에 먼저 반영한다.
+- 반영 과정에서 발생한 충돌/병합 이슈는 현재 브랜치에서 해결한 뒤에만 PR을 올린다.

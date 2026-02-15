@@ -283,43 +283,53 @@ export default function DashboardPage() {
                 </a>
               </div>
 
-              <div className="relative grid grid-cols-2 gap-6 px-0 sm:grid-cols-4 sm:px-10">
-                <div className="absolute left-0 top-1/2 hidden h-0.5 w-full -translate-y-1/2 bg-primary/10 sm:block" />
+              <div className="relative px-0 sm:px-10">
+                <div className="pointer-events-none absolute left-0 right-0 top-6 hidden h-0.5 bg-primary/10 sm:block" />
 
-                <div className="relative z-10 flex flex-col items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-primary bg-white text-sm font-bold text-primary shadow-sm dark:bg-background-dark">
-                    14
+                <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+                  <div className="relative z-10 flex flex-col items-center gap-3">
+                    <div className="flex h-12 items-center">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-primary bg-white text-sm font-bold text-primary shadow-sm dark:bg-background-dark">
+                        14
+                      </div>
+                    </div>
+                    <p className="text-center text-[10px] font-bold uppercase tracking-tighter text-slate-500">
+                      예약금 확인
+                    </p>
                   </div>
-                  <p className="text-center text-[10px] font-bold uppercase tracking-tighter text-slate-500">
-                    예약금 확인
-                  </p>
-                </div>
 
-                <div className="relative z-10 flex flex-col items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-primary font-bold text-white shadow-lg dark:border-background-dark">
-                    22
+                  <div className="relative z-10 flex flex-col items-center gap-3">
+                    <div className="flex h-12 items-center">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-primary font-bold text-white shadow-lg dark:border-background-dark">
+                        22
+                      </div>
+                    </div>
+                    <p className="text-center text-[10px] font-extrabold uppercase tracking-tighter text-primary">
+                      오늘의 시술
+                    </p>
                   </div>
-                  <p className="text-center text-[10px] font-extrabold uppercase tracking-tighter text-primary">
-                    오늘의 시술
-                  </p>
-                </div>
 
-                <div className="relative z-10 flex flex-col items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-primary/30 bg-white text-sm font-bold text-primary dark:bg-background-dark">
-                    15
+                  <div className="relative z-10 flex flex-col items-center gap-3">
+                    <div className="flex h-12 items-center">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-primary/30 bg-white text-sm font-bold text-primary dark:bg-background-dark">
+                        15
+                      </div>
+                    </div>
+                    <p className="text-center text-[10px] font-bold uppercase tracking-tighter text-slate-500">
+                      결제 대기
+                    </p>
                   </div>
-                  <p className="text-center text-[10px] font-bold uppercase tracking-tighter text-slate-500">
-                    결제 대기
-                  </p>
-                </div>
 
-                <div className="relative z-10 flex flex-col items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-emerald-100 text-sm font-bold text-emerald-600 dark:border-background-dark">
-                    33
+                  <div className="relative z-10 flex flex-col items-center gap-3">
+                    <div className="flex h-12 items-center">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-emerald-100 text-sm font-bold text-emerald-600 dark:border-background-dark">
+                        33
+                      </div>
+                    </div>
+                    <p className="text-center text-[10px] font-bold uppercase tracking-tighter text-emerald-600">
+                      완료
+                    </p>
                   </div>
-                  <p className="text-center text-[10px] font-bold uppercase tracking-tighter text-emerald-600">
-                    완료
-                  </p>
                 </div>
               </div>
             </section>
@@ -358,90 +368,6 @@ export default function DashboardPage() {
                 </div>
               </section>
 
-              <section className="rounded-xl border border-primary/5 bg-white p-6 shadow-sm dark:bg-background-dark">
-                <div className="mb-6 flex items-center justify-between">
-                  <h3 className="flex items-center gap-2 font-bold">
-                    <span className="material-icons text-lg text-primary" aria-hidden="true">
-                      question_answer
-                    </span>
-                    신규 견적 요청
-                  </h3>
-                  <a href="#" className="text-[10px] font-bold text-primary underline">
-                    모든 메시지 보기
-                  </a>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex gap-4 rounded-lg border border-primary/5 bg-nude-soft p-4 dark:bg-white/5">
-                    <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg">
-                      <img
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIil0uqKlP4ba_px3aR3ONLUYkh-j_p6kZyCfhCfnIk5tFhrqgdMX09Z3JfmszOM4BgxSOzAD8TMyv47w8d4Yp8B9rIN8tyQJsPIlDnUrCnahqTaH1vt24pm5v0xg4J3yPy6k5P72p_Sf3afli8DWx6zZn-xGXhqxvc5PvJgGzRg9jDTYVJc46cYGSZCCjMqBW4wIkktKqsw5Uu5Et0Tsi93R5KG-hiBkenorby89ULifzpX-PVRtXnl3oYFnIzmEDwnRiZjpUO-A"
-                        alt="Hanna J."
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between">
-                        <h4 className="text-xs font-bold uppercase tracking-tight">Hanna J.</h4>
-                        <span className="text-[10px] text-slate-400">2분 전</span>
-                      </div>
-                      <p className="mt-1 overflow-hidden text-[11px] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
-                        &quot;웨딩용으로 이 정도 길이 가능한가요? 다음 주 토요일
-                        오전까지 필요해요. 타샵 제거 포함하면 얼마일까요?&quot;
-                      </p>
-                      <div className="mt-3 flex gap-2">
-                        <input
-                          type="text"
-                          placeholder="금액 입력 (₩)..."
-                          className="flex-1 rounded border border-primary/10 bg-white px-3 py-1.5 text-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-background-dark"
-                        />
-                        <button
-                          type="button"
-                          className="rounded bg-primary px-3 py-1.5 text-xs font-bold text-white transition-shadow hover:shadow-md"
-                        >
-                          제안 보내기
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-4 rounded-lg border border-primary/5 bg-nude-soft p-4 dark:bg-white/5">
-                    <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg">
-                      <img
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuB59cKEqNi5BnN3mAvSaIBIOjMJIxPjGU5VoxbnfX7eSYOhCjfTN-9cq9ID7hKXVquGHVID74XHO1bNK4sWcTq_KYKtMZWbOsEkgCeVaOFSPS7rV5Zj7vrS5c45nRyMMcPmgzfXSIW7DYS1TEl0G_Vz1J5-YRrUGgAKa7An73R8TlpCW5YYXRpvY0B8K0nHBmolW_PWGogBCDd_t4g39NcZrGX-WuV7YeKcEsVLz5VawA8HgoUgSn1ss7RnlP7ylBeSNeja_Wh_H5o"
-                        alt="Sarah Moon"
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between">
-                        <h4 className="text-xs font-bold uppercase tracking-tight">
-                          Sarah Moon
-                        </h4>
-                        <span className="text-[10px] text-slate-400">1시간 전</span>
-                      </div>
-                      <p className="mt-1 overflow-hidden text-[11px] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
-                        &quot;5월 20일에 심플한 원톤 젤 예약하고 싶어요. 손톱이 아주
-                        짧은데 가능할까요?&quot;
-                      </p>
-                      <div className="mt-3 flex items-center gap-2">
-                        <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-500">
-                          <span className="material-icons text-[14px]" aria-hidden="true">
-                            check_circle
-                          </span>
-                          제안 완료: ₩45,000
-                        </span>
-                        <button
-                          type="button"
-                          className="ml-auto text-[10px] font-bold text-slate-400 hover:text-primary"
-                        >
-                          다시 채팅하기
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
             </div>
           </div>
 
