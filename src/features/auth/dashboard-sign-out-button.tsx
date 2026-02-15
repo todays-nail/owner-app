@@ -11,7 +11,7 @@ export function DashboardSignOutButton() {
     <button
       type="button"
       aria-label="로그아웃"
-      className="flex w-full items-center justify-center gap-2 text-sm text-slate-500 transition-colors hover:text-primary dark:text-slate-400 dark:hover:text-primary"
+      className="flex w-full items-center justify-center gap-2 text-sm text-slate-400 transition-colors hover:text-primary dark:text-slate-400 dark:hover:text-primary"
       onClick={async () => {
         const supabase = createSupabaseBrowserClient();
         if (!supabase) return;

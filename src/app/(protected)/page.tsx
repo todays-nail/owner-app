@@ -1,16 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
-import Link from "next/link";
-
-import { DashboardSignOutButton } from "@/features/auth/dashboard-sign-out-button";
+import { NotificationBellButton } from "@/components/common/notification-bell-button";
+import { OwnerSidebar } from "@/components/shell/owner-sidebar";
 import { cn } from "@/lib/utils";
-
-type NavItem = {
-  label: string;
-  href: string;
-  icon: string;
-  active?: boolean;
-  badge?: string;
-};
 
 type DesignItem = {
   name: string;
@@ -25,18 +16,6 @@ type ScheduleItem = {
   variant: "current" | "faded" | "active" | "upcoming";
   tag?: string;
 };
-
-const navItems: NavItem[] = [
-  { label: "대시보드", href: "/", icon: "dashboard", active: true },
-  { label: "예약 관리", href: "/bookings", icon: "calendar_today" },
-  { label: "디자인 라이브러리", href: "/references", icon: "photo_library" },
-  {
-    label: "견적 및 채팅",
-    href: "#",
-    icon: "chat_bubble_outline",
-    badge: "4"
-  }
-];
 
 const designItems: DesignItem[] = [
   {
@@ -111,75 +90,7 @@ export default function DashboardPage() {
   return (
     <div className="owner-dashboard-root owner-dashboard-fit-root">
       <div className="owner-dashboard-fit">
-        <aside className="w-full border-b border-primary/10 bg-white lg:sticky lg:top-0 lg:h-screen lg:w-80 lg:border-b-0 lg:border-r dark:bg-background-dark/50">
-        <div className="p-8">
-          <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight text-primary">
-            <span className="material-icons" aria-hidden="true">
-              spa
-            </span>
-            ONEUL{" "}
-            <span className="rounded-full border border-primary px-2 py-0.5 text-[10px] font-normal uppercase tracking-widest">
-              nail
-            </span>
-          </h1>
-        </div>
-
-        <nav className="space-y-1 px-4">
-          {navItems.map((item) => {
-            const content = (
-              <>
-                <span className="material-icons text-xl" aria-hidden="true">
-                  {item.icon}
-                </span>
-                <span className="font-medium">{item.label}</span>
-                {item.badge ? (
-                  <span className="ml-auto rounded-full bg-primary px-1.5 py-0.5 text-[10px] text-white">
-                    {item.badge}
-                  </span>
-                ) : null}
-              </>
-            );
-
-            const baseClassName =
-              "flex items-center gap-3 rounded-lg px-4 py-3 transition-colors";
-            const className = item.active
-              ? cn(baseClassName, "bg-primary text-white shadow-sm")
-              : cn(
-                  baseClassName,
-                  "text-slate-600 hover:bg-primary/5 hover:text-primary dark:text-slate-400"
-                );
-
-            if (item.href === "#") {
-              return (
-                <a key={item.label} href={item.href} className={className}>
-                  {content}
-                </a>
-              );
-            }
-
-            return (
-              <Link key={item.label} href={item.href} className={className}>
-                {content}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="mt-auto border-t border-primary/5 p-6 lg:absolute lg:bottom-0 lg:left-0 lg:right-0">
-          <div className="mb-6 flex items-center gap-3 rounded-lg bg-primary/5 p-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20">
-              <span className="material-icons text-primary" aria-hidden="true">
-                person
-              </span>
-            </div>
-            <div>
-              <p className="text-xs font-bold">김지연</p>
-              <p className="text-[10px] opacity-70">원장</p>
-            </div>
-          </div>
-          <DashboardSignOutButton />
-        </div>
-        </aside>
+        <OwnerSidebar activeItem="dashboard" />
 
         <main className="flex-1 bg-nude-soft p-4 sm:p-6 lg:p-7 dark:bg-background-dark/30">
           <div className="flex flex-col gap-6 xl:flex-row">
@@ -194,18 +105,7 @@ export default function DashboardPage() {
                 </p>
               </div>
               <div className="flex items-center gap-4">
-                <div className="relative">
-                  <span className="absolute right-0 top-0 h-2 w-2 rounded-full bg-primary ring-2 ring-white dark:ring-background-dark" />
-                  <button
-                    type="button"
-                    aria-label="알림 보기"
-                    className="rounded-lg bg-white p-2 text-slate-400 shadow-sm dark:bg-background-dark"
-                  >
-                    <span className="material-icons" aria-hidden="true">
-                      notifications
-                    </span>
-                  </button>
-                </div>
+                <NotificationBellButton variant="dashboard" />
                 <button
                   type="button"
                   className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-primary/90"
