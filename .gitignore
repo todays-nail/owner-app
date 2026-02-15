@@ -9,6 +9,9 @@ Thumbs.db
 *.swp
 *.swo
 
+# TypeScript
+*.tsbuildinfo
+
 # Logs
 *.log
 npm-debug.log*
