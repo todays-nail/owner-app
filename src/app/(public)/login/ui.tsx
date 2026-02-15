@@ -16,7 +16,10 @@ export function LoginForm() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
+  const [needsEmailConfirm, setNeedsEmailConfirm] = React.useState(false);
   const [pending, setPending] = React.useState(false);
+  const [resendPending, setResendPending] = React.useState(false);
+  const [resendMessage, setResendMessage] = React.useState<string | null>(null);
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-md items-center px-4">
@@ -31,6 +34,8 @@ export function LoginForm() {
           onSubmit={async (e) => {
             e.preventDefault();
             setError(null);
+            setResendMessage(null);
+            setNeedsEmailConfirm(false);
             setPending(true);
             try {
               const supabase = createSupabaseBrowserClient();
@@ -50,6 +55,10 @@ export function LoginForm() {
 
               if (signInError) {
                 setError(signInError.message);
+                const msg = signInError.message.toLowerCase();
+                if (msg.includes("not confirmed") || msg.includes("email not confirmed")) {
+                  setNeedsEmailConfirm(true);
+                }
                 return;
               }
 
@@ -86,6 +95,68 @@ export function LoginForm() {
           {error ? (
             <div className="rounded-md border border-border bg-muted px-3 py-2 text-sm">
               {error}
+            </div>
+          ) : null}
+
+          {needsEmailConfirm ? (
+            <div className="space-y-2">
+              <Button
+                className="w-full"
+                disabled={resendPending || !email}
+                type="button"
+                variant="outline"
+                onClick={async () => {
+                  setError(null);
+                  setResendMessage(null);
+                  setResendPending(true);
+                  try {
+                    const supabase = createSupabaseBrowserClient();
+                    if (!supabase) {
+                      setError(
+                        "Missing env: NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY"
+                      );
+                      return;
+                    }
+
+                    let emailRedirectTo: string | undefined;
+                    try {
+                      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+                      if (siteUrl) {
+                        emailRedirectTo = new URL("/login", siteUrl).toString();
+                      } else if (typeof window !== "undefined") {
+                        emailRedirectTo = `${window.location.origin}/login`;
+                      }
+                    } catch {
+                      if (typeof window !== "undefined") {
+                        emailRedirectTo = `${window.location.origin}/login`;
+                      }
+                    }
+
+                    const { error: resendError } = await supabase.auth.resend({
+                      type: "signup",
+                      email,
+                      options: emailRedirectTo ? { emailRedirectTo } : undefined
+                    });
+
+                    if (resendError) {
+                      setError(resendError.message);
+                      return;
+                    }
+
+                    setResendMessage("Confirmation email resent.");
+                  } finally {
+                    setResendPending(false);
+                  }
+                }}
+              >
+                {resendPending ? "Sending..." : "Resend confirmation email"}
+              </Button>
+
+              {resendMessage ? (
+                <div className="rounded-md border border-border bg-muted px-3 py-2 text-sm">
+                  {resendMessage}
+                </div>
+              ) : null}
             </div>
           ) : null}
 

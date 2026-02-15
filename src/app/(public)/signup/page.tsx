@@ -13,6 +13,7 @@ export default function SignupPage() {
 
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [confirmPassword, setConfirmPassword] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
   const [pending, setPending] = React.useState(false);
 
@@ -27,6 +28,12 @@ export default function SignupPage() {
           onSubmit={async (e) => {
             e.preventDefault();
             setError(null);
+
+            if (password !== confirmPassword) {
+              setError("Passwords do not match.");
+              return;
+            }
+
             setPending(true);
             try {
               const supabase = createSupabaseBrowserClient();
@@ -37,9 +44,28 @@ export default function SignupPage() {
                 return;
               }
 
+              let emailRedirectTo: string | undefined;
+              try {
+                const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+                if (siteUrl) {
+                  emailRedirectTo = new URL("/login", siteUrl).toString();
+                } else if (typeof window !== "undefined") {
+                  emailRedirectTo = `${window.location.origin}/login`;
+                }
+              } catch {
+                if (typeof window !== "undefined") {
+                  emailRedirectTo = `${window.location.origin}/login`;
+                }
+              }
+
               const { error: signUpError } = await supabase.auth.signUp({
                 email,
-                password
+                password,
+                options: emailRedirectTo
+                  ? {
+                      emailRedirectTo
+                    }
+                  : undefined
               });
 
               if (signUpError) {
@@ -47,8 +73,7 @@ export default function SignupPage() {
                 return;
               }
 
-              router.push("/");
-              router.refresh();
+              router.push(`/signup/check-email?email=${encodeURIComponent(email)}`);
             } finally {
               setPending(false);
             }
@@ -77,6 +102,18 @@ export default function SignupPage() {
               required
             />
             <p className="text-xs text-muted-foreground">Min 8 characters.</p>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Confirm password</label>
+            <Input
+              type="password"
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              minLength={8}
+              required
+            />
           </div>
 
           {error ? (
