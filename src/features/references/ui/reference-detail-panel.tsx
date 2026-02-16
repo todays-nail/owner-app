@@ -5,7 +5,8 @@ interface ReferenceDetailPanelProps {
   item: DesignReference;
   titleId?: string;
   onClose: () => void;
-  onRequestEdit: () => void;
+  onRequestEdit?: () => void;
+  canEdit?: boolean;
 }
 
 function formatKrw(price: number) {
@@ -20,7 +21,8 @@ export function ReferenceDetailPanel({
   item,
   titleId,
   onClose,
-  onRequestEdit
+  onRequestEdit,
+  canEdit = true
 }: ReferenceDetailPanelProps) {
   return (
     <section className="relative mx-auto flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-2xl dark:border-gray-700 dark:bg-surface-dark">
@@ -130,10 +132,15 @@ export function ReferenceDetailPanel({
         </button>
         <button
           type="button"
-          onClick={onRequestEdit}
-          className="rounded-lg bg-primary px-8 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary/90"
+          onClick={() => {
+            if (!canEdit || !onRequestEdit) return;
+            onRequestEdit();
+          }}
+          disabled={!canEdit}
+          aria-disabled={!canEdit}
+          className="rounded-lg bg-primary px-8 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/60 disabled:opacity-70"
         >
-          수정하기
+          {canEdit ? "수정하기" : "편집 준비중"}
         </button>
       </footer>
     </section>

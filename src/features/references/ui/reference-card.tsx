@@ -5,6 +5,7 @@ import type {DesignReference} from "@/features/references/model/references";
 export interface ReferenceCardProps {
   item: DesignReference;
   visible: boolean;
+  readOnly?: boolean;
   onOpenDetail: (id: string) => void;
   onToggleVisible: (id: string, nextValue: boolean) => void;
   onEdit: (id: string) => void;
@@ -18,6 +19,7 @@ function formatKrw(price: number) {
 export function ReferenceCard({
   item,
   visible,
+  readOnly = false,
   onOpenDetail,
   onToggleVisible,
   onEdit,
@@ -106,8 +108,13 @@ export function ReferenceCard({
             role="switch"
             aria-checked={visible}
             aria-label={`${item.name} ${visible ? "비노출" : "노출"} 전환`}
-            onClick={() => onToggleVisible(item.id, !visible)}
-            className="inline-flex items-center gap-2"
+            onClick={() => {
+              if (readOnly) return;
+              onToggleVisible(item.id, !visible);
+            }}
+            disabled={readOnly}
+            aria-disabled={readOnly}
+            className={cn("inline-flex items-center gap-2", readOnly ? "cursor-not-allowed opacity-50" : "")}
           >
             <span
               className={cn(
@@ -137,7 +144,12 @@ export function ReferenceCard({
               type="button"
               aria-label={`${item.name} 수정`}
               onClick={() => onEdit(item.id)}
-              className="rounded-xl p-2 text-gray-400 transition-colors hover:bg-primary/5 hover:text-primary"
+              disabled={readOnly}
+              aria-disabled={readOnly}
+              className={cn(
+                "rounded-xl p-2 text-gray-400 transition-colors hover:bg-primary/5 hover:text-primary",
+                readOnly ? "cursor-not-allowed opacity-50 hover:bg-transparent hover:text-gray-400" : ""
+              )}
             >
               <span className="material-icons text-lg" aria-hidden="true">
                 edit
@@ -147,7 +159,12 @@ export function ReferenceCard({
               type="button"
               aria-label={`${item.name} 삭제`}
               onClick={() => onDelete(item.id)}
-              className="rounded-xl p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+              disabled={readOnly}
+              aria-disabled={readOnly}
+              className={cn(
+                "rounded-xl p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500",
+                readOnly ? "cursor-not-allowed opacity-50 hover:bg-transparent hover:text-gray-400" : ""
+              )}
             >
               <span className="material-icons text-lg" aria-hidden="true">
                 delete
