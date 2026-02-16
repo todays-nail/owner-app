@@ -2,7 +2,66 @@ import { redirect } from "next/navigation";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+
 export const dynamic = "force-dynamic";
+
+function readString(value: unknown) {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function mapRoleLabel(rawRole: string | null) {
+  if (!rawRole) {
+    return "원장";
+  }
+
+  const normalized = rawRole.toLowerCase();
+
+  if (normalized === "owner") {
+    return "원장";
+  }
+  if (normalized === "manager") {
+    return "매니저";
+  }
+  if (normalized === "staff") {
+    return "스태프";
+  }
+
+  return /[가-힣]/.test(rawRole) ? rawRole : "원장";
+}
+
+function buildProtectedUserProfile(user: User | null): ProtectedUserProfile {
+  if (!user) {
+    return {
+      displayName: "사장님",
+      roleLabel: "원장"
+    };
+  }
+
+  const userMetadata = user.user_metadata ?? {};
+  const appMetadata = user.app_metadata ?? {};
+
+  const displayName =
+    readString(userMetadata.contact_name) ??
+    readString(userMetadata.full_name) ??
+    readString(userMetadata.name) ??
+    (user.email ? user.email.split("@")[0] : null) ??
+    "사장님";
+
+  const roleSource =
+    readString(userMetadata.role_label) ??
+    readString(userMetadata.role) ??
+    readString(appMetadata.role);
+
+  return {
+    displayName,
+    roleLabel: mapRoleLabel(roleSource)
+  };
+}
 
 export default async function ProtectedLayout({
   children
@@ -13,7 +72,11 @@ export default async function ProtectedLayout({
 
   // If env is missing, keep the app reachable for build/dev scaffolding.
   if (!supabase) {
-    return children;
+    return (
+      <ProtectedUserProfileProvider profile={buildProtectedUserProfile(null)}>
+        {children}
+      </ProtectedUserProfileProvider>
+    );
   }
 
   const {
@@ -24,5 +87,9 @@ export default async function ProtectedLayout({
     redirect("/login");
   }
 
-  return children;
+  return (
+    <ProtectedUserProfileProvider profile={buildProtectedUserProfile(user)}>
+      {children}
+    </ProtectedUserProfileProvider>
+  );
 }

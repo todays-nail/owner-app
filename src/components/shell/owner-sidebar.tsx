@@ -1,8 +1,11 @@
+"use client";
+
 import Link from "next/link";
 
-import { OneulNailLogo } from "@/components/brand/oneulnail-logo";
-import { DashboardSignOutButton } from "@/features/auth/dashboard-sign-out-button";
-import { cn } from "@/lib/utils";
+import {useProtectedUserProfile} from "@/components/auth/protected-user-profile-context";
+import {OneulNailLogo} from "@/components/brand/oneulnail-logo";
+import {DashboardSignOutButton} from "@/features/auth/dashboard-sign-out-button";
+import {cn} from "@/lib/utils";
 
 export type OwnerSidebarActiveItem =
   | "dashboard"
@@ -45,6 +48,8 @@ const navItems: NavItem[] = [
 ];
 
 export function OwnerSidebar({ activeItem }: OwnerSidebarProps) {
+  const { displayName, roleLabel } = useProtectedUserProfile();
+
   return (
     <aside className="z-20 w-full border-b border-primary/10 bg-white lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:border-b-0 lg:border-r dark:bg-background-dark/50">
       <div className="flex justify-center p-8">
@@ -103,8 +108,8 @@ export function OwnerSidebar({ activeItem }: OwnerSidebarProps) {
             </span>
           </div>
           <div>
-            <p className="text-sm font-bold text-slate-800">김지연</p>
-            <p className="text-xs text-slate-500">원장</p>
+            <p className="text-sm font-bold text-slate-800">{displayName}</p>
+            <p className="text-xs text-slate-500">{roleLabel}</p>
           </div>
         </div>
         <DashboardSignOutButton />
