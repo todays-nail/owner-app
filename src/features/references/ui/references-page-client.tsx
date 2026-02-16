@@ -12,11 +12,13 @@ import {
   REFERENCES_PAGE_SIZE,
   type ReferenceViewMode
 } from "@/features/references/model/references";
+import {createReferenceForCurrentUser} from "@/features/references/services/create-reference-browser-service";
 import {ReferenceCard} from "@/features/references/ui/reference-card";
 import {ReferenceDetailPanel} from "@/features/references/ui/reference-detail-panel";
+import {ReferenceEditorForm, type ReferenceEditorFormValues} from "@/features/references/ui/reference-editor-form";
 import {ReferenceListRow} from "@/features/references/ui/reference-list-row";
 
-const READ_ONLY_NOTICE = "편집 기능은 다음 단계에서 서버 연동 예정입니다.";
+const READ_ONLY_NOTICE = "생성만 지원, 편집 기능은 준비중입니다.";
 
 interface ReferencesPageClientProps {
   initialReferences: DesignReference[];
@@ -33,23 +35,24 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [selectedReferenceId, setSelectedReferenceId] = useState<string | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [createPending, setCreatePending] = useState(false);
 
   const normalizedQuery = query.trim().toLowerCase();
 
   useEffect(() => {
     const messageByNotice: Record<string, string> = {
-      created: READ_ONLY_NOTICE,
-      updated: READ_ONLY_NOTICE,
-      "create-modal-only": READ_ONLY_NOTICE
+      created: "새 레퍼런스가 등록되었습니다.",
+      updated: "레퍼런스가 수정되었습니다.",
+      "create-modal-only": "레퍼런스 등록 모달을 열었습니다."
     };
 
     const params = new URLSearchParams(searchParams.toString());
     let shouldReplace = false;
-    let nextMessage: string | null = null;
 
     const modal = params.get("modal");
     if (modal === "create") {
-      nextMessage = READ_ONLY_NOTICE;
+      setIsCreateModalOpen(true);
       params.delete("modal");
       shouldReplace = true;
     }
@@ -58,14 +61,10 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
     if (notice) {
       const mapped = messageByNotice[notice];
       if (mapped) {
-        nextMessage = mapped;
+        setToastMessage(mapped);
       }
       params.delete("notice");
       shouldReplace = true;
-    }
-
-    if (nextMessage) {
-      setToastMessage(nextMessage);
     }
 
     if (shouldReplace) {
@@ -164,6 +163,31 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
     setToastMessage(READ_ONLY_NOTICE);
   };
 
+  const handleOpenCreateModal = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCloseCreateModal = () => {
+    if (createPending) return;
+    setIsCreateModalOpen(false);
+  };
+
+  const handleCreateSubmit = async (values: ReferenceEditorFormValues) => {
+    if (createPending) return;
+    setCreatePending(true);
+    try {
+      await createReferenceForCurrentUser(values);
+      setIsCreateModalOpen(false);
+      setToastMessage("새 레퍼런스가 등록되었습니다.");
+      router.refresh();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "레퍼런스 등록에 실패했습니다.";
+      setToastMessage(message);
+    } finally {
+      setCreatePending(false);
+    }
+  };
+
   const hasResults = filteredReferences.length > 0;
 
   const handleGridView = () => {
@@ -200,10 +224,8 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
         </div>
         <button
           type="button"
-          disabled
-          aria-disabled
-          title={READ_ONLY_NOTICE}
-          className="inline-flex cursor-not-allowed items-center justify-center rounded-xl bg-primary/70 px-4 py-2.5 text-sm font-medium text-white opacity-70 shadow-sm"
+          onClick={handleOpenCreateModal}
+          className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
           <span className="material-icons mr-2 text-sm" aria-hidden="true">
             add
@@ -313,12 +335,10 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
 
               <button
                 type="button"
-                disabled
-                aria-disabled
-                title={READ_ONLY_NOTICE}
-                className="flex h-full min-h-[300px] cursor-not-allowed flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-white p-6 opacity-70 dark:border-gray-700 dark:bg-surface-dark"
+                onClick={handleOpenCreateModal}
+                className="flex min-h-[300px] h-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-white p-6 transition-all duration-300 hover:border-primary hover:bg-primary/5 dark:border-gray-700 dark:bg-surface-dark"
               >
-                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gray-50 shadow-sm dark:bg-gray-800">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gray-50 shadow-sm transition-colors dark:bg-gray-800">
                   <span className="material-icons text-3xl text-gray-300" aria-hidden="true">
                     add
                   </span>
@@ -348,10 +368,8 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
 
               <button
                 type="button"
-                disabled
-                aria-disabled
-                title={READ_ONLY_NOTICE}
-                className="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-200 bg-white px-6 py-5 text-sm font-semibold text-gray-500 opacity-70 dark:border-gray-700 dark:bg-surface-dark dark:text-gray-300"
+                onClick={handleOpenCreateModal}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-200 bg-white px-6 py-5 text-sm font-semibold text-gray-500 transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-gray-700 dark:bg-surface-dark dark:text-gray-300"
               >
                 <span className="material-icons text-lg" aria-hidden="true">
                   add
@@ -419,6 +437,26 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
           </div>
         ) : null}
       </section>
+
+      <BaseModal
+        open={isCreateModalOpen}
+        onClose={handleCloseCreateModal}
+        titleId="reference-create-title"
+        descriptionId="reference-create-description"
+      >
+        <ReferenceEditorForm
+          mode="create"
+          titleId="reference-create-title"
+          title="레퍼런스 등록"
+          subtitle="새로운 네일 디자인을 라이브러리에 추가합니다."
+          submitLabel={createPending ? "등록 중..." : "등록하기"}
+          onCancel={handleCloseCreateModal}
+          onSubmit={handleCreateSubmit}
+        />
+        <p id="reference-create-description" className="sr-only">
+          새로운 레퍼런스를 등록하는 모달입니다.
+        </p>
+      </BaseModal>
 
       <BaseModal
         open={isDetailModalOpen && selectedReference !== null}

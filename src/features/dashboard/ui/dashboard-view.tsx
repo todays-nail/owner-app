@@ -137,49 +137,50 @@ export function DashboardView({ designItems, scheduleItems, onUpdateDesignItem }
         <OwnerSidebar activeItem="dashboard" />
 
         <main className="flex-1 bg-nude-soft p-4 sm:p-6 lg:p-7 dark:bg-background-dark/30">
-          <div className="flex flex-col gap-6 xl:flex-row">
-            <div ref={mainColumnRef} className="min-w-0 flex-1">
-              <header className="mb-8 flex flex-col justify-between gap-4 sm:mb-10 sm:flex-row sm:items-center">
-                <div>
-                  <h2 className="text-2xl font-light tracking-tight dark:text-white sm:text-3xl">
-                    안녕하세요, <span className="font-bold text-primary">{greetingName}</span>
-                  </h2>
-                  <p className="mt-1 text-sm text-slate-500">
-                    오늘 샵의 현황을 확인해보세요.
-                  </p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <NotificationPopover
-                    items={notificationItems}
-                    isOpen={isNotificationOpen}
-                    onOpenChange={setIsNotificationOpen}
-                    onItemClick={handleNotificationItemClick}
-                    onMarkRead={handleMarkRead}
-                    onMarkAllRead={handleMarkAllRead}
-                    trigger={({ isOpen, controlsId, toggle }) => (
-                      <NotificationBellButton
-                        variant="dashboard"
-                        unreadCount={unreadCount}
-                        showUnreadDot={unreadCount > 0}
-                        ariaExpanded={isOpen}
-                        ariaControls={controlsId}
-                        onClick={toggle}
-                      />
-                    )}
+          <header className="mb-8 flex flex-col justify-between gap-4 sm:mb-10 sm:flex-row sm:items-center">
+            <div>
+              <h2 className="text-2xl font-light tracking-tight dark:text-white sm:text-3xl">
+                <span className="font-[350]">안녕하세요,</span>{" "}
+                <span className="font-bold text-primary">{greetingName}</span>
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                오늘 샵의 현황을 확인해보세요.
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              <NotificationPopover
+                items={notificationItems}
+                isOpen={isNotificationOpen}
+                onOpenChange={setIsNotificationOpen}
+                onItemClick={handleNotificationItemClick}
+                onMarkRead={handleMarkRead}
+                onMarkAllRead={handleMarkAllRead}
+                trigger={({ isOpen, controlsId, toggle }) => (
+                  <NotificationBellButton
+                    variant="dashboard"
+                    unreadCount={unreadCount}
+                    showUnreadDot={unreadCount > 0}
+                    ariaExpanded={isOpen}
+                    ariaControls={controlsId}
+                    onClick={toggle}
                   />
-                  <button
-                    type="button"
-                    onClick={handleOpenBookingModal}
-                    className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-primary/90"
-                  >
-                    <span className="material-icons text-sm" aria-hidden="true">
-                      add
-                    </span>
-                    새 예약 등록
-                  </button>
-                </div>
-              </header>
+                )}
+              />
+              <button
+                type="button"
+                onClick={handleOpenBookingModal}
+                className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-primary/90"
+              >
+                <span className="material-icons text-sm" aria-hidden="true">
+                  add
+                </span>
+                새 예약 등록
+              </button>
+            </div>
+          </header>
 
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
+            <div ref={mainColumnRef} className="min-w-0 flex-1">
               <section className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="rounded-xl border border-primary/5 bg-white p-6 shadow-sm dark:bg-background-dark">
                   <div className="flex items-start justify-between gap-3">
