@@ -56,3 +56,32 @@ body {
     "Apple Color Emoji",
     "Segoe UI Emoji";
 }
+
+@layer components {
+  .owner-dashboard-root {
+    @apply min-h-screen bg-background-light text-slate-800 antialiased;
+    font-family: "Manrope", sans-serif;
+  }
+
+  .dark .owner-dashboard-root {
+    @apply bg-background-dark text-slate-100;
+  }
+
+  .owner-dashboard-fit {
+    @apply flex flex-col lg:flex-row;
+  }
+
+  @media (min-width: 1280px) {
+    .owner-dashboard-fit-root {
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .owner-dashboard-fit {
+      --owner-dashboard-scale: clamp(0.5, calc(100vh / 2100), 0.62);
+      width: calc(100% / var(--owner-dashboard-scale));
+      transform: scale(var(--owner-dashboard-scale));
+      transform-origin: top left;
+    }
+  }
+}
