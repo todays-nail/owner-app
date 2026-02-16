@@ -1,6 +1,12 @@
-import { redirect } from "next/navigation";
+import {redirect} from "next/navigation";
 
-import { getOwnerVerificationForCurrentUser } from "@/lib/owner/verification";
+import {createPageMetadata} from "@/lib/metadata";
+import {getOwnerVerificationForCurrentUser} from "@/lib/owner/verification";
+
+export const metadata = createPageMetadata({
+  title: "사업자 인증",
+  description: "사업자 인증 상태를 확인합니다."
+});
 
 export const dynamic = "force-dynamic";
 

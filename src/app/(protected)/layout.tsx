@@ -1,7 +1,16 @@
-import { redirect } from "next/navigation";
+import {redirect} from "next/navigation";
+import type {User} from "@supabase/supabase-js";
 
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  type ProtectedUserProfile,
+  ProtectedUserProfileProvider
+} from "@/components/auth/protected-user-profile-context";
+import {createPageMetadata} from "@/lib/metadata";
+import {createSupabaseServerClient} from "@/lib/supabase/server";
 
+export const metadata = createPageMetadata({
+  title: "사장님 관리자"
+});
 
 export const dynamic = "force-dynamic";
 

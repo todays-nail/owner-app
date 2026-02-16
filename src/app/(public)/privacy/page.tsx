@@ -1,8 +1,14 @@
-import { AuthCard } from "@/components/auth/auth-card";
-import { AuthFooterLink } from "@/components/auth/auth-footer-link";
-import { AuthNoticeBox } from "@/components/auth/auth-notice-box";
-import { AuthPageHeader } from "@/components/auth/auth-page-header";
-import { PublicAuthCenter } from "@/components/auth/public-auth-center";
+import {AuthCard} from "@/components/auth/auth-card";
+import {AuthFooterLink} from "@/components/auth/auth-footer-link";
+import {AuthNoticeBox} from "@/components/auth/auth-notice-box";
+import {AuthPageHeader} from "@/components/auth/auth-page-header";
+import {PublicAuthCenter} from "@/components/auth/public-auth-center";
+import {createPageMetadata} from "@/lib/metadata";
+
+export const metadata = createPageMetadata({
+  title: "개인정보 처리방침",
+  description: "처리방침 상세 문서는 준비 중입니다."
+});
 
 export default function PrivacyPage() {
   return (
