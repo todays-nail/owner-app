@@ -1,9 +1,21 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type ChangeEvent,
+  type FormEvent
+} from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
+import {
+  findReferenceById,
+  loadReferences,
+  saveReferences,
+  type ReferenceEntity
+} from "@/features/references/model/reference-storage";
 import {
   REFERENCE_CATEGORIES,
   type ReferenceCategory
@@ -13,10 +25,38 @@ import { cn } from "@/lib/utils";
 const DESCRIPTION_MAX_LENGTH = 200;
 const MAX_TAG_SELECTION = 3;
 
+function createReferenceId() {
+  return `reference-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function readFileAsDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+        return;
+      }
+
+      reject(new Error("이미지 파일을 읽을 수 없습니다."));
+    };
+
+    reader.onerror = () => {
+      reject(new Error("이미지 파일을 읽을 수 없습니다."));
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
 export function ReferenceCreatePageClient() {
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const imageUrlsRef = useRef<string[]>([]);
+  const searchParams = useSearchParams();
+
+  const mode = searchParams.get("mode");
+  const editingId = searchParams.get("id");
+  const isEditMode = mode === "edit" && editingId !== null;
 
   const [designName, setDesignName] = useState("");
   const [selectedTags, setSelectedTags] = useState<Set<ReferenceCategory>>(new Set());
@@ -24,59 +64,62 @@ export function ReferenceCreatePageClient() {
   const [duration, setDuration] = useState("");
   const [description, setDescription] = useState("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [isVisible, setIsVisible] = useState(true);
+  const [badge, setBadge] = useState<ReferenceEntity["badge"]>(null);
   const [submitted, setSubmitted] = useState(false);
 
   const hasRepresentativeImage = imageUrls.length > 0;
   const hasDesignName = designName.trim().length > 0;
   const hasTags = selectedTags.size > 0;
   const hasPrice = price.trim().length > 0;
-  const hasDuration = duration.trim().length > 0;
   const hasDescription = description.trim().length > 0;
 
-  const canSubmit =
-    hasRepresentativeImage &&
-    hasDesignName &&
-    hasTags &&
-    hasPrice &&
-    hasDuration &&
-    hasDescription;
+  const canSubmit = hasRepresentativeImage && hasDesignName && hasTags && hasPrice && hasDescription;
   const shouldShowTagError = submitted && selectedTags.size === 0;
 
   useEffect(() => {
-    imageUrlsRef.current = imageUrls;
-  }, [imageUrls]);
+    if (!isEditMode || !editingId) {
+      return;
+    }
 
-  useEffect(() => {
-    return () => {
-      imageUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, []);
+    const existing = findReferenceById(editingId);
+
+    if (!existing) {
+      window.alert("수정할 레퍼런스를 찾을 수 없습니다.");
+      router.replace("/references");
+      return;
+    }
+
+    setDesignName(existing.name);
+    setSelectedTags(new Set(existing.categories));
+    setPrice(String(existing.price));
+    setDuration(existing.durationMinutes !== null ? String(existing.durationMinutes) : "");
+    setDescription(existing.description);
+    setImageUrls(existing.imageUrls.length > 0 ? existing.imageUrls : [existing.imageUrl]);
+    setIsVisible(existing.isVisible);
+    setBadge(existing.badge);
+    setSubmitted(false);
+  }, [editingId, isEditMode, router]);
 
   const thumbnailUrls = useMemo(() => imageUrls.slice(1), [imageUrls]);
   const representativeImage = imageUrls[0];
 
-  const openImagePicker = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFilesSelected = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFilesSelected = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
     if (files.length === 0) return;
 
-    const newUrls = files.map((file) => URL.createObjectURL(file));
-    setImageUrls((prev) => [...prev, ...newUrls]);
+    try {
+      const newUrls = await Promise.all(files.map((file) => readFileAsDataUrl(file)));
+      setImageUrls((prev) => [...prev, ...newUrls]);
+    } catch {
+      window.alert("이미지 업로드 중 오류가 발생했습니다.");
+    }
 
     event.target.value = "";
   };
 
   const handleRemoveImage = (targetUrl: string) => {
-    setImageUrls((prev) => {
-      const next = prev.filter((url) => url !== targetUrl);
-      if (next.length !== prev.length) {
-        URL.revokeObjectURL(targetUrl);
-      }
-      return next;
-    });
+    setImageUrls((prev) => prev.filter((url) => url !== targetUrl));
   };
 
   const handleToggleTag = (tag: ReferenceCategory) => {
@@ -104,11 +147,10 @@ export function ReferenceCreatePageClient() {
     setPrice("");
     setDuration("");
     setDescription("");
+    setImageUrls([]);
+    setIsVisible(true);
+    setBadge(null);
     setSubmitted(false);
-    setImageUrls((prev) => {
-      prev.forEach((url) => URL.revokeObjectURL(url));
-      return [];
-    });
   };
 
   const handleClose = () => {
@@ -123,8 +165,42 @@ export function ReferenceCreatePageClient() {
       return;
     }
 
-    router.push("/references");
+    const nowItems = loadReferences();
+    const draft: ReferenceEntity = {
+      id: editingId ?? createReferenceId(),
+      name: designName.trim(),
+      price: Number(price),
+      imageUrl: imageUrls[0],
+      imageUrls,
+      categories: Array.from(selectedTags),
+      isVisible,
+      badge,
+      durationMinutes: duration.trim().length > 0 ? Number(duration) : null,
+      description: description.trim()
+    };
+
+    if (isEditMode && editingId) {
+      const exists = nowItems.some((item) => item.id === editingId);
+      if (!exists) {
+        window.alert("수정할 레퍼런스를 찾을 수 없습니다.");
+        router.replace("/references");
+        return;
+      }
+
+      const nextItems = nowItems.map((item) => (item.id === editingId ? { ...item, ...draft } : item));
+      saveReferences(nextItems);
+    } else {
+      saveReferences([...nowItems, draft]);
+    }
+
+    router.push(`/references?notice=${isEditMode ? "updated" : "created"}`);
   };
+
+  const title = isEditMode ? "레퍼런스 수정" : "레퍼런스 등록";
+  const subtitle = isEditMode
+    ? "기존 네일 디자인 정보를 수정합니다."
+    : "새로운 네일 디자인을 라이브러리에 추가합니다.";
+  const submitLabel = isEditMode ? "수정하기" : "등록하기";
 
   return (
     <div className="relative min-h-screen p-4 sm:p-6">
@@ -154,10 +230,8 @@ export function ReferenceCreatePageClient() {
         >
           <div className="z-10 flex items-center justify-between border-b border-gray-100 bg-white px-6 py-5 dark:border-gray-800 dark:bg-surface-dark">
             <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">레퍼런스 등록</h2>
-              <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
-                새로운 네일 디자인을 라이브러리에 추가합니다.
-              </p>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h2>
+              <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>
             </div>
             <button
               type="button"
@@ -177,11 +251,7 @@ export function ReferenceCreatePageClient() {
                   대표 이미지 <span className="text-primary">*</span>
                 </label>
 
-                <button
-                  type="button"
-                  onClick={openImagePicker}
-                  className="group relative flex aspect-[4/5] w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-6 text-center transition-all hover:border-primary/50 hover:bg-primary/5 dark:border-gray-600 dark:bg-[#2a1d1c]"
-                >
+                <label className="group relative flex aspect-[4/5] w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-6 text-center transition-all hover:border-primary/50 hover:bg-primary/5 dark:border-gray-600 dark:bg-[#2a1d1c]">
                   {representativeImage ? (
                     <img
                       src={representativeImage}
@@ -205,27 +275,29 @@ export function ReferenceCreatePageClient() {
                       </p>
                     </div>
                   )}
-                </button>
 
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/png,image/jpeg,image/jpg"
-                  multiple
-                  onChange={handleFilesSelected}
-                  className="hidden"
-                />
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg"
+                    multiple
+                    onChange={handleFilesSelected}
+                    className="absolute inset-0 cursor-pointer opacity-0"
+                  />
+                </label>
 
                 <div className="mt-4 flex gap-3 overflow-x-auto pb-2">
-                  <button
-                    type="button"
-                    onClick={openImagePicker}
-                    className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg border border-primary bg-primary/10 text-primary"
-                  >
+                  <label className="flex h-16 w-16 flex-shrink-0 cursor-pointer items-center justify-center rounded-lg border border-primary bg-primary/10 text-primary">
                     <span className="material-icons text-sm" aria-hidden="true">
                       add
                     </span>
-                  </button>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg"
+                      multiple
+                      onChange={handleFilesSelected}
+                      className="hidden"
+                    />
+                  </label>
 
                   {thumbnailUrls.map((url) => (
                     <button
@@ -333,7 +405,7 @@ export function ReferenceCreatePageClient() {
                         id="duration"
                         type="number"
                         value={duration}
-                        onChange={(event) => setDuration(event.target.value)}
+                        onChange={(event) => setDuration(event.target.value.replace(/\D/g, ""))}
                         placeholder="60"
                         className="w-full rounded-lg border border-gray-200 bg-white py-2.5 pl-4 pr-10 text-gray-900 transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-gray-700 dark:bg-surface-dark dark:text-white"
                       />
@@ -406,7 +478,7 @@ export function ReferenceCreatePageClient() {
                     : "cursor-not-allowed bg-gray-300"
                 )}
               >
-                등록하기
+                {submitLabel}
               </button>
             </div>
           </div>
