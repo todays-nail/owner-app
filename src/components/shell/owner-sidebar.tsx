@@ -11,8 +11,6 @@ export type OwnerSidebarActiveItem =
   | "dashboard"
   | "bookings"
   | "references"
-  | "options"
-  | "slots"
   | "chat";
 
 export interface OwnerSidebarProps {
@@ -36,8 +34,6 @@ const navItems: NavItem[] = [
     href: "/references",
     icon: "photo_library"
   },
-  { key: "slots", label: "슬롯", href: "/slots", icon: "schedule" },
-  { key: "options", label: "옵션", href: "/options", icon: "settings" },
   {
     key: "chat",
     label: "견적 및 채팅",
