@@ -15,17 +15,17 @@ import {
 } from "@/features/dashboard/ui/dashboard-booking-create-modal";
 import {DashboardDesignLibrarySection} from "@/features/dashboard/ui/dashboard-design-library-section";
 import {DashboardTodayScheduleAside} from "@/features/dashboard/ui/dashboard-today-schedule-aside";
-import type {DashboardDesignItem, DashboardScheduleItem} from "@/features/dashboard/model/dashboard";
+import type {DashboardScheduleItem} from "@/features/dashboard/model/dashboard";
 import {MOCK_NOTIFICATION_ITEMS} from "@/features/notifications/model/mock-notifications";
 import type {NotificationItem} from "@/features/notifications/model/types";
+import type {DesignReference} from "@/features/references/model/references";
 
 export interface DashboardViewProps {
-  designItems: DashboardDesignItem[];
+  references: DesignReference[];
   scheduleItems: DashboardScheduleItem[];
-  onUpdateDesignItem: (id: string, patch: Partial<Pick<DashboardDesignItem, "name" | "price" | "image">>) => void;
 }
 
-export function DashboardView({ designItems, scheduleItems, onUpdateDesignItem }: DashboardViewProps) {
+export function DashboardView({ references, scheduleItems }: DashboardViewProps) {
   const router = useRouter();
   const { displayName } = useProtectedUserProfile();
   const greetingName = displayName.endsWith("님")
@@ -220,10 +220,7 @@ export function DashboardView({ designItems, scheduleItems, onUpdateDesignItem }
 
               <DashboardBookingPipelineSection />
 
-              <DashboardDesignLibrarySection
-                designItems={designItems}
-                onUpdateDesignItem={onUpdateDesignItem}
-              />
+              <DashboardDesignLibrarySection references={references} />
             </div>
 
             <DashboardTodayScheduleAside
