@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 
 import { DashboardSignOutButton } from "@/features/auth/dashboard-sign-out-button";
@@ -52,9 +53,11 @@ export function ChatPageScreen() {
           <div className="mt-auto border-t border-slate-100 px-6 pt-6">
             <div className="mb-4 flex items-center gap-3">
               <div className="h-10 w-10 overflow-hidden rounded-full bg-[#fdecea]">
-                <img
+                <Image
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnvZc3wbbVpXZCvaYxO-5tTfmXj7y-AJrxLAM4zvI27Oq9vN5hskQqPR0AP_g3zCB1B5GhcFnMROvsBonzbpWS1KylBsPziyMIx67ha-zGyJMSaGZ7tSSJ2XO4aDJDG_KrmztDS82oVNFe1FpRoPpyJ-JBm3IQJItiMju2IRZAW2JSXNi9lHjqmCaYY_wH1hH5oILDeLuWPDy8RUG7PVSZw8rWM-VFl8vzfFJd27OScH6uW-nGt4J7IywhnIx0B5UzUnfHdx6_I-I"
                   alt="Profile"
+                  width={40}
+                  height={40}
                   className="h-full w-full object-cover"
                 />
               </div>
