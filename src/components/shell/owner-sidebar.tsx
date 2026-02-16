@@ -11,7 +11,8 @@ export type OwnerSidebarActiveItem =
   | "dashboard"
   | "bookings"
   | "references"
-  | "chat";
+  | "chat"
+  | "settings";
 
 export interface OwnerSidebarProps {
   activeItem: OwnerSidebarActiveItem;
@@ -40,6 +41,12 @@ const navItems: NavItem[] = [
     href: "/chat",
     icon: "chat_bubble_outline",
     badge: "4"
+  },
+  {
+    key: "settings",
+    label: "샵 정보 관리",
+    href: "/settings",
+    icon: "storefront"
   }
 ];
 
