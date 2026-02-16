@@ -32,6 +32,7 @@ Codex 작업 규칙과 프로젝트 컨텍스트를 정의합니다. (이 저장
 - Secrets:
   - `SUPABASE_SERVICE_ROLE_KEY`는 절대 브라우저로 노출 금지.
   - `.env*` 파일은 커밋 금지. 새 env var 추가 시 `.env.example`에 키를 추가.
+- 자세한 구조: `docs/architecture.md`
 
 ## Multi-tenant / Security
 
@@ -49,13 +50,6 @@ Codex 작업 규칙과 프로젝트 컨텍스트를 정의합니다. (이 저장
 ## Overrides
 
 - 특정 기능 디렉토리에 특수 규칙이 필요하면 해당 디렉토리에 `AGENTS.override.md`를 추가한다.
-- Ensure auth/authorization is enforced for any sensitive page, API route, or server action.
-- Treat broken builds/tests as P0; treat a11y regressions and obvious UX breakage as P1.
-- For user-visible UI changes, verify both mobile and desktop layouts.
-
-## When To Add Overrides
-
-- If a specific subdirectory/package needs different rules, add `AGENTS.override.md` in that directory (closest file wins).
 
 ## Branch / PR Workflow
 

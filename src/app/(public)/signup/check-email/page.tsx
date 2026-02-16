@@ -3,11 +3,11 @@ import { Suspense } from "react";
 import { AuthCard } from "@/components/auth/auth-card";
 import { PublicAuthCenter } from "@/components/auth/public-auth-center";
 
-import { LoginForm } from "./ui";
+import { SignupCheckEmail } from "./ui";
 
 export const dynamic = "force-dynamic";
 
-export default function LoginPage() {
+export default function SignupCheckEmailPage() {
   return (
     <Suspense
       fallback={
@@ -18,7 +18,7 @@ export default function LoginPage() {
         </PublicAuthCenter>
       }
     >
-      <LoginForm />
+      <SignupCheckEmail />
     </Suspense>
   );
 }
