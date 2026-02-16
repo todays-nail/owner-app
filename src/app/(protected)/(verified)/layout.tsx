@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 
+import { AppShell } from "@/components/shell/app-shell";
+import { SignOutButton } from "@/features/auth/sign-out-button";
 import { getOwnerVerificationForCurrentUser } from "@/lib/owner/verification";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +26,5 @@ export default async function VerifiedLayout({ children }: { children: React.Rea
     redirect("/verification");
   }
 
-  return children;
+  return <AppShell headerRight={<SignOutButton />}>{children}</AppShell>;
 }
-
