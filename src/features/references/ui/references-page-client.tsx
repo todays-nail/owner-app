@@ -181,6 +181,17 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
       setToastMessage("새 레퍼런스가 등록되었습니다.");
       router.refresh();
     } catch (error) {
+      console.error("[references:create] submit failed", {
+        error,
+        inputSummary: {
+          name: values.name,
+          price: values.price,
+          durationMinutes: values.durationMinutes,
+          imageCount: values.imageUrls.length,
+          categoryCount: values.categories.length,
+          isVisible: values.isVisible
+        }
+      });
       const message = error instanceof Error ? error.message : "레퍼런스 등록에 실패했습니다.";
       setToastMessage(message);
     } finally {

@@ -136,8 +136,15 @@ export function ReferenceEditorForm({
     try {
       const newUrls = await Promise.all(files.map((file) => readFileAsDataUrl(file)));
       setImageUrls((prev) => [...prev, ...newUrls]);
-    } catch {
-      window.alert("이미지 업로드 중 오류가 발생했습니다.");
+    } catch (error) {
+      console.error("[references:create] image read failed", {
+        error,
+        files: files.map((file) => ({
+          name: file.name,
+          type: file.type,
+          size: file.size
+        }))
+      });
     }
 
     event.target.value = "";

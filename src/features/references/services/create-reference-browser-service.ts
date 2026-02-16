@@ -14,6 +14,36 @@ interface StyleTagRow {
 
 export type CreateReferenceInput = Omit<DesignReference, "id">;
 
+function formatSupabaseError(error: unknown): string {
+  if (!error || typeof error !== "object") {
+    return "알 수 없는 오류";
+  }
+
+  const obj = error as Record<string, unknown>;
+  const parts: string[] = [];
+
+  if (typeof obj.message === "string" && obj.message.trim().length > 0) {
+    parts.push(obj.message.trim());
+  }
+  if (typeof obj.code === "string" && obj.code.trim().length > 0) {
+    parts.push(`code=${obj.code.trim()}`);
+  }
+  if (typeof obj.details === "string" && obj.details.trim().length > 0) {
+    parts.push(`details=${obj.details.trim()}`);
+  }
+  if (typeof obj.hint === "string" && obj.hint.trim().length > 0) {
+    parts.push(`hint=${obj.hint.trim()}`);
+  }
+  if (typeof obj.statusCode === "string" || typeof obj.statusCode === "number") {
+    parts.push(`status=${String(obj.statusCode)}`);
+  }
+  if (typeof obj.error === "string" && obj.error.trim().length > 0) {
+    parts.push(`error=${obj.error.trim()}`);
+  }
+
+  return parts.length > 0 ? parts.join(" | ") : "알 수 없는 오류";
+}
+
 function normalizeBadge(value: unknown): ReferenceBadge {
   return value === "NEW" || value === "인기" ? value : null;
 }
@@ -65,12 +95,16 @@ export async function createReferenceForCurrentUser(input: CreateReferenceInput)
     .eq("user_id", user.id);
 
   if (membershipError) {
-    throw new Error(membershipError.message);
+    throw new Error(formatSupabaseError(membershipError));
   }
 
   const membershipRows = (memberships ?? []) as ShopMembershipRow[];
-  if (membershipRows.length !== 1) {
-    throw new Error("현재는 사용자당 1개 매장만 지원됩니다. 매장 연결 상태를 확인해 주세요.");
+  if (membershipRows.length === 0) {
+    throw new Error("계정에 연결된 매장이 없습니다. 관리자에게 문의해 주세요.");
+  }
+
+  if (membershipRows.length > 1) {
+    throw new Error("계정에 복수 매장이 연결되어 있습니다. 관리자에게 문의해 주세요.");
   }
 
   const shopId = membershipRows[0]?.shop_id;
@@ -125,7 +159,7 @@ export async function createReferenceForCurrentUser(input: CreateReferenceInput)
     });
 
     if (insertReferenceError) {
-      throw new Error(insertReferenceError.message);
+      throw new Error(formatSupabaseError(insertReferenceError));
     }
 
     const uploadedPublicUrls: string[] = [];
@@ -144,7 +178,7 @@ export async function createReferenceForCurrentUser(input: CreateReferenceInput)
         });
 
       if (uploadError) {
-        throw new Error(uploadError.message);
+        throw new Error(formatSupabaseError(uploadError));
       }
 
       uploadedPaths.push(path);
@@ -170,7 +204,7 @@ export async function createReferenceForCurrentUser(input: CreateReferenceInput)
 
     const { error: insertImagesError } = await supabase.from("reference_images").insert(imageRows);
     if (insertImagesError) {
-      throw new Error(insertImagesError.message);
+      throw new Error(formatSupabaseError(insertImagesError));
     }
 
     const categoryNames = [...new Set(input.categories)];
@@ -183,7 +217,7 @@ export async function createReferenceForCurrentUser(input: CreateReferenceInput)
         .in("name", categoryNames);
 
       if (styleTagsError) {
-        throw new Error(styleTagsError.message);
+        throw new Error(formatSupabaseError(styleTagsError));
       }
 
       const styleTagRows = (styleTags ?? []) as StyleTagRow[];
@@ -201,10 +235,11 @@ export async function createReferenceForCurrentUser(input: CreateReferenceInput)
 
       const { error: insertTagsError } = await supabase.from("reference_style_tags").insert(tagRows);
       if (insertTagsError) {
-        throw new Error(insertTagsError.message);
+        throw new Error(formatSupabaseError(insertTagsError));
       }
     }
   } catch (error) {
+    console.error("[references:create] service failed", { error });
     await rollbackReference();
     throw error instanceof Error ? error : new Error("레퍼런스 등록에 실패했습니다.");
   }
