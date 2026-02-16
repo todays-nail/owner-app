@@ -2,177 +2,59 @@
 
 import {
   DndContext,
-  DragEndEvent,
-  DragStartEvent,
-  KeyboardSensor,
-  PointerSensor,
   closestCorners,
   useDroppable,
-  useSensor,
-  useSensors
+  type DragEndEvent,
+  type DragStartEvent
 } from "@dnd-kit/core";
 import {
   SortableContext,
-  arrayMove,
-  sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useEffect, useMemo, useState } from "react";
+import type React from "react";
 
-import {
-  BOOKING_COLUMNS,
-  BookingCard,
-  BookingColumn,
-  BookingStage,
-  INITIAL_BOOKING_CARDS
-} from "@/features/bookings/model/bookings";
-import { BookingKanbanCard } from "@/features/bookings/ui/booking-kanban-card";
 import { Chip } from "@/components/ui/chip";
+import {
+  type BookingCardViewData,
+  type BookingColumnViewData
+} from "@/features/bookings/presenter/booking-view-mapper";
+import type { BookingStage } from "@/features/bookings/model/types";
+import { BookingKanbanCard } from "@/features/bookings/ui/booking-kanban-card";
 import { cn } from "@/lib/utils";
 
-export interface BookingsBoardProps {
-  initialCards?: BookingCard[];
+export interface BookingsBoardViewProps {
+  columns: BookingColumnViewData[];
+  board: Record<BookingStage, BookingCardViewData[]>;
+  activeCardStage: BookingStage | null;
+  sensors: React.ComponentProps<typeof DndContext>["sensors"];
+  onDragStart: (event: DragStartEvent) => void;
+  onDragEnd: (event: DragEndEvent) => void;
 }
 
-type BoardState = Record<BookingStage, BookingCard[]>;
-
-function toBoardState(cards: BookingCard[]): BoardState {
-  return {
-    deposit_pending: cards.filter((card) => card.stage === "deposit_pending"),
-    in_service: cards.filter((card) => card.stage === "in_service"),
-    payment_pending: cards.filter((card) => card.stage === "payment_pending"),
-    completed: cards.filter((card) => card.stage === "completed")
-  };
-}
-
-function findCardLocation(board: BoardState, id: string) {
-  for (const stage of Object.keys(board) as BookingStage[]) {
-    const index = board[stage].findIndex((card) => card.id === id);
-    if (index !== -1) {
-      return { stage, index };
-    }
-  }
-  return null;
-}
-
-function parseDropTarget(board: BoardState, overId: string) {
-  if (overId.startsWith("column:")) {
-    const stage = overId.replace("column:", "") as BookingStage;
-    return { stage, index: board[stage].length };
-  }
-
-  const location = findCardLocation(board, overId);
-  if (!location) {
-    return null;
-  }
-
-  return location;
-}
-
-export function BookingsBoard({ initialCards = INITIAL_BOOKING_CARDS }: BookingsBoardProps) {
-  const [board, setBoard] = useState<BoardState>(() => toBoardState(initialCards));
-  const [activeCardId, setActiveCardId] = useState<string | null>(null);
-
-  // Keep board data deterministic in dev/HMR and when initial snapshot changes.
-  useEffect(() => {
-    setBoard(toBoardState(initialCards));
-    setActiveCardId(null);
-  }, [initialCards]);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates
-    })
-  );
-
-  const activeCard = useMemo(() => {
-    if (!activeCardId) {
-      return null;
-    }
-
-    const location = findCardLocation(board, activeCardId);
-    return location ? board[location.stage][location.index] : null;
-  }, [activeCardId, board]);
-
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveCardId(event.active.id as string);
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveCardId(null);
-
-    if (!over) {
-      return;
-    }
-
-    const activeId = active.id as string;
-    const overId = over.id as string;
-
-    setBoard((current) => {
-      const source = findCardLocation(current, activeId);
-      if (!source) {
-        return current;
-      }
-
-      const target = parseDropTarget(current, overId);
-      if (!target) {
-        return current;
-      }
-
-      if (source.stage === target.stage) {
-        const nextCards = [...current[source.stage]];
-        const targetIndex = overId.startsWith("column:")
-          ? nextCards.length - 1
-          : target.index;
-
-        if (targetIndex === source.index || targetIndex < 0) {
-          return current;
-        }
-
-        return {
-          ...current,
-          [source.stage]: arrayMove(nextCards, source.index, targetIndex)
-        };
-      }
-
-      const sourceCards = [...current[source.stage]];
-      const targetCards = [...current[target.stage]];
-      const [moved] = sourceCards.splice(source.index, 1);
-
-      const movedCard: BookingCard = {
-        ...moved,
-        stage: target.stage
-      };
-
-      const insertAt = overId.startsWith("column:") ? targetCards.length : target.index;
-      targetCards.splice(insertAt, 0, movedCard);
-
-      return {
-        ...current,
-        [source.stage]: sourceCards,
-        [target.stage]: targetCards
-      };
-    });
-  };
-
+export function BookingsBoard({
+  columns,
+  board,
+  activeCardStage,
+  sensors,
+  onDragStart,
+  onDragEnd
+}: BookingsBoardViewProps) {
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCorners}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
     >
       <div className="flex h-full min-w-[1220px] gap-5">
-        {BOOKING_COLUMNS.map((column) => (
+        {columns.map((column) => (
           <BookingColumnView
             key={column.id}
             column={column}
             cards={board[column.id]}
-            isActiveDrop={activeCard ? activeCard.stage !== column.id : false}
+            isActiveDrop={activeCardStage ? activeCardStage !== column.id : false}
           />
         ))}
       </div>
@@ -185,8 +67,8 @@ function BookingColumnView({
   cards,
   isActiveDrop
 }: {
-  column: BookingColumn;
-  cards: BookingCard[];
+  column: BookingColumnViewData;
+  cards: BookingCardViewData[];
   isActiveDrop: boolean;
 }) {
   const droppableId = `column:${column.id}`;
@@ -228,7 +110,7 @@ function BookingColumnView({
   );
 }
 
-function SortableBookingCardView({ card }: { card: BookingCard }) {
+function SortableBookingCardView({ card }: { card: BookingCardViewData }) {
   const {
     attributes,
     listeners,

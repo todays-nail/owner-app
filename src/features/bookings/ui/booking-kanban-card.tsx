@@ -4,11 +4,11 @@
 import { forwardRef, type CSSProperties, type ReactNode } from "react";
 
 import { Chip } from "@/components/ui/chip";
-import type { BookingCard } from "@/features/bookings/model/bookings";
+import type { BookingCardViewData } from "@/features/bookings/presenter/booking-view-mapper";
 import { cn } from "@/lib/utils";
 
 export interface BookingKanbanCardProps {
-  card: BookingCard;
+  card: BookingCardViewData;
   isDragging?: boolean;
   isOver?: boolean;
   isDragDisabled?: boolean;

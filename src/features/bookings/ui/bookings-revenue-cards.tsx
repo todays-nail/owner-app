@@ -1,24 +1,13 @@
-const REVENUE_ITEMS = [
-  {
-    key: "today",
-    label: "오늘 총 매출",
-    amount: "₩840,000",
-    icon: "payments",
-    iconClassName: "bg-emerald-100 text-emerald-600"
-  },
-  {
-    key: "month",
-    label: "이번 달 누적 매출",
-    amount: "₩12,450,000",
-    icon: "bar_chart",
-    iconClassName: "bg-primary/10 text-primary"
-  }
-] as const;
+import type { BookingsRevenueCardViewData } from "@/features/bookings/presenter/booking-view-mapper";
 
-export function BookingsRevenueCards() {
+export interface BookingsRevenueCardsViewProps {
+  items: BookingsRevenueCardViewData[];
+}
+
+export function BookingsRevenueCards({ items }: BookingsRevenueCardsViewProps) {
   return (
     <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-      {REVENUE_ITEMS.map((item) => (
+      {items.map((item) => (
         <article
           key={item.key}
           className="flex items-center justify-between rounded-[28px] border border-[#efe6e2] bg-[#fdfaf9] px-6 py-5 shadow-[0_1px_0_rgba(15,23,42,0.03)] dark:border-white/10 dark:bg-background-dark"
