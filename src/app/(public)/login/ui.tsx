@@ -14,6 +14,21 @@ import { Input } from "@/components/ui/input";
 import { getSignupEmailRedirectTo } from "@/lib/auth/redirects";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
+function getReadableAuthError(error: unknown) {
+  const rawMessage = error instanceof Error ? error.message : "";
+  const message = rawMessage.toLowerCase();
+
+  if (message.includes("failed to fetch")) {
+    return "인증 서버에 연결하지 못했습니다. 네트워크 상태와 Supabase 설정(NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY)을 확인해주세요.";
+  }
+
+  if (rawMessage.length > 0) {
+    return rawMessage;
+  }
+
+  return "로그인 중 알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+}
+
 export function LoginForm() {
   const router = useRouter();
   const sp = useSearchParams();
@@ -72,6 +87,8 @@ export function LoginForm() {
 
               router.refresh();
               router.push(next);
+            } catch (unknownError) {
+              setError(getReadableAuthError(unknownError));
             } finally {
               setPending(false);
             }
@@ -158,6 +175,8 @@ export function LoginForm() {
                     }
 
                     setResendMessage("인증 메일을 다시 보냈습니다.");
+                  } catch (unknownError) {
+                    setError(getReadableAuthError(unknownError));
                   } finally {
                     setResendPending(false);
                   }
