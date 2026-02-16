@@ -1,4 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
+import Link from "next/link";
+
 import { NotificationBellButton } from "@/components/common/notification-bell-button";
 import { OwnerSidebar } from "@/components/shell/owner-sidebar";
 import type {
@@ -98,15 +100,15 @@ export function DashboardView({ designItems, scheduleItems }: DashboardViewProps
                     <h3 className="text-lg font-bold tracking-tight">예약 파이프라인</h3>
                     <p className="mt-1 text-xs italic text-slate-400">총 84건 진행 중</p>
                   </div>
-                  <a
-                    href="#"
+                  <Link
+                    href="/bookings"
                     className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-400 transition-all hover:text-primary dark:border-slate-700"
                   >
                     더보기
                     <span className="material-icons text-sm" aria-hidden="true">
                       chevron_right
                     </span>
-                  </a>
+                  </Link>
                 </div>
 
                 <div className="relative px-0 sm:px-10">

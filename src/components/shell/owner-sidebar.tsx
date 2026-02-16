@@ -47,7 +47,7 @@ const navItems: NavItem[] = [
 export function OwnerSidebar({ activeItem }: OwnerSidebarProps) {
   return (
     <aside className="z-20 w-full border-b border-primary/10 bg-white lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:border-b-0 lg:border-r dark:bg-background-dark/50">
-      <div className="p-8">
+      <div className="flex justify-center p-8">
         <h1>
           <OneulNailLogo size="sidebar" />
         </h1>
