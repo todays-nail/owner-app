@@ -60,6 +60,7 @@ coverage/
 
 # Supabase local
 supabase/.temp/
+.supabase/
 
 # React Native / Expo (if applicable)
 .expo/
