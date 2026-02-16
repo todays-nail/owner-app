@@ -35,7 +35,7 @@ const navItems: NavItem[] = [
   {
     key: "chat",
     label: "견적 및 채팅",
-    href: "#",
+    href: "/chat",
     icon: "chat_bubble_outline",
     badge: "4"
   }
@@ -81,14 +81,6 @@ export function OwnerSidebar({ activeItem }: OwnerSidebarProps) {
                   baseClassName,
                   "text-slate-700 hover:bg-primary/5 hover:text-primary dark:text-slate-400"
                 );
-
-          if (item.href === "#") {
-            return (
-              <a key={item.key} href={item.href} className={className}>
-                {content}
-              </a>
-            );
-          }
 
           return (
             <Link key={item.key} href={item.href} className={className}>
