@@ -1,10 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
-import { cn } from "@/lib/utils";
-import type { DesignReference } from "@/features/references/model/references";
+import {cn} from "@/lib/utils";
+import type {DesignReference} from "@/features/references/model/references";
 
 export interface ReferenceCardProps {
   item: DesignReference;
   visible: boolean;
+  onOpenDetail: (id: string) => void;
   onToggleVisible: (id: string, nextValue: boolean) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
@@ -17,6 +18,7 @@ function formatKrw(price: number) {
 export function ReferenceCard({
   item,
   visible,
+  onOpenDetail,
   onToggleVisible,
   onEdit,
   onDelete
@@ -30,65 +32,74 @@ export function ReferenceCard({
           : "opacity-75 hover:opacity-100 hover:shadow-xl"
       )}
     >
-      <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
-        <img
-          src={item.imageUrl}
-          alt={item.name}
-          className={cn(
-            "h-full w-full object-cover transition-all duration-700",
-            visible ? "group-hover:scale-110" : "grayscale group-hover:grayscale-0"
-          )}
-        />
-        {item.badge ? (
-          <div
+      <button
+        type="button"
+        onClick={() => onOpenDetail(item.id)}
+        aria-label={`${item.name} 상세보기`}
+        className="w-full text-left focus-visible:outline-none"
+      >
+        <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
+          <img
+            src={item.imageUrl}
+            alt={item.name}
             className={cn(
-              "absolute right-3 top-3 rounded-lg px-2 py-1 text-[10px] font-bold text-white",
-              item.badge === "NEW" ? "bg-primary shadow-sm" : "bg-black/40 backdrop-blur-md"
+              "h-full w-full object-cover transition-all duration-700",
+              visible ? "group-hover:scale-110" : "grayscale group-hover:grayscale-0"
             )}
-          >
-            {item.badge}
-          </div>
-        ) : null}
-      </div>
-
-      <div className="p-4">
-        <h3
-          className={cn(
-            "mb-2 truncate text-base font-bold dark:text-white",
-            visible ? "text-gray-900" : "text-gray-500 dark:text-gray-400"
-          )}
-        >
-          {item.name}
-        </h3>
-
-        <div className="mb-3 flex flex-wrap gap-1.5">
-          {item.categories.map((category) => (
-            <span
-              key={category}
+          />
+          {item.badge ? (
+            <div
               className={cn(
-                "rounded-full px-2.5 py-1 text-[11px] font-semibold",
-                visible
-                  ? "bg-chip-bg text-chip-text"
-                  : "bg-gray-50 text-gray-400 dark:bg-gray-800 dark:text-gray-400"
+                "absolute right-3 top-3 rounded-lg px-2 py-1 text-[10px] font-bold text-white",
+                item.badge === "NEW" ? "bg-primary shadow-sm" : "bg-black/40 backdrop-blur-md"
               )}
             >
-              {category}
-            </span>
-          ))}
+              {item.badge}
+            </div>
+          ) : null}
         </div>
 
-        <div className="mb-3 flex items-baseline justify-between">
-          <span className="text-xs text-gray-400">기본가</span>
-          <span
+        <div className="p-4 pb-3">
+          <h3
             className={cn(
-              "text-lg font-bold",
-              visible ? "text-primary" : "text-gray-400"
+              "mb-2 truncate text-base font-bold dark:text-white",
+              visible ? "text-gray-900" : "text-gray-500 dark:text-gray-400"
             )}
           >
-            {formatKrw(item.price)}
-          </span>
-        </div>
+            {item.name}
+          </h3>
 
+          <div className="mb-3 flex flex-wrap gap-1.5">
+            {item.categories.map((category) => (
+              <span
+                key={category}
+                className={cn(
+                  "rounded-full px-2.5 py-1 text-[11px] font-semibold",
+                  visible
+                    ? "bg-chip-bg text-chip-text"
+                    : "bg-gray-50 text-gray-400 dark:bg-gray-800 dark:text-gray-400"
+                )}
+              >
+                {category}
+              </span>
+            ))}
+          </div>
+
+          <div className="flex items-baseline justify-between">
+            <span className="text-xs text-gray-400">기본가</span>
+            <span
+              className={cn(
+                "text-lg font-bold",
+                visible ? "text-primary" : "text-gray-400"
+              )}
+            >
+              {formatKrw(item.price)}
+            </span>
+          </div>
+        </div>
+      </button>
+
+      <div className="px-4 pb-4">
         <div className="flex items-center justify-between border-t border-gray-100 pt-3 dark:border-gray-700">
           <button
             type="button"
