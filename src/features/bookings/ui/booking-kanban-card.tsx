@@ -1,69 +1,32 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { forwardRef, type CSSProperties, type ReactNode } from "react";
+import {forwardRef} from "react";
 
-import { Chip } from "@/components/ui/chip";
-import type { BookingCardViewData } from "@/features/bookings/presenter/booking-view-mapper";
-import { cn } from "@/lib/utils";
+import {Chip} from "@/components/ui/chip";
+import type {BookingCardViewData} from "@/features/bookings/presenter/booking-view-mapper";
+import {cn} from "@/lib/utils";
 
 export interface BookingKanbanCardProps {
   card: BookingCardViewData;
-  isDragging?: boolean;
-  isOver?: boolean;
-  isDragDisabled?: boolean;
-  style?: CSSProperties;
-  dragHandle?: ReactNode;
 }
 
 export const BookingKanbanCard = forwardRef<HTMLElement, BookingKanbanCardProps>(
-  function BookingKanbanCard(
-    {
-      card,
-      isDragging = false,
-      isOver = false,
-      isDragDisabled = false,
-      style,
-      dragHandle
-    },
-    ref
-  ) {
-    const handle = dragHandle ?? (
-      <button
-        type="button"
-        aria-hidden="true"
-        tabIndex={-1}
-        className={cn(
-          "rounded p-1 text-slate-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-          isDragDisabled
-            ? "cursor-default opacity-60"
-            : "hover:text-slate-500"
-        )}
-      >
-        <span className="material-icons text-base" aria-hidden="true">
-          more_horiz
-        </span>
-      </button>
-    );
-
+  function BookingKanbanCard({ card }, ref) {
     return (
       <article
         ref={ref}
-        style={style}
         className={cn(
           "group rounded-xl border bg-white p-4 shadow-soft transition-all duration-200 dark:border-white/5 dark:bg-background-dark",
           "hover:-translate-y-0.5 hover:shadow-lg",
           card.stage === "in_service" && card.timeLabel.startsWith("NOW") && "border-l-[5px] border-l-orange-400",
-          card.stage === "completed" && "opacity-90 hover:opacity-100",
-          isDragging && "rotate-[1deg] opacity-70 shadow-xl",
-          isOver && "ring-2 ring-primary/20"
+          card.stage === "completed" && "opacity-90 hover:opacity-100"
         )}
       >
-        <div className="mb-3 flex items-start justify-between gap-2">
+        <div className="mb-3">
           <Chip variant={card.timeChipVariant} size="xs">
             {card.timeLabel}
           </Chip>
-          {handle}
         </div>
 
         <div className="flex items-start gap-3">

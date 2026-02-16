@@ -1,7 +1,13 @@
-import { redirect } from "next/navigation";
+import {redirect} from "next/navigation";
 
-import { OwnerVerificationSubmitForm } from "@/features/owner-verification/submit-form";
-import { getOwnerVerificationForCurrentUser } from "@/lib/owner/verification";
+import {OwnerVerificationSubmitForm} from "@/features/owner-verification/submit-form";
+import {createPageMetadata} from "@/lib/metadata";
+import {getOwnerVerificationForCurrentUser} from "@/lib/owner/verification";
+
+export const metadata = createPageMetadata({
+  title: "사업자 정보 인증",
+  description: "필수 항목을 입력하고 사업자등록증을 업로드해 주세요."
+});
 
 export const dynamic = "force-dynamic";
 

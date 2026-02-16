@@ -1,11 +1,13 @@
+"use client";
+
 /* eslint-disable @next/next/no-img-element */
-import { NotificationBellButton } from "@/components/common/notification-bell-button";
-import { OwnerSidebar } from "@/components/shell/owner-sidebar";
-import type {
-  DashboardDesignItem,
-  DashboardScheduleItem
-} from "@/features/dashboard/model/dashboard";
-import { cn } from "@/lib/utils";
+import Link from "next/link";
+
+import {useProtectedUserProfile} from "@/components/auth/protected-user-profile-context";
+import {NotificationBellButton} from "@/components/common/notification-bell-button";
+import {OwnerSidebar} from "@/components/shell/owner-sidebar";
+import type {DashboardDesignItem, DashboardScheduleItem} from "@/features/dashboard/model/dashboard";
+import {cn} from "@/lib/utils";
 
 export interface DashboardViewProps {
   designItems: DashboardDesignItem[];
@@ -13,6 +15,11 @@ export interface DashboardViewProps {
 }
 
 export function DashboardView({ designItems, scheduleItems }: DashboardViewProps) {
+  const { displayName } = useProtectedUserProfile();
+  const greetingName = displayName.endsWith("님")
+    ? displayName
+    : `${displayName}님`;
+
   return (
     <div className="owner-dashboard-root owner-dashboard-fit-root">
       <div className="owner-dashboard-fit">
@@ -24,7 +31,7 @@ export function DashboardView({ designItems, scheduleItems }: DashboardViewProps
               <header className="mb-8 flex flex-col justify-between gap-4 sm:mb-10 sm:flex-row sm:items-center">
                 <div>
                   <h2 className="text-2xl font-light tracking-tight dark:text-white sm:text-3xl">
-                    안녕하세요, <span className="font-bold text-primary">지연님</span>
+                    안녕하세요, <span className="font-bold text-primary">{greetingName}</span>
                   </h2>
                   <p className="mt-1 text-sm text-slate-500">
                     오늘 샵의 현황을 확인해보세요.
@@ -98,15 +105,15 @@ export function DashboardView({ designItems, scheduleItems }: DashboardViewProps
                     <h3 className="text-lg font-bold tracking-tight">예약 파이프라인</h3>
                     <p className="mt-1 text-xs italic text-slate-400">총 84건 진행 중</p>
                   </div>
-                  <a
-                    href="#"
+                  <Link
+                    href="/bookings"
                     className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-400 transition-all hover:text-primary dark:border-slate-700"
                   >
                     더보기
                     <span className="material-icons text-sm" aria-hidden="true">
                       chevron_right
                     </span>
-                  </a>
+                  </Link>
                 </div>
 
                 <div className="relative px-0 sm:px-10">

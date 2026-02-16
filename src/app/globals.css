@@ -57,18 +57,13 @@ body {
     "Segoe UI Emoji";
 }
 
+.kanban-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .kanban-scrollbar::-webkit-scrollbar {
-  height: 6px;
-  width: 6px;
-}
-
-.kanban-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.kanban-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #efe9e4;
-  border-radius: 20px;
+  display: none;
 }
 
 .no-scrollbar {

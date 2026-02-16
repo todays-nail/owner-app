@@ -1,23 +1,20 @@
-import { Suspense } from "react";
+import {Suspense} from "react";
 
-import { AuthCard } from "@/components/auth/auth-card";
-import { PublicAuthCenter } from "@/components/auth/public-auth-center";
+import {AuthSuspenseFallback} from "@/components/auth/auth-suspense-fallback";
+import {createPageMetadata} from "@/lib/metadata";
 
-import { LoginForm } from "./ui";
+import {LoginForm} from "./ui";
+
+export const metadata = createPageMetadata({
+  title: "사장님 로그인",
+  description: "이메일과 비밀번호로 로그인하세요."
+});
 
 export const dynamic = "force-dynamic";
 
 export default function LoginPage() {
   return (
-    <Suspense
-      fallback={
-        <PublicAuthCenter>
-          <AuthCard>
-            <div className="text-sm text-muted-foreground">불러오는 중...</div>
-          </AuthCard>
-        </PublicAuthCenter>
-      }
-    >
+    <Suspense fallback={<AuthSuspenseFallback />}>
       <LoginForm />
     </Suspense>
   );

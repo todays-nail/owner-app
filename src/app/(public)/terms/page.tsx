@@ -1,29 +1,27 @@
-import Link from "next/link";
+import {AuthCard} from "@/components/auth/auth-card";
+import {AuthFooterLink} from "@/components/auth/auth-footer-link";
+import {AuthNoticeBox} from "@/components/auth/auth-notice-box";
+import {AuthPageHeader} from "@/components/auth/auth-page-header";
+import {PublicAuthCenter} from "@/components/auth/public-auth-center";
+import {createPageMetadata} from "@/lib/metadata";
 
-import { AuthCard } from "@/components/auth/auth-card";
-import { PublicAuthCenter } from "@/components/auth/public-auth-center";
-import { OneulNailLogo } from "@/components/brand/oneulnail-logo";
+export const metadata = createPageMetadata({
+  title: "이용약관",
+  description: "약관 상세 문서는 준비 중입니다."
+});
 
 export default function TermsPage() {
   return (
     <PublicAuthCenter>
       <AuthCard>
-        <div className="text-center">
-          <OneulNailLogo className="mx-auto" />
-          <h1 className="mt-7 text-[1.95rem] font-semibold leading-tight text-foreground">이용약관</h1>
-          <p className="mt-2 text-base text-muted-foreground">약관 상세 문서는 준비 중입니다.</p>
-        </div>
+        <AuthPageHeader title="이용약관" description="약관 상세 문서는 준비 중입니다." />
 
-        <div className="mt-8 rounded-xl border border-border/70 bg-muted/70 px-4 py-3 text-sm text-muted-foreground">
+        <AuthNoticeBox className="mt-8 text-muted-foreground">
           추후 정식 약관이 등록되면 이 페이지에서 확인할 수 있습니다.
-        </div>
+        </AuthNoticeBox>
       </AuthCard>
 
-      <p className="mt-7 text-center text-sm text-muted-foreground">
-        <Link className="font-semibold text-primary hover:underline" href="/signup">
-          회원가입으로 돌아가기
-        </Link>
-      </p>
+      <AuthFooterLink prefixText="" linkText="회원가입으로 돌아가기" href="/signup" />
     </PublicAuthCenter>
   );
 }

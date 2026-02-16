@@ -1,14 +1,15 @@
 "use client";
 
 import { Mail } from "lucide-react";
-import Link from "next/link";
 import * as React from "react";
 
 import { AuthCard } from "@/components/auth/auth-card";
+import { AuthFooterLink } from "@/components/auth/auth-footer-link";
 import { IconInput } from "@/components/auth/icon-input";
+import { AuthNoticeBox } from "@/components/auth/auth-notice-box";
+import { AuthPageHeader } from "@/components/auth/auth-page-header";
+import { AuthPrimaryButton } from "@/components/auth/auth-primary-button";
 import { PublicAuthCenter } from "@/components/auth/public-auth-center";
-import { OneulNailLogo } from "@/components/brand/oneulnail-logo";
-import { Button } from "@/components/ui/button";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export default function ForgotPasswordPage() {
@@ -20,15 +21,10 @@ export default function ForgotPasswordPage() {
   return (
     <PublicAuthCenter>
       <AuthCard>
-        <div className="text-center">
-          <OneulNailLogo className="mx-auto" />
-          <h1 className="mt-7 text-[1.95rem] font-semibold leading-tight text-foreground">
-            비밀번호 재설정
-          </h1>
-          <p className="mt-2 text-base text-muted-foreground">
-            가입한 이메일로 비밀번호 재설정 링크를 보내드릴게요.
-          </p>
-        </div>
+        <AuthPageHeader
+          title="비밀번호 재설정"
+          description="가입한 이메일로 비밀번호 재설정 링크를 보내드릴게요."
+        />
 
         <form
           className="mt-8 space-y-4"
@@ -87,32 +83,20 @@ export default function ForgotPasswordPage() {
           />
 
           {error ? (
-            <div className="rounded-xl border border-border/70 bg-muted/70 px-4 py-3 text-sm text-foreground/90">
-              {error}
-            </div>
+            <AuthNoticeBox>{error}</AuthNoticeBox>
           ) : null}
 
           {message ? (
-            <div className="rounded-xl border border-border/70 bg-muted/70 px-4 py-3 text-sm text-foreground/90">
-              {message}
-            </div>
+            <AuthNoticeBox>{message}</AuthNoticeBox>
           ) : null}
 
-          <Button
-            className="h-12 w-full rounded-full bg-gradient-to-r from-[#f26f59] to-[#ea5a47] text-base font-semibold text-white shadow-[0_10px_24px_rgba(233,89,73,0.35)] hover:opacity-100 hover:brightness-105"
-            disabled={pending}
-            type="submit"
-          >
+          <AuthPrimaryButton disabled={pending} type="submit">
             {pending ? "보내는 중..." : "재설정 링크 보내기"}
-          </Button>
+          </AuthPrimaryButton>
         </form>
       </AuthCard>
 
-      <p className="mt-7 text-center text-sm text-muted-foreground">
-        <Link className="font-semibold text-primary hover:underline" href="/login">
-          로그인으로 돌아가기
-        </Link>
-      </p>
+      <AuthFooterLink prefixText="" linkText="로그인으로 돌아가기" href="/login" />
     </PublicAuthCenter>
   );
 }
