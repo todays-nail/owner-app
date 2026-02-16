@@ -57,6 +57,46 @@ body {
     "Segoe UI Emoji";
 }
 
+.kanban-scrollbar::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.kanban-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.kanban-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #efe9e4;
+  border-radius: 20px;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #e2e8f0;
+  border-radius: 20px;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #4a3b3a;
+}
+
 @layer components {
   .owner-dashboard-root {
     @apply min-h-screen bg-background-light text-slate-800 antialiased;
@@ -71,6 +111,10 @@ body {
     @apply flex flex-col lg:flex-row;
   }
 
+  .references-main-content {
+    transform-origin: top left;
+  }
+
   @media (min-width: 1280px) {
     .owner-dashboard-fit-root {
       height: 100vh;
@@ -81,6 +125,13 @@ body {
       --owner-dashboard-scale: clamp(0.5, calc(100vh / 2100), 0.62);
       width: calc(100% / var(--owner-dashboard-scale));
       transform: scale(var(--owner-dashboard-scale));
+      transform-origin: top left;
+    }
+
+    .references-main-content {
+      --references-scale: clamp(0.72, calc(100vh / 1360), 0.88);
+      width: calc(100% / var(--references-scale));
+      transform: scale(var(--references-scale));
       transform-origin: top left;
     }
   }

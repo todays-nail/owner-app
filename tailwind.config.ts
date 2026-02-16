@@ -5,7 +5,8 @@ const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}"
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/features/**/*.{js,ts,jsx,tsx,mdx}"
   ],
   theme: {
     extend: {
@@ -28,8 +29,12 @@ const config: Config = {
           DEFAULT: "#eb5547",
           foreground: "#ffffff"
         },
+        "primary-hover": "#d44f42",
         "background-light": "#f8f6f6",
         "background-dark": "#211211",
+        "surface-dark": "#2d1b1a",
+        "chip-bg": "#fff0ee",
+        "chip-text": "#eb5547",
         "nude-soft": "#faf7f5",
         "nude-medium": "#efe9e4",
         muted: {
