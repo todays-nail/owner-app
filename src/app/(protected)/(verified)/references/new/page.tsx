@@ -1,4 +1,4 @@
-import {ReferenceCreateScreen} from "@/features/references/screens/reference-create-screen";
+import {redirect} from "next/navigation";
 import {createPageMetadata} from "@/lib/metadata";
 
 export const metadata = createPageMetadata({
@@ -9,5 +9,5 @@ export const metadata = createPageMetadata({
 export const dynamic = "force-dynamic";
 
 export default function ReferenceCreatePage() {
-  return <ReferenceCreateScreen />;
+  redirect("/references?modal=create");
 }
