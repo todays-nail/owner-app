@@ -1,24 +1,29 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
+import {useEffect, useMemo, useState} from "react";
+import {useRouter, useSearchParams} from "next/navigation";
 
-import { cn } from "@/lib/utils";
+import {BaseModal} from "@/components/ui/base-modal";
+import {ConfirmDialog} from "@/components/ui/confirm-dialog";
+import {cn} from "@/lib/utils";
 import {
   INITIAL_REFERENCES,
-  REFERENCES_PAGE_SIZE,
   REFERENCE_CATEGORIES,
   type ReferenceCategory,
+  REFERENCES_PAGE_SIZE,
   type ReferenceViewMode
 } from "@/features/references/model/references";
-import {
-  loadReferences,
-  saveReferences,
-  type ReferenceEntity
-} from "@/features/references/model/reference-storage";
-import { ReferenceCard } from "@/features/references/ui/reference-card";
-import { ReferenceListRow } from "@/features/references/ui/reference-list-row";
+import {loadReferences, type ReferenceEntity, saveReferences} from "@/features/references/model/reference-storage";
+import {ReferenceCard} from "@/features/references/ui/reference-card";
+import {ReferenceDetailPanel} from "@/features/references/ui/reference-detail-panel";
+import {ReferenceEditorForm, type ReferenceEditorFormValues} from "@/features/references/ui/reference-editor-form";
+import {ReferenceListRow} from "@/features/references/ui/reference-list-row";
+
+type ReferenceModalMode = "read" | "edit";
+
+function createReferenceId() {
+  return `reference-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
 
 export function ReferencesPageClient() {
   const router = useRouter();
@@ -30,6 +35,10 @@ export function ReferencesPageClient() {
   const [currentPage, setCurrentPage] = useState(1);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [selectedReferenceId, setSelectedReferenceId] = useState<string | null>(null);
+  const [isReferenceModalOpen, setIsReferenceModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [referenceModalMode, setReferenceModalMode] = useState<ReferenceModalMode>("read");
 
   const normalizedQuery = query.trim().toLowerCase();
 
@@ -43,7 +52,8 @@ export function ReferencesPageClient() {
 
     const messageByNotice: Record<string, string> = {
       created: "새 레퍼런스가 등록되었습니다.",
-      updated: "레퍼런스가 수정되었습니다."
+      updated: "레퍼런스가 수정되었습니다.",
+      "create-modal-only": "등록은 디자인 관리 목록 모달에서 가능합니다."
     };
 
     const message = messageByNotice[notice];
@@ -53,6 +63,21 @@ export function ReferencesPageClient() {
 
     const params = new URLSearchParams(searchParams.toString());
     params.delete("notice");
+    router.replace(params.size > 0 ? `/references?${params.toString()}` : "/references", {
+      scroll: false
+    });
+  }, [router, searchParams]);
+
+  useEffect(() => {
+    const modal = searchParams.get("modal");
+    if (modal !== "create") {
+      return;
+    }
+
+    setIsCreateModalOpen(true);
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("modal");
     router.replace(params.size > 0 ? `/references?${params.toString()}` : "/references", {
       scroll: false
     });
@@ -128,9 +153,18 @@ export function ReferencesPageClient() {
     );
   };
 
+  const openReferenceModal = (id: string, mode: ReferenceModalMode) => {
+    setSelectedReferenceId(id);
+    setReferenceModalMode(mode);
+    setIsReferenceModalOpen(true);
+  };
+
+  const handleOpenDetail = (id: string) => {
+    openReferenceModal(id, "read");
+  };
+
   const handleEdit = (id: string) => {
-    const params = new URLSearchParams({ mode: "edit", id }).toString();
-    window.location.assign(`/references/new?${params}`);
+    openReferenceModal(id, "edit");
   };
 
   const handleDelete = (id: string) => {
@@ -141,6 +175,25 @@ export function ReferencesPageClient() {
     () => references.find((item) => item.id === pendingDeleteId) ?? null,
     [pendingDeleteId, references]
   );
+  const selectedReference = useMemo(
+    () => references.find((item) => item.id === selectedReferenceId) ?? null,
+    [selectedReferenceId, references]
+  );
+
+  useEffect(() => {
+    if (!isReferenceModalOpen) {
+      return;
+    }
+
+    if (selectedReference !== null) {
+      return;
+    }
+
+    setIsReferenceModalOpen(false);
+    setSelectedReferenceId(null);
+    setReferenceModalMode("read");
+    setToastMessage("수정할 레퍼런스를 찾을 수 없습니다.");
+  }, [selectedReference, isReferenceModalOpen]);
 
   const handleDeleteConfirm = () => {
     if (!pendingDeleteId) return;
@@ -151,6 +204,60 @@ export function ReferencesPageClient() {
 
   const handleDeleteCancel = () => {
     setPendingDeleteId(null);
+  };
+
+  const closeReferenceModal = () => {
+    setIsReferenceModalOpen(false);
+    setSelectedReferenceId(null);
+    setReferenceModalMode("read");
+  };
+
+  const handleRequestEdit = () => {
+    if (!selectedReference) {
+      return;
+    }
+
+    setReferenceModalMode("edit");
+  };
+
+  const handleEditCancel = () => {
+    closeReferenceModal();
+  };
+
+  const handleEditSubmit = (values: ReferenceEditorFormValues) => {
+    if (!selectedReferenceId) {
+      return;
+    }
+
+    updateReferences((prev) =>
+      prev.map((item) =>
+        item.id === selectedReferenceId
+          ? { ...item, ...values }
+          : item
+      )
+    );
+    closeReferenceModal();
+    setToastMessage("레퍼런스가 수정되었습니다.");
+  };
+
+  const handleOpenCreateModal = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
+  const handleCreateSubmit = (values: ReferenceEditorFormValues) => {
+    const draft: ReferenceEntity = {
+      id: createReferenceId(),
+      ...values
+    };
+
+    updateReferences((prev) => [draft, ...prev]);
+    setIsCreateModalOpen(false);
+    setCurrentPage(1);
+    setToastMessage("새 레퍼런스가 등록되었습니다.");
   };
 
   const hasResults = filteredReferences.length > 0;
@@ -182,20 +289,21 @@ export function ReferencesPageClient() {
     <div className="space-y-8 p-4 sm:p-6 lg:p-8">
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">디자인 라이브러리</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">디자인 관리</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             네일 아트 디자인 포트폴리오를 관리하고 고객에게 보여줄 레퍼런스를 설정하세요.
           </p>
         </div>
-        <Link
-          href="/references/new"
+        <button
+          type="button"
+          onClick={handleOpenCreateModal}
           className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
           <span className="material-icons mr-2 text-sm" aria-hidden="true">
             add
           </span>
           레퍼런스 등록
-        </Link>
+        </button>
       </header>
 
       <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-surface-dark">
@@ -285,14 +393,16 @@ export function ReferencesPageClient() {
                   key={item.id}
                   item={item}
                   visible={item.isVisible}
+                  onOpenDetail={handleOpenDetail}
                   onToggleVisible={handleToggleVisible}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                 />
               ))}
 
-              <Link
-                href="/references/new"
+              <button
+                type="button"
+                onClick={handleOpenCreateModal}
                 className="flex min-h-[300px] h-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-white p-6 transition-all duration-300 hover:border-primary hover:bg-primary/5 dark:border-gray-700 dark:bg-surface-dark"
               >
                 <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gray-50 shadow-sm transition-colors dark:bg-gray-800">
@@ -306,7 +416,7 @@ export function ReferencesPageClient() {
                   <br />
                   포트폴리오에 추가하세요
                 </span>
-              </Link>
+              </button>
             </div>
           ) : (
             <div className="space-y-4">
@@ -315,21 +425,23 @@ export function ReferencesPageClient() {
                   key={item.id}
                   item={item}
                   visible={item.isVisible}
+                  onOpenDetail={handleOpenDetail}
                   onToggleVisible={handleToggleVisible}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                 />
               ))}
 
-              <Link
-                href="/references/new"
+              <button
+                type="button"
+                onClick={handleOpenCreateModal}
                 className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-200 bg-white px-6 py-5 text-sm font-semibold text-gray-500 transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-gray-700 dark:bg-surface-dark dark:text-gray-300"
               >
                 <span className="material-icons text-lg" aria-hidden="true">
                   add
                 </span>
                 새 디자인 등록
-              </Link>
+              </button>
             </div>
           )
         ) : (
@@ -392,6 +504,65 @@ export function ReferencesPageClient() {
         ) : null}
       </section>
 
+      <BaseModal
+        open={isCreateModalOpen}
+        onClose={handleCloseCreateModal}
+        titleId="reference-create-title"
+        descriptionId="reference-create-description"
+      >
+        <ReferenceEditorForm
+          mode="create"
+          titleId="reference-create-title"
+          title="레퍼런스 등록"
+          subtitle="새로운 네일 디자인을 라이브러리에 추가합니다."
+          submitLabel="등록하기"
+          onCancel={handleCloseCreateModal}
+          onSubmit={handleCreateSubmit}
+        />
+        <p id="reference-create-description" className="sr-only">
+          새로운 레퍼런스를 등록하는 모달입니다.
+        </p>
+      </BaseModal>
+
+      <BaseModal
+        open={isReferenceModalOpen && selectedReference !== null}
+        onClose={closeReferenceModal}
+        titleId={referenceModalMode === "read" ? "reference-detail-title" : "reference-edit-title"}
+        descriptionId={referenceModalMode === "read" ? "reference-detail-description" : "reference-edit-description"}
+      >
+        {selectedReference ? (
+          referenceModalMode === "read" ? (
+            <>
+              <ReferenceDetailPanel
+                item={selectedReference}
+                titleId="reference-detail-title"
+                onClose={closeReferenceModal}
+                onRequestEdit={handleRequestEdit}
+              />
+              <p id="reference-detail-description" className="sr-only">
+                레퍼런스 상세 정보를 읽기 전용으로 확인하는 모달입니다.
+              </p>
+            </>
+          ) : (
+            <>
+              <ReferenceEditorForm
+                mode="edit"
+                initialValue={selectedReference}
+                titleId="reference-edit-title"
+                title="레퍼런스 수정"
+                subtitle="기존 네일 디자인 정보를 수정합니다."
+                submitLabel="수정하기"
+                onCancel={handleEditCancel}
+                onSubmit={handleEditSubmit}
+              />
+              <p id="reference-edit-description" className="sr-only">
+                기존 네일 디자인 정보를 수정하는 모달입니다.
+              </p>
+            </>
+          )
+        ) : null}
+      </BaseModal>
+
       {toastMessage ? (
         <div
           role="status"
@@ -405,56 +576,28 @@ export function ReferencesPageClient() {
         </div>
       ) : null}
 
-      {pendingDeleteItem ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="reference-delete-title"
-          aria-describedby="reference-delete-description"
-        >
-          <button
-            type="button"
-            aria-label="삭제 확인 닫기"
-            onClick={handleDeleteCancel}
-            className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"
-          />
-          <div className="relative w-full max-w-md rounded-2xl border border-gray-100 bg-white p-6 shadow-2xl dark:border-gray-700 dark:bg-surface-dark">
-            <h2
-              id="reference-delete-title"
-              className="text-lg font-bold text-gray-900 dark:text-white"
-            >
-              레퍼런스를 삭제할까요?
-            </h2>
-            <p
-              id="reference-delete-description"
-              className="mt-2 text-sm text-gray-500 dark:text-gray-400"
-            >
+      <ConfirmDialog
+        open={pendingDeleteItem !== null}
+        onClose={handleDeleteCancel}
+        title="레퍼런스를 삭제할까요?"
+        description={
+          pendingDeleteItem ? (
+            <>
               <span className="font-semibold text-gray-700 dark:text-gray-200">
                 {pendingDeleteItem.name}
               </span>
               {" "}
               항목이 목록에서 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
-            </p>
-            <div className="mt-6 flex items-center justify-end gap-2">
-              <button
-                type="button"
-                onClick={handleDeleteCancel}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
-              >
-                취소
-              </button>
-              <button
-                type="button"
-                onClick={handleDeleteConfirm}
-                className="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-600"
-              >
-                삭제하기
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+            </>
+          ) : (
+            "항목이 목록에서 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
+          )
+        }
+        confirmLabel="삭제하기"
+        cancelLabel="취소"
+        onConfirm={handleDeleteConfirm}
+        destructive
+      />
     </div>
   );
 }

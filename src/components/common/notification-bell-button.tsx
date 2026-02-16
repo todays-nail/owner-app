@@ -1,13 +1,16 @@
-import type { MouseEventHandler } from "react";
+import type {MouseEventHandler} from "react";
 
-import { cn } from "@/lib/utils";
+import {cn} from "@/lib/utils";
 
 type NotificationBellVariant = "dashboard" | "bookings";
 
 interface NotificationBellButtonProps {
   variant: NotificationBellVariant;
   showUnreadDot?: boolean;
+  unreadCount?: number;
   ariaLabel?: string;
+  ariaExpanded?: boolean;
+  ariaControls?: string;
   onClick?: MouseEventHandler<HTMLButtonElement>;
   className?: string;
 }
@@ -32,18 +35,30 @@ const variantClassMap: Record<
 export function NotificationBellButton({
   variant,
   showUnreadDot = true,
+  unreadCount,
   ariaLabel = "알림 보기",
+  ariaExpanded,
+  ariaControls,
   onClick,
   className
 }: NotificationBellButtonProps) {
   const classes = variantClassMap[variant];
+  const hasUnread = showUnreadDot && (unreadCount !== undefined ? unreadCount > 0 : true);
+  const unreadCountLabel = unreadCount ? (unreadCount > 99 ? "99+" : `${unreadCount}`) : "0";
 
   return (
     <div className={cn("relative", className)}>
-      {showUnreadDot ? <span className={cn("absolute", classes.dot)} /> : null}
+      {hasUnread ? (
+        <span className={cn("absolute", classes.dot)}>
+          <span className="sr-only">미확인 알림 {unreadCountLabel}건</span>
+        </span>
+      ) : null}
       <button
         type="button"
         aria-label={ariaLabel}
+        aria-haspopup="dialog"
+        aria-expanded={ariaExpanded}
+        aria-controls={ariaControls}
         className={cn(
           "inline-flex items-center justify-center leading-none",
           classes.button

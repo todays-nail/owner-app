@@ -1,14 +1,56 @@
 "use client";
 
+import {useRouter} from "next/navigation";
+import {useState} from "react";
+
 import {NotificationBellButton} from "@/components/common/notification-bell-button";
+import {NotificationPopover} from "@/components/common/notification-popover";
 import {OwnerSidebar} from "@/components/shell/owner-sidebar";
 import {Chip} from "@/components/ui/chip";
+import {MOCK_NOTIFICATION_ITEMS} from "@/features/notifications/model/mock-notifications";
+import type {NotificationItem} from "@/features/notifications/model/types";
 import {BookingsBoardClient} from "@/features/bookings/ui/bookings-board-client";
 import {BookingsRevenueCards} from "@/features/bookings/ui/bookings-revenue-cards";
 import {useBookingsPageViewModel} from "@/features/bookings/view-model/use-bookings-page-view-model";
 
 export function BookingsPageScreen() {
+  const router = useRouter();
   const vm = useBookingsPageViewModel();
+  const [notificationItems, setNotificationItems] = useState<NotificationItem[]>(() =>
+    MOCK_NOTIFICATION_ITEMS.map((item) => ({ ...item }))
+  );
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const unreadCount = notificationItems.filter((item) => !item.isRead).length;
+
+  const handleMarkRead = (id: string) => {
+    setNotificationItems((prevItems) =>
+      prevItems.map((item) => (item.id === id ? { ...item, isRead: true } : item))
+    );
+  };
+
+  const handleMarkAllRead = (ids: string[]) => {
+    if (ids.length === 0) {
+      return;
+    }
+
+    const targetIds = new Set(ids);
+
+    setNotificationItems((prevItems) =>
+      prevItems.map((item) =>
+        targetIds.has(item.id)
+          ? { ...item, isRead: true }
+          : item
+      )
+    );
+  };
+
+  const handleNotificationItemClick = (item: NotificationItem) => {
+    if (!item.href) {
+      return;
+    }
+
+    router.push(item.href);
+  };
 
   return (
     <div className="owner-dashboard-root min-h-screen">
@@ -33,7 +75,24 @@ export function BookingsPageScreen() {
               </div>
 
               <div className="flex items-center gap-3">
-                <NotificationBellButton variant="bookings" />
+                <NotificationPopover
+                  items={notificationItems}
+                  isOpen={isNotificationOpen}
+                  onOpenChange={setIsNotificationOpen}
+                  onItemClick={handleNotificationItemClick}
+                  onMarkRead={handleMarkRead}
+                  onMarkAllRead={handleMarkAllRead}
+                  trigger={({ isOpen, controlsId, toggle }) => (
+                    <NotificationBellButton
+                      variant="bookings"
+                      unreadCount={unreadCount}
+                      showUnreadDot={unreadCount > 0}
+                      ariaExpanded={isOpen}
+                      ariaControls={controlsId}
+                      onClick={toggle}
+                    />
+                  )}
+                />
                 <button
                   type="button"
                   className="flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
