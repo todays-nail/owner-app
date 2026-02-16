@@ -2,8 +2,9 @@
 
 import {useEffect, useMemo, useState} from "react";
 import {useRouter, useSearchParams} from "next/navigation";
-import Link from "next/link";
 
+import {BaseModal} from "@/components/ui/base-modal";
+import {ConfirmDialog} from "@/components/ui/confirm-dialog";
 import {cn} from "@/lib/utils";
 import {
   INITIAL_REFERENCES,
@@ -20,6 +21,10 @@ import {ReferenceListRow} from "@/features/references/ui/reference-list-row";
 
 type ReferenceModalMode = "read" | "edit";
 
+function createReferenceId() {
+  return `reference-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
 export function ReferencesPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -32,6 +37,7 @@ export function ReferencesPageClient() {
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [selectedReferenceId, setSelectedReferenceId] = useState<string | null>(null);
   const [isReferenceModalOpen, setIsReferenceModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [referenceModalMode, setReferenceModalMode] = useState<ReferenceModalMode>("read");
 
   const normalizedQuery = query.trim().toLowerCase();
@@ -47,7 +53,7 @@ export function ReferencesPageClient() {
     const messageByNotice: Record<string, string> = {
       created: "새 레퍼런스가 등록되었습니다.",
       updated: "레퍼런스가 수정되었습니다.",
-      "edit-modal-only": "수정은 디자인 관리 목록 모달에서 가능합니다."
+      "create-modal-only": "등록은 디자인 관리 목록 모달에서 가능합니다."
     };
 
     const message = messageByNotice[notice];
@@ -57,6 +63,21 @@ export function ReferencesPageClient() {
 
     const params = new URLSearchParams(searchParams.toString());
     params.delete("notice");
+    router.replace(params.size > 0 ? `/references?${params.toString()}` : "/references", {
+      scroll: false
+    });
+  }, [router, searchParams]);
+
+  useEffect(() => {
+    const modal = searchParams.get("modal");
+    if (modal !== "create") {
+      return;
+    }
+
+    setIsCreateModalOpen(true);
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("modal");
     router.replace(params.size > 0 ? `/references?${params.toString()}` : "/references", {
       scroll: false
     });
@@ -241,6 +262,26 @@ export function ReferencesPageClient() {
     setToastMessage("레퍼런스가 수정되었습니다.");
   };
 
+  const handleOpenCreateModal = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
+  const handleCreateSubmit = (values: ReferenceEditorFormValues) => {
+    const draft: ReferenceEntity = {
+      id: createReferenceId(),
+      ...values
+    };
+
+    updateReferences((prev) => [draft, ...prev]);
+    setIsCreateModalOpen(false);
+    setCurrentPage(1);
+    setToastMessage("새 레퍼런스가 등록되었습니다.");
+  };
+
   const hasResults = filteredReferences.length > 0;
 
   const handleGridView = () => {
@@ -275,15 +316,16 @@ export function ReferencesPageClient() {
             네일 아트 디자인 포트폴리오를 관리하고 고객에게 보여줄 레퍼런스를 설정하세요.
           </p>
         </div>
-        <Link
-          href="/references/new"
+        <button
+          type="button"
+          onClick={handleOpenCreateModal}
           className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
           <span className="material-icons mr-2 text-sm" aria-hidden="true">
             add
           </span>
           레퍼런스 등록
-        </Link>
+        </button>
       </header>
 
       <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-surface-dark">
@@ -380,8 +422,9 @@ export function ReferencesPageClient() {
                 />
               ))}
 
-              <Link
-                href="/references/new"
+              <button
+                type="button"
+                onClick={handleOpenCreateModal}
                 className="flex min-h-[300px] h-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-white p-6 transition-all duration-300 hover:border-primary hover:bg-primary/5 dark:border-gray-700 dark:bg-surface-dark"
               >
                 <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gray-50 shadow-sm transition-colors dark:bg-gray-800">
@@ -395,7 +438,7 @@ export function ReferencesPageClient() {
                   <br />
                   포트폴리오에 추가하세요
                 </span>
-              </Link>
+              </button>
             </div>
           ) : (
             <div className="space-y-4">
@@ -411,15 +454,16 @@ export function ReferencesPageClient() {
                 />
               ))}
 
-              <Link
-                href="/references/new"
+              <button
+                type="button"
+                onClick={handleOpenCreateModal}
                 className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-200 bg-white px-6 py-5 text-sm font-semibold text-gray-500 transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-gray-700 dark:bg-surface-dark dark:text-gray-300"
               >
                 <span className="material-icons text-lg" aria-hidden="true">
                   add
                 </span>
                 새 디자인 등록
-              </Link>
+              </button>
             </div>
           )
         ) : (

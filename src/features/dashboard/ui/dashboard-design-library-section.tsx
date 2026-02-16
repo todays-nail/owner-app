@@ -3,7 +3,12 @@
 
 import {useEffect, useMemo, useState} from "react";
 
+import {BaseModal} from "@/components/ui/base-modal";
 import type {DashboardDesignItem} from "@/features/dashboard/model/dashboard";
+import type {DesignReference} from "@/features/references/model/references";
+import {loadReferences, type ReferenceEntity, saveReferences} from "@/features/references/model/reference-storage";
+import {ReferenceDetailPanel} from "@/features/references/ui/reference-detail-panel";
+import {ReferenceEditorForm, type ReferenceEditorFormValues} from "@/features/references/ui/reference-editor-form";
 
 interface DashboardDesignLibrarySectionProps {
   designItems: DashboardDesignItem[];
@@ -19,16 +24,27 @@ function isValidHttpUrl(value: string): boolean {
   }
 }
 
+function parseDashboardPrice(value: string): number {
+  const numeric = Number(value.replace(/[^\d]/g, ""));
+  return Number.isFinite(numeric) ? numeric : 0;
+}
+
+function createReferenceId() {
+  return `reference-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
 export function DashboardDesignLibrarySection({
   designItems,
   onUpdateDesignItem
 }: DashboardDesignLibrarySectionProps) {
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedDesignId, setSelectedDesignId] = useState<string | null>(null);
   const [editingDesignId, setEditingDesignId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editPrice, setEditPrice] = useState("");
   const [editImage, setEditImage] = useState("");
   const [editError, setEditError] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const selectedDesign = useMemo(
     () => designItems.find((item) => item.id === selectedDesignId) ?? null,
@@ -102,6 +118,26 @@ export function DashboardDesignLibrarySection({
     setEditError(null);
   };
 
+  const handleOpenCreate = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCloseCreate = () => {
+    setIsCreateModalOpen(false);
+  };
+
+  const handleCreateSubmit = (values: ReferenceEditorFormValues) => {
+    const nowItems = loadReferences();
+    const draft: ReferenceEntity = {
+      id: createReferenceId(),
+      ...values
+    };
+
+    saveReferences([...nowItems, draft]);
+    setIsCreateModalOpen(false);
+    setToastMessage("레퍼런스가 등록되었습니다. 레퍼런스 관리에서 확인하세요.");
+  };
+
   const handleEditSave = () => {
     if (!editingDesign) {
       return;
@@ -139,6 +175,7 @@ export function DashboardDesignLibrarySection({
           </div>
           <button
             type="button"
+            onClick={handleOpenCreate}
             className="flex items-center gap-2 rounded-lg border border-primary/20 px-4 py-2 text-xs font-bold text-primary transition-all hover:bg-primary hover:text-white"
           >
             <span className="material-icons text-sm" aria-hidden="true">
