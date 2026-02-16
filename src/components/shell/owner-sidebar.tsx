@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { OneulNailLogo } from "@/components/brand/oneulnail-logo";
 import { DashboardSignOutButton } from "@/features/auth/dashboard-sign-out-button";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +33,8 @@ const navItems: NavItem[] = [
     href: "/references",
     icon: "photo_library"
   },
+  { key: "slots", label: "슬롯", href: "/slots", icon: "schedule" },
+  { key: "options", label: "옵션", href: "/options", icon: "settings" },
   {
     key: "chat",
     label: "견적 및 채팅",
@@ -45,14 +48,8 @@ export function OwnerSidebar({ activeItem }: OwnerSidebarProps) {
   return (
     <aside className="z-20 w-full border-b border-primary/10 bg-white lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:border-b-0 lg:border-r dark:bg-background-dark/50">
       <div className="p-8">
-        <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight text-primary leading-none">
-          <span className="material-icons text-2xl" aria-hidden="true">
-            spa
-          </span>
-          <span className="leading-none">ONEUL</span>
-          <span className="rounded-full border border-primary px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide">
-            nail
-          </span>
+        <h1>
+          <OneulNailLogo size="sidebar" />
         </h1>
       </div>
 
