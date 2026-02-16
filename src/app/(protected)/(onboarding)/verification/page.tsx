@@ -14,7 +14,7 @@ export default async function VerificationGatePage() {
 
     return (
       <div className="rounded-lg border border-border bg-muted p-4 text-sm">
-        Verification gate unavailable: {res.reason}
+        인증 상태를 확인할 수 없습니다: {res.reason}
         {res.errorMessage ? ` (${res.errorMessage})` : null}
       </div>
     );
@@ -30,4 +30,3 @@ export default async function VerificationGatePage() {
 
   redirect("/verification/submit");
 }
-

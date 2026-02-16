@@ -15,7 +15,7 @@ export default async function OwnerVerificationSubmitPage() {
 
     return (
       <div className="rounded-lg border border-border bg-muted p-4 text-sm">
-        Failed to load verification status: {res.reason}
+        인증 상태를 불러오지 못했습니다: {res.reason}
         {res.errorMessage ? ` (${res.errorMessage})` : null}
       </div>
     );
@@ -37,9 +37,12 @@ export default async function OwnerVerificationSubmitPage() {
         shop_name: res.row?.shop_name ?? "",
         owner_name: res.row?.owner_name ?? "",
         contact_phone: res.row?.contact_phone ?? "",
+        shop_address1: res.row?.shop_address1 ?? "",
+        shop_address2: res.row?.shop_address2 ?? "",
+        shop_postcode: res.row?.shop_postcode ?? "",
+        shop_photo_path: res.row?.shop_photo_path ?? null,
         rejected_reason: res.row?.rejected_reason ?? null
       }}
     />
   );
 }
-
