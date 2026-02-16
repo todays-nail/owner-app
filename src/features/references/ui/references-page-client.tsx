@@ -1,41 +1,77 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import {
   INITIAL_REFERENCES,
   REFERENCES_PAGE_SIZE,
   REFERENCE_CATEGORIES,
-  type DesignReference,
   type ReferenceCategory,
   type ReferenceViewMode
 } from "@/features/references/model/references";
+import {
+  loadReferences,
+  saveReferences,
+  type ReferenceEntity
+} from "@/features/references/model/reference-storage";
 import { ReferenceCard } from "@/features/references/ui/reference-card";
 import { ReferenceListRow } from "@/features/references/ui/reference-list-row";
 
-function buildInitialVisibilityMap(items: DesignReference[]) {
-  return items.reduce<Record<string, boolean>>((acc, item) => {
-    acc[item.id] = item.isVisible;
-    return acc;
-  }, {});
-}
-
 export function ReferencesPageClient() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [references, setReferences] = useState<ReferenceEntity[]>(INITIAL_REFERENCES);
   const [query, setQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<Set<ReferenceCategory>>(new Set());
   const [viewMode, setViewMode] = useState<ReferenceViewMode>("grid");
   const [currentPage, setCurrentPage] = useState(1);
-  const [visibilityById, setVisibilityById] = useState<Record<string, boolean>>(
-    buildInitialVisibilityMap(INITIAL_REFERENCES)
-  );
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const normalizedQuery = query.trim().toLowerCase();
 
+  useEffect(() => {
+    setReferences(loadReferences());
+  }, []);
+
+  useEffect(() => {
+    const notice = searchParams.get("notice");
+    if (!notice) return;
+
+    const messageByNotice: Record<string, string> = {
+      created: "새 레퍼런스가 등록되었습니다.",
+      updated: "레퍼런스가 수정되었습니다."
+    };
+
+    const message = messageByNotice[notice];
+    if (!message) return;
+
+    setToastMessage(message);
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("notice");
+    router.replace(params.size > 0 ? `/references?${params.toString()}` : "/references", {
+      scroll: false
+    });
+  }, [router, searchParams]);
+
+  useEffect(() => {
+    if (!toastMessage) return;
+
+    const timer = window.setTimeout(() => {
+      setToastMessage(null);
+    }, 2600);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [toastMessage]);
+
   const filteredReferences = useMemo(() => {
-    return INITIAL_REFERENCES.filter((item) => {
+    return references.filter((item) => {
       const searchTarget = `${item.name} ${item.categories.join(" ")}`.toLowerCase();
       const matchesQuery = normalizedQuery.length === 0 || searchTarget.includes(normalizedQuery);
       const matchesCategory =
@@ -43,7 +79,7 @@ export function ReferencesPageClient() {
 
       return matchesQuery && matchesCategory;
     });
-  }, [normalizedQuery, selectedTags]);
+  }, [normalizedQuery, references, selectedTags]);
 
   const totalPages = Math.max(1, Math.ceil(filteredReferences.length / REFERENCES_PAGE_SIZE));
 
@@ -78,18 +114,45 @@ export function ReferencesPageClient() {
     });
   };
 
-  const handleToggleVisible = (id: string, nextValue: boolean) => {
-    setVisibilityById((prev) => ({
-      ...prev,
-      [id]: nextValue
-    }));
+  const updateReferences = (updater: (items: ReferenceEntity[]) => ReferenceEntity[]) => {
+    setReferences((prev) => {
+      const next = updater(prev);
+      saveReferences(next);
+      return next;
+    });
   };
 
-  const handleRegister = () => {
-    router.push("/references/new");
+  const handleToggleVisible = (id: string, nextValue: boolean) => {
+    updateReferences((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, isVisible: nextValue } : item))
+    );
   };
-  const handleEdit = (id: string) => void id;
-  const handleDelete = (id: string) => void id;
+
+  const handleEdit = (id: string) => {
+    const params = new URLSearchParams({ mode: "edit", id }).toString();
+    window.location.assign(`/references/new?${params}`);
+  };
+
+  const handleDelete = (id: string) => {
+    setPendingDeleteId(id);
+  };
+
+  const pendingDeleteItem = useMemo(
+    () => references.find((item) => item.id === pendingDeleteId) ?? null,
+    [pendingDeleteId, references]
+  );
+
+  const handleDeleteConfirm = () => {
+    if (!pendingDeleteId) return;
+    updateReferences((prev) => prev.filter((item) => item.id !== pendingDeleteId));
+    setPendingDeleteId(null);
+    setToastMessage("레퍼런스가 삭제되었습니다.");
+  };
+
+  const handleDeleteCancel = () => {
+    setPendingDeleteId(null);
+  };
+
   const hasResults = filteredReferences.length > 0;
 
   const handleGridView = () => {
@@ -124,16 +187,15 @@ export function ReferencesPageClient() {
             네일 아트 디자인 포트폴리오를 관리하고 고객에게 보여줄 레퍼런스를 설정하세요.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={handleRegister}
+        <Link
+          href="/references/new"
           className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
           <span className="material-icons mr-2 text-sm" aria-hidden="true">
             add
           </span>
           레퍼런스 등록
-        </button>
+        </Link>
       </header>
 
       <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-surface-dark">
@@ -222,16 +284,15 @@ export function ReferencesPageClient() {
                 <ReferenceCard
                   key={item.id}
                   item={item}
-                  visible={visibilityById[item.id] ?? item.isVisible}
+                  visible={item.isVisible}
                   onToggleVisible={handleToggleVisible}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                 />
               ))}
 
-              <button
-                type="button"
-                onClick={handleRegister}
+              <Link
+                href="/references/new"
                 className="flex min-h-[300px] h-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-white p-6 transition-all duration-300 hover:border-primary hover:bg-primary/5 dark:border-gray-700 dark:bg-surface-dark"
               >
                 <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gray-50 shadow-sm transition-colors dark:bg-gray-800">
@@ -245,7 +306,7 @@ export function ReferencesPageClient() {
                   <br />
                   포트폴리오에 추가하세요
                 </span>
-              </button>
+              </Link>
             </div>
           ) : (
             <div className="space-y-4">
@@ -253,23 +314,22 @@ export function ReferencesPageClient() {
                 <ReferenceListRow
                   key={item.id}
                   item={item}
-                  visible={visibilityById[item.id] ?? item.isVisible}
+                  visible={item.isVisible}
                   onToggleVisible={handleToggleVisible}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                 />
               ))}
 
-              <button
-                type="button"
-                onClick={handleRegister}
+              <Link
+                href="/references/new"
                 className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-200 bg-white px-6 py-5 text-sm font-semibold text-gray-500 transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-gray-700 dark:bg-surface-dark dark:text-gray-300"
               >
                 <span className="material-icons text-lg" aria-hidden="true">
                   add
                 </span>
                 새 디자인 등록
-              </button>
+              </Link>
             </div>
           )
         ) : (
@@ -331,6 +391,70 @@ export function ReferencesPageClient() {
           </div>
         ) : null}
       </section>
+
+      {toastMessage ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed right-4 top-4 z-50 inline-flex items-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-medium text-white shadow-xl dark:bg-gray-100 dark:text-gray-900 sm:right-6 sm:top-6"
+        >
+          <span className="material-icons text-base" aria-hidden="true">
+            check_circle
+          </span>
+          <span>{toastMessage}</span>
+        </div>
+      ) : null}
+
+      {pendingDeleteItem ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="reference-delete-title"
+          aria-describedby="reference-delete-description"
+        >
+          <button
+            type="button"
+            aria-label="삭제 확인 닫기"
+            onClick={handleDeleteCancel}
+            className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"
+          />
+          <div className="relative w-full max-w-md rounded-2xl border border-gray-100 bg-white p-6 shadow-2xl dark:border-gray-700 dark:bg-surface-dark">
+            <h2
+              id="reference-delete-title"
+              className="text-lg font-bold text-gray-900 dark:text-white"
+            >
+              레퍼런스를 삭제할까요?
+            </h2>
+            <p
+              id="reference-delete-description"
+              className="mt-2 text-sm text-gray-500 dark:text-gray-400"
+            >
+              <span className="font-semibold text-gray-700 dark:text-gray-200">
+                {pendingDeleteItem.name}
+              </span>
+              {" "}
+              항목이 목록에서 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
+            </p>
+            <div className="mt-6 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleDeleteCancel}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteConfirm}
+                className="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-600"
+              >
+                삭제하기
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
