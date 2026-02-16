@@ -136,7 +136,7 @@ export function DashboardView({ designItems, scheduleItems }: DashboardViewProps
                     <span className="material-icons text-sm" aria-hidden="true">
                       add
                     </span>
-                    + 새 예약 등록
+                    새 예약 등록
                   </button>
                 </div>
               </header>

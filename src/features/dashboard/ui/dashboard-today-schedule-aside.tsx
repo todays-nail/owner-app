@@ -80,7 +80,7 @@ export const DashboardTodayScheduleAside = forwardRef<HTMLElement, DashboardToda
             type="button"
             className="w-full rounded-lg border border-dashed border-primary/30 py-3 text-xs font-bold text-slate-500 transition-colors hover:border-primary hover:text-primary"
           >
-            + 일정 추가
+            새 예약 등록
           </button>
         </div>
       </aside>
