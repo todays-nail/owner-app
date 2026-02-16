@@ -6,9 +6,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 
 import { AuthCard } from "@/components/auth/auth-card";
+import { AuthFooterLink } from "@/components/auth/auth-footer-link";
 import { IconInput } from "@/components/auth/icon-input";
+import { AuthNoticeBox } from "@/components/auth/auth-notice-box";
+import { AuthPageHeader } from "@/components/auth/auth-page-header";
+import { AuthPrimaryButton } from "@/components/auth/auth-primary-button";
 import { PublicAuthCenter } from "@/components/auth/public-auth-center";
-import { OneulNailLogo } from "@/components/brand/oneulnail-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getSignupEmailRedirectTo } from "@/lib/auth/redirects";
@@ -46,13 +49,7 @@ export function LoginForm() {
   return (
     <PublicAuthCenter>
       <AuthCard>
-        <div className="text-center">
-          <OneulNailLogo className="mx-auto" />
-          <h1 className="mt-7 text-[1.95rem] font-semibold leading-tight text-foreground">
-            사장님 로그인
-          </h1>
-          <p className="mt-2 text-base text-muted-foreground">이메일과 비밀번호로 로그인하세요.</p>
-        </div>
+        <AuthPageHeader title="사장님 로그인" description="이메일과 비밀번호로 로그인하세요." />
 
         <form
           className="mt-8 space-y-4"
@@ -138,9 +135,7 @@ export function LoginForm() {
           </div>
 
           {error ? (
-            <div className="rounded-xl border border-border/70 bg-muted/70 px-4 py-3 text-sm text-foreground/90">
-              {error}
-            </div>
+            <AuthNoticeBox>{error}</AuthNoticeBox>
           ) : null}
 
           {needsEmailConfirm ? (
@@ -188,29 +183,23 @@ export function LoginForm() {
               </Button>
 
               {resendMessage ? (
-                <div className="rounded-xl border border-border/70 bg-muted/70 px-4 py-3 text-sm text-foreground/90">
-                  {resendMessage}
-                </div>
+                <AuthNoticeBox>{resendMessage}</AuthNoticeBox>
               ) : null}
             </div>
           ) : null}
 
-          <Button
-            className="h-12 w-full rounded-full bg-gradient-to-r from-[#f26f59] to-[#ea5a47] text-base font-semibold text-white shadow-[0_10px_24px_rgba(233,89,73,0.35)] hover:opacity-100 hover:brightness-105"
-            disabled={pending}
-            type="submit"
-          >
+          <AuthPrimaryButton disabled={pending} type="submit">
             {pending ? "로그인 중..." : "로그인"}
-          </Button>
+          </AuthPrimaryButton>
         </form>
       </AuthCard>
 
-      <p className="mt-7 text-center text-base text-muted-foreground">
-        계정이 없으신가요?{" "}
-        <Link className="font-semibold text-primary hover:underline" href="/signup">
-          회원가입
-        </Link>
-      </p>
+      <AuthFooterLink
+        prefixText="계정이 없으신가요?"
+        linkText="회원가입"
+        href="/signup"
+        className="text-base"
+      />
     </PublicAuthCenter>
   );
 }

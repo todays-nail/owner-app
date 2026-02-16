@@ -1,14 +1,15 @@
 "use client";
 
 import { MailCheck } from "lucide-react";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import * as React from "react";
 
 import { AuthCard } from "@/components/auth/auth-card";
+import { AuthFooterLink } from "@/components/auth/auth-footer-link";
+import { AuthNoticeBox } from "@/components/auth/auth-notice-box";
+import { AuthPageHeader } from "@/components/auth/auth-page-header";
+import { AuthPrimaryButton } from "@/components/auth/auth-primary-button";
 import { PublicAuthCenter } from "@/components/auth/public-auth-center";
-import { OneulNailLogo } from "@/components/brand/oneulnail-logo";
-import { Button } from "@/components/ui/button";
 import { getSignupEmailRedirectTo } from "@/lib/auth/redirects";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
@@ -23,37 +24,25 @@ export function SignupCheckEmail() {
   return (
     <PublicAuthCenter>
       <AuthCard>
-        <div className="text-center">
-          <OneulNailLogo className="mx-auto" />
-          <h1 className="mt-7 text-[1.95rem] font-semibold leading-tight text-foreground">
-            이메일을 확인해 주세요
-          </h1>
-          <p className="mt-2 text-base text-muted-foreground">
-            인증 메일을 보냈습니다. 메일 인증 후 사업자 인증을 진행할 수 있어요.
-          </p>
-        </div>
+        <AuthPageHeader
+          title="이메일을 확인해 주세요"
+          description="인증 메일을 보냈습니다. 메일 인증 후 사업자 인증을 진행할 수 있어요."
+        />
 
         {email ? (
-          <div className="mt-6 rounded-xl border border-border/70 bg-muted/70 px-4 py-3 text-sm text-foreground/90">
-            {email}
-          </div>
+          <AuthNoticeBox className="mt-6">{email}</AuthNoticeBox>
         ) : null}
 
         {error ? (
-          <div className="mt-3 rounded-xl border border-border/70 bg-muted/70 px-4 py-3 text-sm text-foreground/90">
-            {error}
-          </div>
+          <AuthNoticeBox className="mt-3">{error}</AuthNoticeBox>
         ) : null}
 
         {message ? (
-          <div className="mt-3 rounded-xl border border-border/70 bg-muted/70 px-4 py-3 text-sm text-foreground/90">
-            {message}
-          </div>
+          <AuthNoticeBox className="mt-3">{message}</AuthNoticeBox>
         ) : null}
 
         <div className="mt-6 space-y-3">
-          <Button
-            className="h-12 w-full rounded-full bg-gradient-to-r from-[#f26f59] to-[#ea5a47] text-base font-semibold text-white shadow-[0_10px_24px_rgba(233,89,73,0.35)] hover:opacity-100 hover:brightness-105"
+          <AuthPrimaryButton
             disabled={pending || !email}
             onClick={async () => {
               setError(null);
@@ -90,13 +79,14 @@ export function SignupCheckEmail() {
           >
             <MailCheck className="mr-2 h-4 w-4" />
             {pending ? "보내는 중..." : "인증 메일 재발송"}
-          </Button>
+          </AuthPrimaryButton>
 
-          <p className="text-center text-sm text-muted-foreground">
-            <Link className="font-semibold text-primary hover:underline" href="/login">
-              로그인으로 이동
-            </Link>
-          </p>
+          <AuthFooterLink
+            prefixText=""
+            linkText="로그인으로 이동"
+            href="/login"
+            className="mt-0"
+          />
         </div>
       </AuthCard>
     </PublicAuthCenter>

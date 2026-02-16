@@ -1,11 +1,27 @@
 /* eslint-disable @next/next/no-page-custom-font */
-import type { Metadata } from "next";
-import { Manrope, Noto_Sans_KR } from "next/font/google";
+import type {Metadata} from "next";
+import {Manrope, Noto_Sans_KR} from "next/font/google";
+
+import {createPageMetadata, OWNER_APP_SITE_NAME, resolveMetadataBase} from "@/lib/metadata";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Owner App",
-  description: "Owner web for hackathon nail project"
+  ...createPageMetadata({
+    title: {
+      default: OWNER_APP_SITE_NAME,
+      template: `%s | ${OWNER_APP_SITE_NAME}`
+    }
+  }),
+  metadataBase: resolveMetadataBase(),
+  icons: {
+    icon: [
+      { url: "/images/logo@1x.png", type: "image/png", sizes: "96x140" },
+      { url: "/images/logo@2x.png", type: "image/png", sizes: "192x280" }
+    ],
+    apple: [{ url: "/images/logo@3x.png", type: "image/png", sizes: "288x420" }],
+    shortcut: ["/images/logo@1x.png"]
+  }
 };
 
 const manrope = Manrope({

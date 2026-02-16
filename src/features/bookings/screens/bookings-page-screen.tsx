@@ -1,11 +1,11 @@
 "use client";
 
-import { NotificationBellButton } from "@/components/common/notification-bell-button";
-import { OwnerSidebar } from "@/components/shell/owner-sidebar";
-import { Chip } from "@/components/ui/chip";
-import { BookingsBoardClient } from "@/features/bookings/ui/bookings-board-client";
-import { BookingsRevenueCards } from "@/features/bookings/ui/bookings-revenue-cards";
-import { useBookingsPageViewModel } from "@/features/bookings/view-model/use-bookings-page-view-model";
+import {NotificationBellButton} from "@/components/common/notification-bell-button";
+import {OwnerSidebar} from "@/components/shell/owner-sidebar";
+import {Chip} from "@/components/ui/chip";
+import {BookingsBoardClient} from "@/features/bookings/ui/bookings-board-client";
+import {BookingsRevenueCards} from "@/features/bookings/ui/bookings-revenue-cards";
+import {useBookingsPageViewModel} from "@/features/bookings/view-model/use-bookings-page-view-model";
 
 export function BookingsPageScreen() {
   const vm = useBookingsPageViewModel();
@@ -54,10 +54,6 @@ export function BookingsPageScreen() {
               mounted={vm.mounted}
               columns={vm.columns}
               board={vm.board}
-              activeCardStage={vm.activeCardStage}
-              sensors={vm.sensors}
-              onDragStart={vm.onDragStart}
-              onDragEnd={vm.onDragEnd}
             />
           </div>
         </main>

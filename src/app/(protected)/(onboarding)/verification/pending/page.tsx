@@ -1,9 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
-import { redirect } from "next/navigation";
-import { Check, FileSearch, Hourglass, Mail, Sparkles } from "lucide-react";
+import {redirect} from "next/navigation";
+import {Check, FileSearch, Hourglass, Mail, Sparkles} from "lucide-react";
 
-import { getOwnerVerificationForCurrentUser } from "@/lib/owner/verification";
+import {createPageMetadata} from "@/lib/metadata";
+import {getOwnerVerificationForCurrentUser} from "@/lib/owner/verification";
+
+export const metadata = createPageMetadata({
+  title: "사업자 인증 검토 중",
+  description: "제출하신 서류를 확인하고 있습니다."
+});
 
 export const dynamic = "force-dynamic";
 
