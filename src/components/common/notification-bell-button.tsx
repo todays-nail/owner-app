@@ -44,10 +44,13 @@ export function NotificationBellButton({
       <button
         type="button"
         aria-label={ariaLabel}
-        className={classes.button}
+        className={cn(
+          "inline-flex items-center justify-center leading-none",
+          classes.button
+        )}
         onClick={onClick}
       >
-        <span className={classes.icon} aria-hidden="true">
+        <span className={cn("block leading-none", classes.icon)} aria-hidden="true">
           notifications
         </span>
       </button>
