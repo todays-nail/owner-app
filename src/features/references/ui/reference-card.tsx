@@ -30,7 +30,7 @@ export function ReferenceCard({
           : "opacity-75 hover:opacity-100 hover:shadow-xl"
       )}
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+      <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
         <img
           src={item.imageUrl}
           alt={item.name}
@@ -51,7 +51,7 @@ export function ReferenceCard({
         ) : null}
       </div>
 
-      <div className="p-5">
+      <div className="p-4">
         <h3
           className={cn(
             "mb-2 truncate text-base font-bold dark:text-white",
@@ -61,7 +61,7 @@ export function ReferenceCard({
           {item.name}
         </h3>
 
-        <div className="mb-4 flex flex-wrap gap-1.5">
+        <div className="mb-3 flex flex-wrap gap-1.5">
           {item.categories.map((category) => (
             <span
               key={category}
@@ -77,7 +77,7 @@ export function ReferenceCard({
           ))}
         </div>
 
-        <div className="mb-4 flex items-baseline justify-between">
+        <div className="mb-3 flex items-baseline justify-between">
           <span className="text-xs text-gray-400">기본가</span>
           <span
             className={cn(
@@ -89,7 +89,7 @@ export function ReferenceCard({
           </span>
         </div>
 
-        <div className="flex items-center justify-between border-t border-gray-100 pt-4 dark:border-gray-700">
+        <div className="flex items-center justify-between border-t border-gray-100 pt-3 dark:border-gray-700">
           <button
             type="button"
             role="switch"
@@ -100,14 +100,14 @@ export function ReferenceCard({
           >
             <span
               className={cn(
-                "relative h-5 w-9 rounded-full transition-colors",
+                "relative h-5 w-9 overflow-hidden rounded-full transition-colors",
                 visible ? "bg-primary" : "bg-gray-200 dark:bg-gray-600"
               )}
             >
               <span
                 className={cn(
-                  "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform",
-                  visible ? "translate-x-4" : "translate-x-0.5"
+                  "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-[left]",
+                  visible ? "left-[18px]" : "left-0.5"
                 )}
               />
             </span>

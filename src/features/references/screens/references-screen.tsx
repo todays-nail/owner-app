@@ -1,10 +1,20 @@
 "use client";
 
-import { ReferencesView } from "@/features/references/ui/references-view";
-import { useReferencesViewModel } from "@/features/references/view-model/use-references-view-model";
+import { OwnerSidebar } from "@/components/shell/owner-sidebar";
+import { ReferencesPageClient } from "@/features/references/ui/references-page-client";
 
 export function ReferencesScreen() {
-  const vm = useReferencesViewModel();
+  return (
+    <div className="owner-dashboard-root min-h-screen">
+      <div className="flex min-h-screen flex-col lg:flex-row">
+        <OwnerSidebar activeItem="references" />
 
-  return <ReferencesView title={vm.title} description={vm.description} />;
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[#f7f4f3] dark:bg-background-dark/30">
+          <div className="references-main-content">
+            <ReferencesPageClient />
+          </div>
+        </main>
+      </div>
+    </div>
+  );
 }

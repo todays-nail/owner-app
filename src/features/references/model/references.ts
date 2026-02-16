@@ -16,6 +16,9 @@ export const REFERENCE_CATEGORIES = [
 ] as const;
 
 export type ReferenceCategory = (typeof REFERENCE_CATEGORIES)[number];
+export type ReferenceViewMode = "grid" | "list";
+
+export const REFERENCES_PAGE_SIZE = 8;
 
 export interface DesignReference {
   id: string;
