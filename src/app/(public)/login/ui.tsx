@@ -1,11 +1,17 @@
 "use client";
 
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 
+import { AuthCard } from "@/components/auth/auth-card";
+import { IconInput } from "@/components/auth/icon-input";
+import { PublicAuthCenter } from "@/components/auth/public-auth-center";
+import { OneulNailLogo } from "@/components/brand/oneulnail-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getSignupEmailRedirectTo } from "@/lib/auth/redirects";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export function LoginForm() {
@@ -15,6 +21,7 @@ export function LoginForm() {
 
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [needsEmailConfirm, setNeedsEmailConfirm] = React.useState(false);
   const [pending, setPending] = React.useState(false);
@@ -22,15 +29,18 @@ export function LoginForm() {
   const [resendMessage, setResendMessage] = React.useState<string | null>(null);
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md items-center px-4">
-      <div className="w-full rounded-xl border border-border bg-card p-6 shadow-sm">
-        <h1 className="text-xl font-semibold">Owner Login</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Sign in with Supabase Email/Password.
-        </p>
+    <PublicAuthCenter>
+      <AuthCard>
+        <div className="text-center">
+          <OneulNailLogo className="mx-auto" />
+          <h1 className="mt-7 text-[1.95rem] font-semibold leading-tight text-foreground">
+            사장님 로그인
+          </h1>
+          <p className="mt-2 text-base text-muted-foreground">이메일과 비밀번호로 로그인하세요.</p>
+        </div>
 
         <form
-          className="mt-6 space-y-3"
+          className="mt-8 space-y-4"
           onSubmit={async (e) => {
             e.preventDefault();
             setError(null);
@@ -46,12 +56,10 @@ export function LoginForm() {
                 return;
               }
 
-              const { error: signInError } = await supabase.auth.signInWithPassword(
-                {
-                  email,
-                  password
-                }
-              );
+              const { error: signInError } = await supabase.auth.signInWithPassword({
+                email,
+                password
+              });
 
               if (signInError) {
                 setError(signInError.message);
@@ -69,31 +77,51 @@ export function LoginForm() {
             }
           }}
         >
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Email</label>
-            <Input
-              autoComplete="email"
-              inputMode="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="owner@example.com"
-              required
-            />
-          </div>
+          <IconInput
+            autoComplete="email"
+            icon={Mail}
+            id="login-email"
+            inputMode="email"
+            label="이메일"
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="example@oneul.com"
+            required
+            value={email}
+          />
 
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Password</label>
-            <Input
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-base font-medium text-foreground/90" htmlFor="login-password">
+                비밀번호
+              </label>
+              <Link className="text-sm text-primary hover:underline" href="/forgot-password">
+                비밀번호 찾기
+              </Link>
+            </div>
+            <div className="relative">
+              <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                autoComplete="current-password"
+                className="h-12 rounded-full border-border/60 bg-muted/60 pl-11 pr-12 text-base placeholder:text-muted-foreground/90 focus-visible:ring-primary/60 focus-visible:ring-offset-0"
+                id="login-password"
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                type={showPassword ? "text" : "password"}
+                value={password}
+              />
+              <button
+                aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+                className="absolute inset-y-0 right-0 flex items-center px-4 text-muted-foreground transition hover:text-foreground"
+                onClick={() => setShowPassword((v) => !v)}
+                type="button"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
           </div>
 
           {error ? (
-            <div className="rounded-md border border-border bg-muted px-3 py-2 text-sm">
+            <div className="rounded-xl border border-border/70 bg-muted/70 px-4 py-3 text-sm text-foreground/90">
               {error}
             </div>
           ) : null}
@@ -101,10 +129,8 @@ export function LoginForm() {
           {needsEmailConfirm ? (
             <div className="space-y-2">
               <Button
-                className="w-full"
+                className="h-11 w-full rounded-full"
                 disabled={resendPending || !email}
-                type="button"
-                variant="outline"
                 onClick={async () => {
                   setError(null);
                   setResendMessage(null);
@@ -118,19 +144,7 @@ export function LoginForm() {
                       return;
                     }
 
-                    let emailRedirectTo: string | undefined;
-                    try {
-                      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-                      if (siteUrl) {
-                        emailRedirectTo = new URL("/login", siteUrl).toString();
-                      } else if (typeof window !== "undefined") {
-                        emailRedirectTo = `${window.location.origin}/login`;
-                      }
-                    } catch {
-                      if (typeof window !== "undefined") {
-                        emailRedirectTo = `${window.location.origin}/login`;
-                      }
-                    }
+                    const emailRedirectTo = getSignupEmailRedirectTo();
 
                     const { error: resendError } = await supabase.auth.resend({
                       type: "signup",
@@ -143,35 +157,41 @@ export function LoginForm() {
                       return;
                     }
 
-                    setResendMessage("Confirmation email resent.");
+                    setResendMessage("인증 메일을 다시 보냈습니다.");
                   } finally {
                     setResendPending(false);
                   }
                 }}
+                type="button"
+                variant="outline"
               >
-                {resendPending ? "Sending..." : "Resend confirmation email"}
+                {resendPending ? "보내는 중..." : "인증 메일 재발송"}
               </Button>
 
               {resendMessage ? (
-                <div className="rounded-md border border-border bg-muted px-3 py-2 text-sm">
+                <div className="rounded-xl border border-border/70 bg-muted/70 px-4 py-3 text-sm text-foreground/90">
                   {resendMessage}
                 </div>
               ) : null}
             </div>
           ) : null}
 
-          <Button className="w-full" disabled={pending} type="submit">
-            {pending ? "Signing in..." : "Sign in"}
+          <Button
+            className="h-12 w-full rounded-full bg-gradient-to-r from-[#f26f59] to-[#ea5a47] text-base font-semibold text-white shadow-[0_10px_24px_rgba(233,89,73,0.35)] hover:opacity-100 hover:brightness-105"
+            disabled={pending}
+            type="submit"
+          >
+            {pending ? "로그인 중..." : "로그인"}
           </Button>
-
-          <p className="text-center text-sm text-muted-foreground">
-            No account?{" "}
-            <Link className="underline hover:text-foreground" href="/signup">
-              Sign up
-            </Link>
-          </p>
         </form>
-      </div>
-    </div>
+      </AuthCard>
+
+      <p className="mt-7 text-center text-base text-muted-foreground">
+        계정이 없으신가요?{" "}
+        <Link className="font-semibold text-primary hover:underline" href="/signup">
+          회원가입
+        </Link>
+      </p>
+    </PublicAuthCenter>
   );
 }

@@ -3,26 +3,56 @@
 @tailwind utilities;
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  /* Warm beige background + coral primary */
+  --background: 34 45% 96%;
+  --foreground: 18 28% 12%;
 
   --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
+  --card-foreground: 18 28% 12%;
 
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
+  --primary: 12 86% 58%;
+  --primary-foreground: 0 0% 98%;
 
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
+  --muted: 30 30% 92%;
+  --muted-foreground: 18 10% 40%;
 
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 222.2 84% 4.9%;
+  --border: 26 18% 84%;
+  --input: 26 18% 84%;
+  --ring: 12 86% 52%;
 
-  --radius: 12px;
+  --radius: 14px;
+}
+
+.dark {
+  --background: 18 22% 8%;
+  --foreground: 0 0% 98%;
+
+  --card: 18 18% 12%;
+  --card-foreground: 0 0% 98%;
+
+  --primary: 12 86% 58%;
+  --primary-foreground: 0 0% 98%;
+
+  --muted: 18 14% 16%;
+  --muted-foreground: 24 8% 70%;
+
+  --border: 18 12% 20%;
+  --input: 18 12% 20%;
+  --ring: 12 86% 52%;
 }
 
 body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));
+  font-family:
+    var(--font-noto-sans-kr),
+    var(--font-manrope),
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Arial,
+    "Apple Color Emoji",
+    "Segoe UI Emoji";
 }
