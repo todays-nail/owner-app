@@ -7,6 +7,7 @@ import {useProtectedUserProfile} from "@/components/auth/protected-user-profile-
 import {NotificationBellButton} from "@/components/common/notification-bell-button";
 import {NotificationPopover} from "@/components/common/notification-popover";
 import {OwnerSidebar} from "@/components/shell/owner-sidebar";
+import {MetricCard} from "@/components/ui/metric-card";
 import {DashboardBookingPipelineSection} from "@/features/dashboard/ui/dashboard-booking-pipeline-section";
 import {
   type DashboardBookingCreateFormValues,
@@ -182,51 +183,39 @@ export function DashboardView({ designItems, scheduleItems, onUpdateDesignItem }
           <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
             <div ref={mainColumnRef} className="min-w-0 flex-1">
               <section className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div className="rounded-xl border border-primary/5 bg-white p-6 shadow-sm dark:bg-background-dark">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                        오늘 매출
-                      </p>
-                      <h3 className="mt-2 text-3xl font-extrabold tracking-tight">
-                        ₩1,240,000
-                      </h3>
-                      <p className="mt-2 flex items-center gap-1 text-xs font-bold text-emerald-500">
-                        <span className="material-icons text-xs" aria-hidden="true">
-                          trending_up
-                        </span>
-                        어제 대비 +12.4%
-                      </p>
-                    </div>
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                      <span className="material-icons text-[22px]" aria-hidden="true">
-                        payments
+                <MetricCard
+                  label="오늘 매출"
+                  value="₩1,240,000"
+                  icon="payments"
+                  helper={(
+                    <p className="mt-2 flex items-center gap-1 text-xs font-bold text-emerald-500">
+                      <span className="material-icons text-xs" aria-hidden="true">
+                        trending_up
                       </span>
-                    </div>
-                  </div>
-                </div>
+                      어제 대비 +12.4%
+                    </p>
+                  )}
+                  labelClassName="text-xs font-bold uppercase tracking-wider text-slate-500"
+                  valueClassName="mt-2 text-3xl font-extrabold tracking-tight"
+                  iconWrapperClassName="bg-emerald-100 text-emerald-600"
+                />
 
-                <div className="rounded-xl border border-primary/5 bg-white p-6 shadow-sm dark:bg-background-dark">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                        신규 예약
-                      </p>
-                      <h3 className="mt-2 text-3xl font-extrabold tracking-tight">28</h3>
-                      <p className="mt-2 flex items-center gap-1 text-xs font-bold text-primary">
-                        <span className="material-icons text-xs" aria-hidden="true">
-                          priority_high
-                        </span>
-                        5건의 긴급 요청
-                      </p>
-                    </div>
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <span className="material-icons text-[22px]" aria-hidden="true">
-                        calendar_month
+                <MetricCard
+                  label="신규 예약"
+                  value="28"
+                  icon="calendar_month"
+                  helper={(
+                    <p className="mt-2 flex items-center gap-1 text-xs font-bold text-primary">
+                      <span className="material-icons text-xs" aria-hidden="true">
+                        priority_high
                       </span>
-                    </div>
-                  </div>
-                </div>
+                      5건의 긴급 요청
+                    </p>
+                  )}
+                  labelClassName="text-xs font-bold uppercase tracking-wider text-slate-500"
+                  valueClassName="mt-2 text-3xl font-extrabold tracking-tight"
+                  iconWrapperClassName="bg-primary/10 text-primary"
+                />
               </section>
 
               <DashboardBookingPipelineSection />
