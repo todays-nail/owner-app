@@ -23,7 +23,7 @@ export function ReferenceDetailPanel({
   onRequestEdit
 }: ReferenceDetailPanelProps) {
   return (
-    <section className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-2xl dark:border-gray-700 dark:bg-surface-dark">
+    <section className="relative mx-auto flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-2xl dark:border-gray-700 dark:bg-surface-dark">
       <header className="z-10 flex items-center justify-between border-b border-gray-100 bg-white px-6 py-5 dark:border-gray-800 dark:bg-surface-dark">
         <div>
           <h2 id={titleId} className="text-xl font-bold text-gray-900 dark:text-white">
@@ -77,16 +77,22 @@ export function ReferenceDetailPanel({
 
             <div>
               <p className="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-200">스타일 태그</p>
-              <div className="flex flex-wrap gap-2">
-                {item.categories.map((category) => (
-                  <span
-                    key={category}
-                    className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 dark:border-gray-700 dark:bg-surface-dark dark:text-gray-300"
-                  >
-                    {category}
-                  </span>
-                ))}
-              </div>
+              {item.categories.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {item.categories.map((category) => (
+                    <span
+                      key={category}
+                      className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 dark:border-gray-700 dark:bg-surface-dark dark:text-gray-300"
+                    >
+                      {category}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="rounded-lg border border-gray-200 bg-gray-50/70 px-4 py-2.5 text-sm text-gray-500 dark:border-gray-700 dark:bg-surface-dark dark:text-gray-400">
+                  등록된 태그가 없습니다.
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
