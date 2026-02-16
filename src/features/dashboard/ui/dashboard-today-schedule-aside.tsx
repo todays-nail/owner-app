@@ -6,11 +6,12 @@ import {cn} from "@/lib/utils";
 interface DashboardTodayScheduleAsideProps {
   scheduleItems: DashboardScheduleItem[];
   scheduleSectionMinHeight: number | null;
+  onCreateBookingClick: () => void;
 }
 
 export const DashboardTodayScheduleAside = forwardRef<HTMLElement, DashboardTodayScheduleAsideProps>(
   function DashboardTodayScheduleAside(
-    {scheduleItems, scheduleSectionMinHeight},
+    {scheduleItems, scheduleSectionMinHeight, onCreateBookingClick},
     ref
   ) {
     return (
@@ -78,7 +79,8 @@ export const DashboardTodayScheduleAside = forwardRef<HTMLElement, DashboardToda
         <div className="border-t border-primary/5 p-6">
           <button
             type="button"
-            className="w-full rounded-lg border border-dashed border-primary/30 py-3 text-xs font-bold text-slate-500 transition-colors hover:border-primary hover:text-primary"
+            onClick={onCreateBookingClick}
+            className="w-full rounded-lg bg-primary py-3 text-xs font-bold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/90"
           >
             새 예약 등록
           </button>

@@ -8,6 +8,10 @@ import {NotificationBellButton} from "@/components/common/notification-bell-butt
 import {NotificationPopover} from "@/components/common/notification-popover";
 import {OwnerSidebar} from "@/components/shell/owner-sidebar";
 import {DashboardBookingPipelineSection} from "@/features/dashboard/ui/dashboard-booking-pipeline-section";
+import {
+  type DashboardBookingCreateFormValues,
+  DashboardBookingCreateModal
+} from "@/features/dashboard/ui/dashboard-booking-create-modal";
 import {DashboardDesignLibrarySection} from "@/features/dashboard/ui/dashboard-design-library-section";
 import {DashboardTodayScheduleAside} from "@/features/dashboard/ui/dashboard-today-schedule-aside";
 import type {DashboardDesignItem, DashboardScheduleItem} from "@/features/dashboard/model/dashboard";
@@ -17,9 +21,10 @@ import type {NotificationItem} from "@/features/notifications/model/types";
 export interface DashboardViewProps {
   designItems: DashboardDesignItem[];
   scheduleItems: DashboardScheduleItem[];
+  onUpdateDesignItem: (id: string, patch: Partial<Pick<DashboardDesignItem, "name" | "price" | "image">>) => void;
 }
 
-export function DashboardView({ designItems, scheduleItems }: DashboardViewProps) {
+export function DashboardView({ designItems, scheduleItems, onUpdateDesignItem }: DashboardViewProps) {
   const router = useRouter();
   const { displayName } = useProtectedUserProfile();
   const greetingName = displayName.endsWith("님")
@@ -32,6 +37,8 @@ export function DashboardView({ designItems, scheduleItems }: DashboardViewProps
     MOCK_NOTIFICATION_ITEMS.map((item) => ({ ...item }))
   );
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const unreadCount = notificationItems.filter((item) => !item.isRead).length;
 
   useEffect(() => {
@@ -63,6 +70,20 @@ export function DashboardView({ designItems, scheduleItems }: DashboardViewProps
     };
   }, []);
 
+  useEffect(() => {
+    if (!toastMessage) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setToastMessage(null);
+    }, 2500);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [toastMessage]);
+
   const handleMarkRead = (id: string) => {
     setNotificationItems((prevItems) =>
       prevItems.map((item) => (item.id === id ? { ...item, isRead: true } : item))
@@ -91,6 +112,23 @@ export function DashboardView({ designItems, scheduleItems }: DashboardViewProps
     }
 
     router.push(item.href);
+  };
+
+  const handleOpenBookingModal = () => {
+    setIsBookingModalOpen(true);
+  };
+
+  const handleCloseBookingModal = () => {
+    setIsBookingModalOpen(false);
+  };
+
+  const handleBookingCreateSubmit = (values: DashboardBookingCreateFormValues) => {
+    const customerName =
+      values.customerName.trim().length > 0
+        ? `${values.customerName} 고객`
+        : "새 예약";
+    setToastMessage(`${customerName} 등록 예시가 저장되었습니다.`);
+    setIsBookingModalOpen(false);
   };
 
   return (
@@ -131,6 +169,7 @@ export function DashboardView({ designItems, scheduleItems }: DashboardViewProps
                   />
                   <button
                     type="button"
+                    onClick={handleOpenBookingModal}
                     className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-primary/90"
                   >
                     <span className="material-icons text-sm" aria-hidden="true">
@@ -191,17 +230,40 @@ export function DashboardView({ designItems, scheduleItems }: DashboardViewProps
 
               <DashboardBookingPipelineSection />
 
-              <DashboardDesignLibrarySection designItems={designItems} />
+              <DashboardDesignLibrarySection
+                designItems={designItems}
+                onUpdateDesignItem={onUpdateDesignItem}
+              />
             </div>
 
             <DashboardTodayScheduleAside
               ref={todayScheduleAsideRef}
               scheduleItems={scheduleItems}
               scheduleSectionMinHeight={scheduleSectionMinHeight}
+              onCreateBookingClick={handleOpenBookingModal}
             />
           </div>
         </main>
       </div>
+
+      <DashboardBookingCreateModal
+        open={isBookingModalOpen}
+        onClose={handleCloseBookingModal}
+        onSubmit={handleBookingCreateSubmit}
+      />
+
+      {toastMessage ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed right-4 top-4 z-[70] inline-flex items-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-medium text-white shadow-xl dark:bg-gray-100 dark:text-gray-900 sm:right-6 sm:top-6"
+        >
+          <span className="material-icons text-base" aria-hidden="true">
+            check_circle
+          </span>
+          <span>{toastMessage}</span>
+        </div>
+      ) : null}
 
       <div className="pointer-events-none fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         <button
