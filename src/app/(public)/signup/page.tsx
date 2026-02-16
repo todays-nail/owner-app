@@ -14,10 +14,12 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 
 import { AuthCard } from "@/components/auth/auth-card";
+import { AuthFooterLink } from "@/components/auth/auth-footer-link";
 import { IconInput } from "@/components/auth/icon-input";
+import { AuthNoticeBox } from "@/components/auth/auth-notice-box";
+import { AuthPageHeader } from "@/components/auth/auth-page-header";
+import { AuthPrimaryButton } from "@/components/auth/auth-primary-button";
 import { PublicAuthCenter } from "@/components/auth/public-auth-center";
-import { OneulNailLogo } from "@/components/brand/oneulnail-logo";
-import { Button } from "@/components/ui/button";
 import { getSignupEmailRedirectTo } from "@/lib/auth/redirects";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
@@ -36,15 +38,11 @@ export default function SignupPage() {
   return (
     <PublicAuthCenter>
       <AuthCard>
-        <div className="text-center">
-          <OneulNailLogo className="mx-auto" />
-          <h1 className="mt-7 text-[2.05rem] font-semibold leading-tight text-foreground">
-            사장님 계정 만들기
-          </h1>
-          <p className="mt-2 text-base text-muted-foreground">
-            전문적인 네일샵 관리를 위한 첫 걸음
-          </p>
-        </div>
+        <AuthPageHeader
+          title="사장님 계정 만들기"
+          description="전문적인 네일샵 관리를 위한 첫 걸음"
+          titleClassName="text-[2.05rem]"
+        />
 
         <form
           className="mt-8 space-y-4"
@@ -190,20 +188,18 @@ export default function SignupPage() {
             </label>
 
             {error ? (
-              <div className="rounded-xl border border-border/70 bg-muted/70 px-4 py-3 text-sm text-foreground/90">
-                {error}
-              </div>
+              <AuthNoticeBox>{error}</AuthNoticeBox>
             ) : null}
           </div>
 
-          <Button
-            className="group relative h-12 w-full rounded-full bg-gradient-to-r from-[#f26f59] to-[#ea5a47] text-[1.1rem] font-semibold text-white shadow-[0_10px_24px_rgba(233,89,73,0.38)] hover:opacity-100 hover:brightness-105"
+          <AuthPrimaryButton
+            className="group relative text-[1.1rem] shadow-[0_10px_24px_rgba(233,89,73,0.38)]"
             disabled={pending}
             type="submit"
           >
             {pending ? "가입 중..." : "가입하고 사업자 인증하기"}
             <ArrowRight className="absolute right-6 h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
-          </Button>
+          </AuthPrimaryButton>
 
           <section className="pt-2">
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -221,12 +217,12 @@ export default function SignupPage() {
         </form>
       </AuthCard>
 
-      <p className="mt-7 text-center text-lg text-muted-foreground">
-        이미 계정이 있으신가요?{" "}
-        <Link className="font-semibold text-primary hover:underline" href="/login">
-          로그인하기
-        </Link>
-      </p>
+      <AuthFooterLink
+        prefixText="이미 계정이 있으신가요?"
+        linkText="로그인하기"
+        href="/login"
+        className="text-lg"
+      />
     </PublicAuthCenter>
   );
 }
