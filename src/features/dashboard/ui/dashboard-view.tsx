@@ -1,14 +1,18 @@
 "use client";
 
+import {useRouter} from "next/navigation";
 import {useEffect, useRef, useState} from "react";
 
 import {useProtectedUserProfile} from "@/components/auth/protected-user-profile-context";
 import {NotificationBellButton} from "@/components/common/notification-bell-button";
+import {NotificationPopover} from "@/components/common/notification-popover";
 import {OwnerSidebar} from "@/components/shell/owner-sidebar";
 import {DashboardBookingPipelineSection} from "@/features/dashboard/ui/dashboard-booking-pipeline-section";
 import {DashboardDesignLibrarySection} from "@/features/dashboard/ui/dashboard-design-library-section";
 import {DashboardTodayScheduleAside} from "@/features/dashboard/ui/dashboard-today-schedule-aside";
 import type {DashboardDesignItem, DashboardScheduleItem} from "@/features/dashboard/model/dashboard";
+import {MOCK_NOTIFICATION_ITEMS} from "@/features/notifications/model/mock-notifications";
+import type {NotificationItem} from "@/features/notifications/model/types";
 
 export interface DashboardViewProps {
   designItems: DashboardDesignItem[];
@@ -16,6 +20,7 @@ export interface DashboardViewProps {
 }
 
 export function DashboardView({ designItems, scheduleItems }: DashboardViewProps) {
+  const router = useRouter();
   const { displayName } = useProtectedUserProfile();
   const greetingName = displayName.endsWith("님")
     ? displayName
@@ -23,6 +28,11 @@ export function DashboardView({ designItems, scheduleItems }: DashboardViewProps
   const mainColumnRef = useRef<HTMLDivElement | null>(null);
   const todayScheduleAsideRef = useRef<HTMLElement | null>(null);
   const [scheduleSectionMinHeight, setScheduleSectionMinHeight] = useState<number | null>(null);
+  const [notificationItems, setNotificationItems] = useState<NotificationItem[]>(() =>
+    MOCK_NOTIFICATION_ITEMS.map((item) => ({ ...item }))
+  );
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const unreadCount = notificationItems.filter((item) => !item.isRead).length;
 
   useEffect(() => {
     const mainColumnElement = mainColumnRef.current;
@@ -53,6 +63,36 @@ export function DashboardView({ designItems, scheduleItems }: DashboardViewProps
     };
   }, []);
 
+  const handleMarkRead = (id: string) => {
+    setNotificationItems((prevItems) =>
+      prevItems.map((item) => (item.id === id ? { ...item, isRead: true } : item))
+    );
+  };
+
+  const handleMarkAllRead = (ids: string[]) => {
+    if (ids.length === 0) {
+      return;
+    }
+
+    const targetIds = new Set(ids);
+
+    setNotificationItems((prevItems) =>
+      prevItems.map((item) =>
+        targetIds.has(item.id)
+          ? { ...item, isRead: true }
+          : item
+      )
+    );
+  };
+
+  const handleNotificationItemClick = (item: NotificationItem) => {
+    if (!item.href) {
+      return;
+    }
+
+    router.push(item.href);
+  };
+
   return (
     <div className="owner-dashboard-root owner-dashboard-fit-root">
       <div className="owner-dashboard-fit">
@@ -71,7 +111,24 @@ export function DashboardView({ designItems, scheduleItems }: DashboardViewProps
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
-                  <NotificationBellButton variant="dashboard" />
+                  <NotificationPopover
+                    items={notificationItems}
+                    isOpen={isNotificationOpen}
+                    onOpenChange={setIsNotificationOpen}
+                    onItemClick={handleNotificationItemClick}
+                    onMarkRead={handleMarkRead}
+                    onMarkAllRead={handleMarkAllRead}
+                    trigger={({ isOpen, controlsId, toggle }) => (
+                      <NotificationBellButton
+                        variant="dashboard"
+                        unreadCount={unreadCount}
+                        showUnreadDot={unreadCount > 0}
+                        ariaExpanded={isOpen}
+                        ariaControls={controlsId}
+                        onClick={toggle}
+                      />
+                    )}
+                  />
                   <button
                     type="button"
                     className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-primary/90"
