@@ -12,7 +12,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "seed:dev-users": "node --env-file=.env.local scripts/seed-dev-users.mjs --yes",
+    "db:push": "node --env-file=.env.local scripts/supabase-db-push.mjs",
+    "db:push-and-seed": "pnpm db:push && pnpm seed:dev-users"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
