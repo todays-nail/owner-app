@@ -204,7 +204,7 @@ export function ReferenceEditorForm({
     <form
       onSubmit={handleSubmit}
       className={cn(
-        "relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-2xl dark:border-gray-700 dark:bg-surface-dark",
+        "relative mx-auto flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-2xl dark:border-gray-700 dark:bg-surface-dark",
         className
       )}
     >
