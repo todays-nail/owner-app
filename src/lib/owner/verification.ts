@@ -39,7 +39,7 @@ export async function getOwnerVerificationForCurrentUser(): Promise<OwnerVerific
   const { data, error } = await supabase
     .from("owner_verifications")
     .select(
-      "user_id,status,business_number,shop_name,owner_name,contact_phone,business_license_path,rejected_reason,submitted_at"
+      "user_id,status,business_number,shop_name,owner_name,contact_phone,shop_address1,shop_address2,shop_postcode,shop_photo_path,business_license_path,rejected_reason,submitted_at"
     )
     .eq("user_id", user.id)
     .maybeSingle();
@@ -56,4 +56,3 @@ export async function getOwnerVerificationForCurrentUser(): Promise<OwnerVerific
   const status = normalizeStatus((data as { status?: unknown }).status);
   return { ok: true, status, row: { ...row, status } };
 }
-
