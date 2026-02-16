@@ -55,6 +55,24 @@ export function DashboardDesignLibrarySection({
     () => designItems.find((item) => item.id === editingDesignId) ?? null,
     [designItems, editingDesignId]
   );
+  const selectedDesignDetailItem = useMemo<DesignReference | null>(() => {
+    if (!selectedDesign) {
+      return null;
+    }
+
+    return {
+      id: selectedDesign.id,
+      name: selectedDesign.name,
+      price: parseDashboardPrice(selectedDesign.price),
+      imageUrl: selectedDesign.image,
+      imageUrls: [selectedDesign.image],
+      categories: [],
+      isVisible: true,
+      badge: null,
+      durationMinutes: null,
+      description: ""
+    };
+  }, [selectedDesign]);
 
   useEffect(() => {
     if (!editingDesign) {
@@ -72,29 +90,18 @@ export function DashboardDesignLibrarySection({
   }, [editingDesign]);
 
   useEffect(() => {
-    if (!selectedDesign && !editingDesign) {
+    if (!toastMessage) {
       return;
     }
 
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") {
-        return;
-      }
-
-      if (editingDesign) {
-        setEditingDesignId(null);
-        return;
-      }
-
-      setSelectedDesignId(null);
-    };
-
-    window.addEventListener("keydown", handleEscape);
+    const timeoutId = window.setTimeout(() => {
+      setToastMessage(null);
+    }, 2500);
 
     return () => {
-      window.removeEventListener("keydown", handleEscape);
+      window.clearTimeout(timeoutId);
     };
-  }, [editingDesign, selectedDesign]);
+  }, [toastMessage]);
 
   const handleOpenDetail = (id: string) => {
     setSelectedDesignId(id);
@@ -213,169 +220,147 @@ export function DashboardDesignLibrarySection({
         </div>
       </section>
 
-      {selectedDesign ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="dashboard-design-detail-title"
-        >
-          <button
-            type="button"
-            aria-label="디자인 상세 닫기"
-            onClick={handleCloseDetail}
-            className="absolute inset-0 bg-black/45 backdrop-blur-sm"
+      <BaseModal
+        open={selectedDesign !== null}
+        onClose={handleCloseDetail}
+        titleId="dashboard-design-detail-title"
+        descriptionId="dashboard-design-detail-description"
+        rootClassName="z-[80] p-4 sm:p-4"
+        overlayClassName="bg-black/45 backdrop-blur-sm"
+      >
+        {selectedDesignDetailItem ? (
+          <ReferenceDetailPanel
+            item={selectedDesignDetailItem}
+            titleId="dashboard-design-detail-title"
+            onClose={handleCloseDetail}
+            onRequestEdit={handleOpenEdit}
           />
+        ) : null}
+        <p id="dashboard-design-detail-description" className="sr-only">
+          대시보드 디자인 상세 정보를 확인하는 모달입니다.
+        </p>
+      </BaseModal>
 
-          <div className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-2xl dark:border-gray-700 dark:bg-surface-dark">
-            <div className="relative aspect-[4/3] bg-gray-100 dark:bg-gray-800">
-              <img
-                src={selectedDesign.image}
-                alt={selectedDesign.name}
-                className="h-full w-full object-cover"
-              />
-              <button
-                type="button"
-                aria-label="디자인 상세 닫기"
-                onClick={handleCloseDetail}
-                className="absolute right-3 top-3 rounded-full bg-black/35 p-1.5 text-white transition-colors hover:bg-black/50"
-              >
-                <span className="material-icons text-base" aria-hidden="true">
-                  close
-                </span>
-              </button>
-            </div>
-
-            <div className="space-y-4 p-6">
-              <div>
-                <h4
-                  id="dashboard-design-detail-title"
-                  className="text-xl font-bold text-gray-900 dark:text-white"
-                >
-                  {selectedDesign.name}
-                </h4>
-                <p className="mt-1 text-sm font-semibold text-primary">{selectedDesign.price}</p>
-              </div>
-
-              <div className="flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={handleCloseDetail}
-                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
-                >
-                  닫기
-                </button>
-                <button
-                  type="button"
-                  onClick={handleOpenEdit}
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
-                >
-                  수정하기
-                </button>
-              </div>
-            </div>
+      <BaseModal
+        open={editingDesign !== null}
+        onClose={handleCloseEdit}
+        titleId="dashboard-design-edit-title"
+        rootClassName="z-[85] p-4 sm:p-4"
+        overlayClassName="bg-black/45 backdrop-blur-sm"
+        contentClassName="max-w-lg rounded-2xl border border-gray-100 bg-white p-6 shadow-2xl dark:border-gray-700 dark:bg-surface-dark"
+      >
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <h4
+              id="dashboard-design-edit-title"
+              className="text-lg font-bold text-gray-900 dark:text-white"
+            >
+              디자인 간편 수정
+            </h4>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              이름, 가격, 이미지 URL을 수정하면 카드에 즉시 반영됩니다.
+            </p>
           </div>
-        </div>
-      ) : null}
-
-      {editingDesign ? (
-        <div
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="dashboard-design-edit-title"
-        >
           <button
             type="button"
             aria-label="디자인 수정 닫기"
             onClick={handleCloseEdit}
-            className="absolute inset-0 bg-black/45 backdrop-blur-sm"
-          />
+            className="rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+          >
+            <span className="material-icons" aria-hidden="true">
+              close
+            </span>
+          </button>
+        </div>
 
-          <div className="relative w-full max-w-lg rounded-2xl border border-gray-100 bg-white p-6 shadow-2xl dark:border-gray-700 dark:bg-surface-dark">
-            <div className="mb-5 flex items-start justify-between gap-4">
-              <div>
-                <h4
-                  id="dashboard-design-edit-title"
-                  className="text-lg font-bold text-gray-900 dark:text-white"
-                >
-                  디자인 간편 수정
-                </h4>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  이름, 가격, 이미지 URL을 수정하면 카드에 즉시 반영됩니다.
-                </p>
-              </div>
-              <button
-                type="button"
-                aria-label="디자인 수정 닫기"
-                onClick={handleCloseEdit}
-                className="rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-              >
-                <span className="material-icons" aria-hidden="true">
-                  close
-                </span>
-              </button>
-            </div>
+        <div className="space-y-4">
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              디자인 이름
+            </span>
+            <input
+              type="text"
+              value={editName}
+              onChange={(event) => setEditName(event.target.value)}
+              className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-gray-700 dark:bg-surface-dark dark:text-white"
+            />
+          </label>
 
-            <div className="space-y-4">
-              <label className="block">
-                <span className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-200">
-                  디자인 이름
-                </span>
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={(event) => setEditName(event.target.value)}
-                  className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-gray-700 dark:bg-surface-dark dark:text-white"
-                />
-              </label>
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              가격
+            </span>
+            <input
+              type="text"
+              value={editPrice}
+              onChange={(event) => setEditPrice(event.target.value)}
+              className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-gray-700 dark:bg-surface-dark dark:text-white"
+            />
+          </label>
 
-              <label className="block">
-                <span className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-200">
-                  가격
-                </span>
-                <input
-                  type="text"
-                  value={editPrice}
-                  onChange={(event) => setEditPrice(event.target.value)}
-                  className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-gray-700 dark:bg-surface-dark dark:text-white"
-                />
-              </label>
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              이미지 URL
+            </span>
+            <input
+              type="url"
+              value={editImage}
+              onChange={(event) => setEditImage(event.target.value)}
+              className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-gray-700 dark:bg-surface-dark dark:text-white"
+            />
+          </label>
 
-              <label className="block">
-                <span className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-200">
-                  이미지 URL
-                </span>
-                <input
-                  type="url"
-                  value={editImage}
-                  onChange={(event) => setEditImage(event.target.value)}
-                  className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-gray-700 dark:bg-surface-dark dark:text-white"
-                />
-              </label>
+          {editError ? (
+            <p className="text-sm font-medium text-red-500">{editError}</p>
+          ) : null}
+        </div>
 
-              {editError ? (
-                <p className="text-sm font-medium text-red-500">{editError}</p>
-              ) : null}
-            </div>
+        <div className="mt-6 flex items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={handleCloseEdit}
+            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            onClick={handleEditSave}
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
+          >
+            저장
+          </button>
+        </div>
+      </BaseModal>
 
-            <div className="mt-6 flex items-center justify-end gap-2">
-              <button
-                type="button"
-                onClick={handleCloseEdit}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
-              >
-                취소
-              </button>
-              <button
-                type="button"
-                onClick={handleEditSave}
-                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
-              >
-                저장
-              </button>
-            </div>
-          </div>
+      <BaseModal
+        open={isCreateModalOpen}
+        onClose={handleCloseCreate}
+        titleId="dashboard-reference-create-title"
+        rootClassName="z-[90]"
+        overlayClassName="bg-black/45 backdrop-blur-sm"
+      >
+        <ReferenceEditorForm
+          mode="create"
+          title="레퍼런스 등록"
+          titleId="dashboard-reference-create-title"
+          subtitle="대시보드에서 바로 레퍼런스를 등록합니다."
+          submitLabel="등록하기"
+          onCancel={handleCloseCreate}
+          onSubmit={handleCreateSubmit}
+        />
+      </BaseModal>
+
+      {toastMessage ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed right-4 top-4 z-[95] inline-flex items-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-medium text-white shadow-xl dark:bg-gray-100 dark:text-gray-900 sm:right-6 sm:top-6"
+        >
+          <span className="material-icons text-base" aria-hidden="true">
+            check_circle
+          </span>
+          <span>{toastMessage}</span>
         </div>
       ) : null}
     </div>

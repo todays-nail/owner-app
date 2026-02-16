@@ -185,28 +185,6 @@ export function ReferencesPageClient() {
       return;
     }
 
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") {
-        return;
-      }
-
-      setIsReferenceModalOpen(false);
-      setSelectedReferenceId(null);
-      setReferenceModalMode("read");
-    };
-
-    window.addEventListener("keydown", handleEscape);
-
-    return () => {
-      window.removeEventListener("keydown", handleEscape);
-    };
-  }, [isReferenceModalOpen]);
-
-  useEffect(() => {
-    if (!isReferenceModalOpen) {
-      return;
-    }
-
     if (selectedReference !== null) {
       return;
     }
@@ -526,22 +504,34 @@ export function ReferencesPageClient() {
         ) : null}
       </section>
 
-      {isReferenceModalOpen && selectedReference ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={referenceModalMode === "read" ? "reference-detail-title" : "reference-edit-title"}
-          aria-describedby={referenceModalMode === "read" ? "reference-detail-description" : "reference-edit-description"}
-        >
-          <button
-            type="button"
-            aria-label={referenceModalMode === "read" ? "상세 모달 닫기" : "수정 모달 닫기"}
-            onClick={closeReferenceModal}
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-          />
+      <BaseModal
+        open={isCreateModalOpen}
+        onClose={handleCloseCreateModal}
+        titleId="reference-create-title"
+        descriptionId="reference-create-description"
+      >
+        <ReferenceEditorForm
+          mode="create"
+          titleId="reference-create-title"
+          title="레퍼런스 등록"
+          subtitle="새로운 네일 디자인을 라이브러리에 추가합니다."
+          submitLabel="등록하기"
+          onCancel={handleCloseCreateModal}
+          onSubmit={handleCreateSubmit}
+        />
+        <p id="reference-create-description" className="sr-only">
+          새로운 레퍼런스를 등록하는 모달입니다.
+        </p>
+      </BaseModal>
 
-          {referenceModalMode === "read" ? (
+      <BaseModal
+        open={isReferenceModalOpen && selectedReference !== null}
+        onClose={closeReferenceModal}
+        titleId={referenceModalMode === "read" ? "reference-detail-title" : "reference-edit-title"}
+        descriptionId={referenceModalMode === "read" ? "reference-detail-description" : "reference-edit-description"}
+      >
+        {selectedReference ? (
+          referenceModalMode === "read" ? (
             <>
               <ReferenceDetailPanel
                 item={selectedReference}
@@ -569,9 +559,9 @@ export function ReferencesPageClient() {
                 기존 네일 디자인 정보를 수정하는 모달입니다.
               </p>
             </>
-          )}
-        </div>
-      ) : null}
+          )
+        ) : null}
+      </BaseModal>
 
       {toastMessage ? (
         <div
@@ -586,56 +576,28 @@ export function ReferencesPageClient() {
         </div>
       ) : null}
 
-      {pendingDeleteItem ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="reference-delete-title"
-          aria-describedby="reference-delete-description"
-        >
-          <button
-            type="button"
-            aria-label="삭제 확인 닫기"
-            onClick={handleDeleteCancel}
-            className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"
-          />
-          <div className="relative w-full max-w-md rounded-2xl border border-gray-100 bg-white p-6 shadow-2xl dark:border-gray-700 dark:bg-surface-dark">
-            <h2
-              id="reference-delete-title"
-              className="text-lg font-bold text-gray-900 dark:text-white"
-            >
-              레퍼런스를 삭제할까요?
-            </h2>
-            <p
-              id="reference-delete-description"
-              className="mt-2 text-sm text-gray-500 dark:text-gray-400"
-            >
+      <ConfirmDialog
+        open={pendingDeleteItem !== null}
+        onClose={handleDeleteCancel}
+        title="레퍼런스를 삭제할까요?"
+        description={
+          pendingDeleteItem ? (
+            <>
               <span className="font-semibold text-gray-700 dark:text-gray-200">
                 {pendingDeleteItem.name}
               </span>
               {" "}
               항목이 목록에서 삭제됩니다. 이 작업은 되돌릴 수 없습니다.
-            </p>
-            <div className="mt-6 flex items-center justify-end gap-2">
-              <button
-                type="button"
-                onClick={handleDeleteCancel}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
-              >
-                취소
-              </button>
-              <button
-                type="button"
-                onClick={handleDeleteConfirm}
-                className="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-600"
-              >
-                삭제하기
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+            </>
+          ) : (
+            "항목이 목록에서 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
+          )
+        }
+        confirmLabel="삭제하기"
+        cancelLabel="취소"
+        onConfirm={handleDeleteConfirm}
+        destructive
+      />
     </div>
   );
 }

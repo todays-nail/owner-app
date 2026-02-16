@@ -3,6 +3,7 @@
 import {type ChangeEvent, type FormEvent, useEffect, useState} from "react";
 
 import {Button} from "@/components/ui/button";
+import {BaseModal} from "@/components/ui/base-modal";
 import {Input} from "@/components/ui/input";
 import {cn} from "@/lib/utils";
 
@@ -49,28 +50,6 @@ export function DashboardBookingCreateModal({
     setFormValues(INITIAL_FORM_VALUES);
     setErrors({});
   }, [open]);
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [open, onClose]);
-
-  if (!open) {
-    return null;
-  }
 
   const handleFieldChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -125,21 +104,16 @@ export function DashboardBookingCreateModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="booking-create-modal-title"
-      aria-describedby="booking-create-modal-description"
+    <BaseModal
+      open={open}
+      onClose={onClose}
+      titleId="booking-create-modal-title"
+      descriptionId="booking-create-modal-description"
+      rootClassName="z-[60]"
+      overlayClassName="bg-black/40 backdrop-blur-[1px]"
+      contentClassName="max-w-xl rounded-2xl border border-primary/10 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-background-dark sm:p-6"
     >
-      <button
-        type="button"
-        aria-label="새 예약 등록 모달 닫기"
-        className="absolute inset-0 bg-black/40 backdrop-blur-[1px]"
-        onClick={onClose}
-      />
-
-      <div className="relative w-full max-w-xl rounded-2xl border border-primary/10 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-background-dark sm:p-6">
+      <div>
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
             <h3
@@ -266,7 +240,7 @@ export function DashboardBookingCreateModal({
           </div>
         </form>
       </div>
-    </div>
+    </BaseModal>
   );
 }
 
