@@ -48,7 +48,9 @@ coverage/
 
 # Next.js / Vercel
 .next/
+.next_stale_*/
 .vercel/
+test-results/
 
 # Vite / Turborepo
 .vite/
