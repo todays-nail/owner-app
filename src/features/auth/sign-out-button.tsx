@@ -1,24 +1,16 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
 import { Button } from "@/components/ui/button";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { useSignOutViewModel } from "@/features/auth/view-model/use-sign-out-view-model";
 
 export function SignOutButton() {
-  const router = useRouter();
+  const { signOut } = useSignOutViewModel();
 
   return (
     <Button
       variant="outline"
       size="sm"
-      onClick={async () => {
-        const supabase = createSupabaseBrowserClient();
-        if (!supabase) return;
-        await supabase.auth.signOut();
-        router.refresh();
-        router.push("/login");
-      }}
+      onClick={signOut}
     >
       Sign out
     </Button>

@@ -1,23 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
-export function LoginForm() {
-  const router = useRouter();
-  const sp = useSearchParams();
-  const next = sp.get("next") || "/";
+export interface LoginFormViewProps {
+  email: string;
+  password: string;
+  error: string | null;
+  pending: boolean;
+  onEmailChange: (value: string) => void;
+  onPasswordChange: (value: string) => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<void>;
+}
 
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [error, setError] = React.useState<string | null>(null);
-  const [pending, setPending] = React.useState(false);
-
+export function LoginFormView({
+  email,
+  password,
+  error,
+  pending,
+  onEmailChange,
+  onPasswordChange,
+  onSubmit
+}: LoginFormViewProps) {
   return (
     <div className="mx-auto flex min-h-dvh max-w-md items-center px-4">
       <div className="w-full rounded-xl border border-border bg-card p-6 shadow-sm">
@@ -26,47 +33,14 @@ export function LoginForm() {
           Sign in with Supabase Email/Password.
         </p>
 
-        <form
-          className="mt-6 space-y-3"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            setError(null);
-            setPending(true);
-            try {
-              const supabase = createSupabaseBrowserClient();
-              if (!supabase) {
-                setError(
-                  "Missing env: NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY"
-                );
-                return;
-              }
-
-              const { error: signInError } = await supabase.auth.signInWithPassword(
-                {
-                  email,
-                  password
-                }
-              );
-
-              if (signInError) {
-                setError(signInError.message);
-                return;
-              }
-
-              router.refresh();
-              router.push(next);
-            } finally {
-              setPending(false);
-            }
-          }}
-        >
+        <form className="mt-6 space-y-3" onSubmit={onSubmit}>
           <div className="space-y-1">
             <label className="text-sm font-medium">Email</label>
             <Input
               autoComplete="email"
               inputMode="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(event) => onEmailChange(event.target.value)}
               placeholder="owner@example.com"
               required
             />
@@ -78,7 +52,7 @@ export function LoginForm() {
               type="password"
               autoComplete="current-password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(event) => onPasswordChange(event.target.value)}
               required
             />
           </div>

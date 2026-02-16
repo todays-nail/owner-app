@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 
-import { LoginForm } from "./ui";
+import { LoginScreen } from "@/features/auth/screens/login-screen";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +15,7 @@ export default function LoginPage() {
         </div>
       }
     >
-      <LoginForm />
+      <LoginScreen />
     </Suspense>
   );
 }
