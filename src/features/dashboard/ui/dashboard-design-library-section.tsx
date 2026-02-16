@@ -13,7 +13,7 @@ export function DashboardDesignLibrarySection({
       <section className="rounded-xl border border-primary/5 bg-white p-6 shadow-sm dark:bg-background-dark">
         <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div>
-            <h3 className="text-lg font-bold">디자인 라이브러리</h3>
+            <h3 className="text-lg font-bold">디자인 관리</h3>
             <p className="text-xs text-slate-400">시즌별 카탈로그 관리</p>
           </div>
           <button
@@ -26,20 +26,26 @@ export function DashboardDesignLibrarySection({
             레퍼런스 등록
           </button>
         </div>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
-          {designItems.map((item) => (
-            <div key={item.name} className="group relative aspect-square overflow-hidden rounded-lg">
-              <img
-                src={item.image}
-                alt={item.name}
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/60 via-transparent to-transparent p-3">
-                <p className="text-[10px] font-bold text-white">{item.name}</p>
-                <p className="text-[10px] text-white/80">{item.price}</p>
+        <div
+          className="no-scrollbar max-h-[22rem] overflow-y-auto pr-1 sm:max-h-[26rem] lg:max-h-[30rem]"
+          tabIndex={0}
+          aria-label="디자인 목록"
+        >
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {designItems.map((item) => (
+              <div key={item.name} className="group relative aspect-square overflow-hidden rounded-lg">
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/60 via-transparent to-transparent p-3">
+                  <p className="text-[10px] font-bold text-white">{item.name}</p>
+                  <p className="text-[10px] text-white/80">{item.price}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
     </div>

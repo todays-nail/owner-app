@@ -1,24 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import {useEffect, useMemo, useState} from "react";
+import {useRouter, useSearchParams} from "next/navigation";
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
+import {cn} from "@/lib/utils";
 import {
   INITIAL_REFERENCES,
-  REFERENCES_PAGE_SIZE,
   REFERENCE_CATEGORIES,
   type ReferenceCategory,
+  REFERENCES_PAGE_SIZE,
   type ReferenceViewMode
 } from "@/features/references/model/references";
-import {
-  loadReferences,
-  saveReferences,
-  type ReferenceEntity
-} from "@/features/references/model/reference-storage";
-import { ReferenceCard } from "@/features/references/ui/reference-card";
-import { ReferenceListRow } from "@/features/references/ui/reference-list-row";
+import {loadReferences, type ReferenceEntity, saveReferences} from "@/features/references/model/reference-storage";
+import {ReferenceCard} from "@/features/references/ui/reference-card";
+import {ReferenceListRow} from "@/features/references/ui/reference-list-row";
 
 export function ReferencesPageClient() {
   const router = useRouter();
@@ -182,7 +178,7 @@ export function ReferencesPageClient() {
     <div className="space-y-8 p-4 sm:p-6 lg:p-8">
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">디자인 라이브러리</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">디자인 관리</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             네일 아트 디자인 포트폴리오를 관리하고 고객에게 보여줄 레퍼런스를 설정하세요.
           </p>

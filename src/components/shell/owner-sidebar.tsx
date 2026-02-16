@@ -30,7 +30,7 @@ const navItems: NavItem[] = [
   { key: "bookings", label: "예약 관리", href: "/bookings", icon: "calendar_today" },
   {
     key: "references",
-    label: "디자인 라이브러리",
+    label: "디자인 관리",
     href: "/references",
     icon: "photo_library"
   },

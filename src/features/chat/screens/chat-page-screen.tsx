@@ -3,14 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { DashboardSignOutButton } from "@/features/auth/dashboard-sign-out-button";
-import { ChatPageClient } from "@/features/chat/ui/chat-page-client";
-import { cn } from "@/lib/utils";
+import {DashboardSignOutButton} from "@/features/auth/dashboard-sign-out-button";
+import {ChatPageClient} from "@/features/chat/ui/chat-page-client";
+import {cn} from "@/lib/utils";
 
 const NAV_ITEMS = [
   { label: "대시보드", href: "/", icon: "dashboard" },
   { label: "예약 관리", href: "/bookings", icon: "calendar_month" },
-  { label: "디자인 라이브러리", href: "/references", icon: "auto_fix_high" },
+  { label: "디자인 관리", href: "/references", icon: "auto_fix_high" },
   { label: "견적 및 채팅", href: "/chat", icon: "chat_bubble" }
 ] as const;
 
