@@ -41,6 +41,15 @@ body {
   border-radius: 20px;
 }
 
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 @layer components {
   .owner-dashboard-root {
     @apply min-h-screen bg-background-light text-slate-800 antialiased;
