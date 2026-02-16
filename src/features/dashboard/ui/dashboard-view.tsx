@@ -1,13 +1,14 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-import Link from "next/link";
+import {useEffect, useRef, useState} from "react";
 
 import {useProtectedUserProfile} from "@/components/auth/protected-user-profile-context";
 import {NotificationBellButton} from "@/components/common/notification-bell-button";
 import {OwnerSidebar} from "@/components/shell/owner-sidebar";
+import {DashboardBookingPipelineSection} from "@/features/dashboard/ui/dashboard-booking-pipeline-section";
+import {DashboardDesignLibrarySection} from "@/features/dashboard/ui/dashboard-design-library-section";
+import {DashboardTodayScheduleAside} from "@/features/dashboard/ui/dashboard-today-schedule-aside";
 import type {DashboardDesignItem, DashboardScheduleItem} from "@/features/dashboard/model/dashboard";
-import {cn} from "@/lib/utils";
 
 export interface DashboardViewProps {
   designItems: DashboardDesignItem[];
@@ -19,6 +20,38 @@ export function DashboardView({ designItems, scheduleItems }: DashboardViewProps
   const greetingName = displayName.endsWith("님")
     ? displayName
     : `${displayName}님`;
+  const mainColumnRef = useRef<HTMLDivElement | null>(null);
+  const todayScheduleAsideRef = useRef<HTMLElement | null>(null);
+  const [scheduleSectionMinHeight, setScheduleSectionMinHeight] = useState<number | null>(null);
+
+  useEffect(() => {
+    const mainColumnElement = mainColumnRef.current;
+    const todayScheduleAsideElement = todayScheduleAsideRef.current;
+
+    if (!mainColumnElement || !todayScheduleAsideElement) {
+      return;
+    }
+
+    const syncScheduleSectionHeight = () => {
+      const nextMinHeight = Math.ceil(mainColumnElement.getBoundingClientRect().height);
+      setScheduleSectionMinHeight((prevMinHeight) =>
+        prevMinHeight === nextMinHeight
+          ? prevMinHeight
+          : nextMinHeight
+      );
+    };
+
+    syncScheduleSectionHeight();
+
+    const resizeObserver = new ResizeObserver(syncScheduleSectionHeight);
+    resizeObserver.observe(mainColumnElement);
+    window.addEventListener("resize", syncScheduleSectionHeight);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", syncScheduleSectionHeight);
+    };
+  }, []);
 
   return (
     <div className="owner-dashboard-root owner-dashboard-fit-root">
@@ -27,7 +60,7 @@ export function DashboardView({ designItems, scheduleItems }: DashboardViewProps
 
         <main className="flex-1 bg-nude-soft p-4 sm:p-6 lg:p-7 dark:bg-background-dark/30">
           <div className="flex flex-col gap-6 xl:flex-row">
-            <div className="min-w-0 flex-1">
+            <div ref={mainColumnRef} className="min-w-0 flex-1">
               <header className="mb-8 flex flex-col justify-between gap-4 sm:mb-10 sm:flex-row sm:items-center">
                 <div>
                   <h2 className="text-2xl font-light tracking-tight dark:text-white sm:text-3xl">
@@ -46,7 +79,7 @@ export function DashboardView({ designItems, scheduleItems }: DashboardViewProps
                     <span className="material-icons text-sm" aria-hidden="true">
                       add
                     </span>
-                    새 예약 등록
+                    + 새 예약 등록
                   </button>
                 </div>
               </header>
@@ -99,175 +132,16 @@ export function DashboardView({ designItems, scheduleItems }: DashboardViewProps
                 </div>
               </section>
 
-              <section className="mb-6 rounded-xl border border-primary/5 bg-white p-6 shadow-sm sm:p-7 dark:bg-background-dark">
-                <div className="mb-8 flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
-                  <div>
-                    <h3 className="text-lg font-bold tracking-tight">예약 파이프라인</h3>
-                    <p className="mt-1 text-xs italic text-slate-400">총 84건 진행 중</p>
-                  </div>
-                  <Link
-                    href="/bookings"
-                    className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-400 transition-all hover:text-primary dark:border-slate-700"
-                  >
-                    더보기
-                    <span className="material-icons text-sm" aria-hidden="true">
-                      chevron_right
-                    </span>
-                  </Link>
-                </div>
+              <DashboardBookingPipelineSection />
 
-                <div className="relative px-0 sm:px-10">
-                  <div className="pointer-events-none absolute left-0 right-0 top-6 hidden h-0.5 bg-primary/10 sm:block" />
-
-                  <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
-                    <div className="relative z-10 flex flex-col items-center gap-3">
-                      <div className="flex h-12 items-center">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-primary bg-white text-sm font-bold text-primary shadow-sm dark:bg-background-dark">
-                          14
-                        </div>
-                      </div>
-                      <p className="text-center text-[10px] font-bold uppercase tracking-tighter text-slate-500">
-                        예약금 확인
-                      </p>
-                    </div>
-
-                    <div className="relative z-10 flex flex-col items-center gap-3">
-                      <div className="flex h-12 items-center">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-primary font-bold text-white shadow-lg dark:border-background-dark">
-                          22
-                        </div>
-                      </div>
-                      <p className="text-center text-[10px] font-extrabold uppercase tracking-tighter text-primary">
-                        오늘의 시술
-                      </p>
-                    </div>
-
-                    <div className="relative z-10 flex flex-col items-center gap-3">
-                      <div className="flex h-12 items-center">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-primary/30 bg-white text-sm font-bold text-primary dark:bg-background-dark">
-                          15
-                        </div>
-                      </div>
-                      <p className="text-center text-[10px] font-bold uppercase tracking-tighter text-slate-500">
-                        결제 대기
-                      </p>
-                    </div>
-
-                    <div className="relative z-10 flex flex-col items-center gap-3">
-                      <div className="flex h-12 items-center">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-emerald-100 text-sm font-bold text-emerald-600 dark:border-background-dark">
-                          33
-                        </div>
-                      </div>
-                      <p className="text-center text-[10px] font-bold uppercase tracking-tighter text-emerald-600">
-                        완료
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              <div className="space-y-6">
-                <section className="rounded-xl border border-primary/5 bg-white p-6 shadow-sm dark:bg-background-dark">
-                  <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-                    <div>
-                      <h3 className="text-lg font-bold">디자인 라이브러리</h3>
-                      <p className="text-xs text-slate-400">시즌별 카탈로그 관리</p>
-                    </div>
-                    <button
-                      type="button"
-                      className="flex items-center gap-2 rounded-lg border border-primary/20 px-4 py-2 text-xs font-bold text-primary transition-all hover:bg-primary hover:text-white"
-                    >
-                      <span className="material-icons text-sm" aria-hidden="true">
-                        add_photo_alternate
-                      </span>
-                      레퍼런스 등록
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
-                    {designItems.map((item) => (
-                      <div
-                        key={item.name}
-                        className="group relative aspect-square overflow-hidden rounded-lg"
-                      >
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/60 via-transparent to-transparent p-3">
-                          <p className="text-[10px] font-bold text-white">{item.name}</p>
-                          <p className="text-[10px] text-white/80">{item.price}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              </div>
+              <DashboardDesignLibrarySection designItems={designItems} />
             </div>
 
-            <aside className="h-fit w-full rounded-xl border border-primary/5 bg-white shadow-sm dark:bg-background-dark xl:sticky xl:top-6 xl:w-[26rem]">
-              <div className="flex items-center justify-between border-b border-primary/5 p-6">
-                <h3 className="flex items-center gap-2 font-bold">
-                  <span className="material-icons text-lg text-primary" aria-hidden="true">
-                    event_note
-                  </span>
-                  오늘 일정
-                </h3>
-                <span className="rounded bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase dark:bg-white/5">
-                  5월 12일
-                </span>
-              </div>
-              <div className="max-h-[560px] space-y-8 overflow-y-auto p-6">
-                {scheduleItems.map((item) => (
-                  <div
-                    key={`${item.time}${item.customer}`}
-                    className={cn(
-                      "relative border-l-2 border-primary/10 py-1 pl-8",
-                      item.variant === "faded" && "opacity-60"
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "absolute -left-[9px] top-1 h-4 w-4 rounded-full border-4 border-white dark:border-background-dark",
-                        item.variant === "current" && "bg-primary",
-                        item.variant === "faded" && "bg-slate-200 dark:bg-slate-700",
-                        item.variant === "active" && "bg-primary/40",
-                        item.variant === "upcoming" && "bg-primary/20"
-                      )}
-                    />
-                    <p
-                      className={cn(
-                        "text-[10px] font-bold",
-                        item.variant === "faded" && "text-slate-500",
-                        item.variant === "current" && "text-primary uppercase",
-                        item.variant === "active" && "text-primary",
-                        item.variant === "upcoming" && "text-slate-400"
-                      )}
-                    >
-                      {item.time}
-                    </p>
-                    <h4 className="mt-1 text-sm font-bold">{item.customer}</h4>
-                    <p className="text-xs text-slate-500">{item.service}</p>
-                    {item.tag ? (
-                      <div className="mt-2 flex gap-1">
-                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
-                          {item.tag}
-                        </span>
-                      </div>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-              <div className="border-t border-primary/5 p-6">
-                <button
-                  type="button"
-                  className="w-full rounded-lg border border-dashed border-primary/30 py-3 text-xs font-bold text-slate-500 transition-colors hover:border-primary hover:text-primary"
-                >
-                  + 일정 추가
-                </button>
-              </div>
-            </aside>
+            <DashboardTodayScheduleAside
+              ref={todayScheduleAsideRef}
+              scheduleItems={scheduleItems}
+              scheduleSectionMinHeight={scheduleSectionMinHeight}
+            />
           </div>
         </main>
       </div>
