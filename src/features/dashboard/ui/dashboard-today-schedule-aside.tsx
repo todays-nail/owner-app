@@ -31,7 +31,7 @@ export const DashboardTodayScheduleAside = forwardRef<HTMLElement, DashboardToda
             </span>
             오늘 일정
           </h3>
-          <span className="rounded bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase dark:bg-white/5">
+          <span className="rounded bg-slate-100 px-2.5 py-1.5 text-xs font-semibold uppercase dark:bg-white/5">
             5월 12일
           </span>
         </div>
