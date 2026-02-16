@@ -1,11 +1,17 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = new Set(["/login", "/signup"]);
+const AUTH_ENTRY_PATHS = new Set(["/login", "/signup", "/signup/check-email"]);
+
+const PUBLIC_PATHS = new Set(["/terms", "/privacy"]);
 
 function isPublicPath(pathname: string) {
+  if (AUTH_ENTRY_PATHS.has(pathname)) return true;
   if (PUBLIC_PATHS.has(pathname)) return true;
+  if (pathname === "/forgot-password") return true;
+  if (pathname === "/reset-password") return true;
   if (pathname.startsWith("/api")) return true;
+  if (pathname.startsWith("/auth")) return true;
   return false;
 }
 
@@ -47,11 +53,12 @@ export async function updateSession(request: NextRequest) {
   if (!user && !publicPath) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
-    redirectUrl.searchParams.set("next", pathname);
+    const nextPath = request.nextUrl.pathname + request.nextUrl.search;
+    redirectUrl.searchParams.set("next", nextPath);
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (user && PUBLIC_PATHS.has(pathname)) {
+  if (user && AUTH_ENTRY_PATHS.has(pathname)) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/";
     redirectUrl.search = "";

@@ -56,11 +56,11 @@ coverage/
 
 # Env / secrets (keep example files)
 .env
-.env
-!.env
+.env.local
 
 # Supabase local
 supabase/.temp/
+.supabase/
 
 # React Native / Expo (if applicable)
 .expo/
