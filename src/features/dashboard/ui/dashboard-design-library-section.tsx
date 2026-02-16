@@ -55,7 +55,7 @@ export function DashboardDesignLibrarySection({ references }: DashboardDesignLib
             <span className="material-icons text-sm" aria-hidden="true">
               add_photo_alternate
             </span>
-            레퍼런스 등록
+            디자인 등록
           </button>
         </div>
 
@@ -103,7 +103,7 @@ export function DashboardDesignLibrarySection({ references }: DashboardDesignLib
               <span className="material-icons text-sm" aria-hidden="true">
                 open_in_new
               </span>
-              레퍼런스 등록하러 가기
+              디자인 등록하러 가기
             </button>
           </div>
         )}

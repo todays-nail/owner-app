@@ -42,9 +42,9 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
 
   useEffect(() => {
     const messageByNotice: Record<string, string> = {
-      created: "새 레퍼런스가 등록되었습니다.",
+      created: "새 디자인이 등록되었습니다.",
       updated: "레퍼런스가 수정되었습니다.",
-      "create-modal-only": "레퍼런스 등록 모달을 열었습니다."
+      "create-modal-only": "디자인 등록 모달을 열었습니다."
     };
 
     const params = new URLSearchParams(searchParams.toString());
@@ -178,7 +178,7 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
     try {
       await createReferenceForCurrentUser(values);
       setIsCreateModalOpen(false);
-      setToastMessage("새 레퍼런스가 등록되었습니다.");
+      setToastMessage("새 디자인이 등록되었습니다.");
       router.refresh();
     } catch (error) {
       console.error("[references:create] submit failed", {
@@ -192,7 +192,7 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
           isVisible: values.isVisible
         }
       });
-      const message = error instanceof Error ? error.message : "레퍼런스 등록에 실패했습니다.";
+      const message = error instanceof Error ? error.message : "디자인 등록에 실패했습니다.";
       setToastMessage(message);
     } finally {
       setCreatePending(false);
@@ -241,7 +241,7 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
           <span className="material-icons mr-2 text-sm" aria-hidden="true">
             add
           </span>
-          레퍼런스 등록
+          디자인 등록
         </button>
       </header>
 
@@ -458,14 +458,14 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
         <ReferenceEditorForm
           mode="create"
           titleId="reference-create-title"
-          title="레퍼런스 등록"
+          title="디자인 등록"
           subtitle="새로운 네일 디자인을 라이브러리에 추가합니다."
           submitLabel={createPending ? "등록 중..." : "등록하기"}
           onCancel={handleCloseCreateModal}
           onSubmit={handleCreateSubmit}
         />
         <p id="reference-create-description" className="sr-only">
-          새로운 레퍼런스를 등록하는 모달입니다.
+          새로운 디자인을 등록하는 모달입니다.
         </p>
       </BaseModal>
 

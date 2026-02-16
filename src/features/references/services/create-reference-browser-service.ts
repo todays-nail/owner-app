@@ -241,6 +241,6 @@ export async function createReferenceForCurrentUser(input: CreateReferenceInput)
   } catch (error) {
     console.error("[references:create] service failed", { error });
     await rollbackReference();
-    throw error instanceof Error ? error : new Error("레퍼런스 등록에 실패했습니다.");
+    throw error instanceof Error ? error : new Error("디자인 등록에 실패했습니다.");
   }
 }
