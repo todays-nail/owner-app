@@ -19,6 +19,23 @@ function formatKrw(price: number) {
   return `${new Intl.NumberFormat("ko-KR").format(price)}원`;
 }
 
+function formatCount(count: number) {
+  return new Intl.NumberFormat("ko-KR").format(count);
+}
+
+function clampDiscountRate(value: number): number {
+  return Math.max(0, Math.min(100, value));
+}
+
+function deriveDiscountRate(price: number, finalPrice: number): number {
+  if (!Number.isFinite(price) || price <= 0) {
+    return 0;
+  }
+
+  const ratio = (1 - finalPrice / price) * 100;
+  return clampDiscountRate(Math.round(ratio));
+}
+
 export function ReferenceCard({
   item,
   visible,
@@ -34,6 +51,13 @@ export function ReferenceCard({
   const isToggleDisabled = readOnly || toggleDisabled;
   const isEditDisabled = readOnly || editDisabled;
   const isDeleteDisabled = readOnly || deleteDisabled;
+  const likeCount = item.likeCount ?? 0;
+  const likeCountText = formatCount(likeCount);
+  const basePrice = Number.isFinite(item.price) ? Math.max(0, Math.floor(item.price)) : 0;
+  const finalPrice = Number.isFinite(item.finalPrice)
+    ? Math.max(0, Math.min(basePrice, Math.floor(item.finalPrice)))
+    : basePrice;
+  const discountRate = deriveDiscountRate(basePrice, finalPrice);
 
   return (
     <article
@@ -50,7 +74,7 @@ export function ReferenceCard({
         aria-label={`${item.name} 상세보기`}
         className="w-full text-left focus-visible:outline-none"
       >
-        <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
+        <div className="relative aspect-[16/9] overflow-hidden bg-gray-100">
           <img
             src={item.imageUrl}
             alt={item.name}
@@ -62,31 +86,40 @@ export function ReferenceCard({
           {item.badge ? (
             <div
               className={cn(
-                "absolute right-3 top-3 rounded-lg px-2 py-1 text-[10px] font-bold text-white",
+                "absolute right-2 top-2 rounded-lg px-1.5 py-0.5 text-[10px] font-bold text-white",
                 item.badge === "NEW" ? "bg-primary shadow-sm" : "bg-black/40 backdrop-blur-md"
               )}
             >
               {item.badge}
             </div>
           ) : null}
+          <div
+            className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-semibold text-white backdrop-blur-sm"
+            aria-label={`좋아요 ${likeCountText}건`}
+          >
+            <span className="material-icons text-xs leading-none text-rose-400" aria-hidden="true">
+              favorite
+            </span>
+            <span>{likeCountText}</span>
+          </div>
         </div>
 
-        <div className="p-4 pb-3">
+        <div className="p-3 pb-2">
           <h3
             className={cn(
-              "mb-2 truncate text-base font-bold dark:text-white",
+              "mb-1.5 truncate text-sm font-semibold dark:text-white",
               visible ? "text-gray-900" : "text-gray-500 dark:text-gray-400"
             )}
           >
             {item.name}
           </h3>
 
-          <div className="mb-3 flex flex-wrap gap-1.5">
+          <div className="mb-2 flex flex-wrap gap-1">
             {item.categories.map((category) => (
               <span
                 key={category}
                 className={cn(
-                  "rounded-full px-2.5 py-1 text-[11px] font-semibold",
+                  "rounded-full px-2 py-0.5 text-[10px] font-semibold",
                   visible
                     ? "bg-chip-bg text-chip-text"
                     : "bg-gray-50 text-gray-400 dark:bg-gray-800 dark:text-gray-400"
@@ -97,22 +130,39 @@ export function ReferenceCard({
             ))}
           </div>
 
-          <div className="flex items-baseline justify-between">
-            <span className="text-xs text-gray-400">기본가</span>
+          <div className="mt-1.5 flex items-center gap-1.5">
+            <span className="text-xs text-gray-400">노출 가격</span>
             <span
               className={cn(
-                "text-lg font-bold",
+                "text-base font-bold",
                 visible ? "text-primary" : "text-gray-400"
               )}
             >
-              {formatKrw(item.price)}
+              {formatKrw(finalPrice)}
+            </span>
+            {discountRate > 0 ? (
+              <span className="rounded-full bg-rose-50 px-1.5 py-0.5 text-[10px] font-semibold text-rose-600 dark:bg-rose-500/15 dark:text-rose-300">
+                {discountRate}%
+              </span>
+            ) : null}
+          </div>
+
+          <div className="mt-1 flex items-center gap-1.5">
+            <span className="text-xs text-gray-400">가격</span>
+            <span
+              className={cn(
+                "text-sm",
+                visible ? "text-gray-400 line-through" : "text-gray-400"
+              )}
+            >
+              {formatKrw(basePrice)}
             </span>
           </div>
         </div>
       </button>
 
-      <div className="px-4 pb-4">
-        <div className="flex items-center justify-between border-t border-gray-100 pt-3 dark:border-gray-700">
+      <div className="px-3 pb-3">
+        <div className="flex items-center justify-between border-t border-gray-100 pt-2 dark:border-gray-700">
           <button
             type="button"
             role="switch"
@@ -160,7 +210,7 @@ export function ReferenceCard({
               disabled={isEditDisabled}
               aria-disabled={isEditDisabled}
               className={cn(
-                "rounded-xl p-2 text-gray-400 transition-colors hover:bg-primary/5 hover:text-primary",
+                "rounded-xl p-1.5 text-gray-400 transition-colors hover:bg-primary/5 hover:text-primary",
                 isEditDisabled
                   ? "cursor-not-allowed opacity-50 hover:bg-transparent hover:text-gray-400"
                   : ""
@@ -177,7 +227,7 @@ export function ReferenceCard({
               disabled={isDeleteDisabled}
               aria-disabled={isDeleteDisabled}
               className={cn(
-                "rounded-xl p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500",
+                "rounded-xl p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500",
                 isDeleteDisabled
                   ? "cursor-not-allowed opacity-50 hover:bg-transparent hover:text-gray-400"
                   : ""

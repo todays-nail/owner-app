@@ -399,7 +399,7 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
           <span className="material-icons mr-2 text-sm" aria-hidden="true">
             add
           </span>
-          레퍼런스 등록
+          디자인 등록
         </button>
       </header>
 

@@ -13,8 +13,25 @@ function formatKrw(price: number) {
   return `${new Intl.NumberFormat("ko-KR").format(price)}원`;
 }
 
+function clampDiscountRate(value: number): number {
+  return Math.max(0, Math.min(100, value));
+}
+
+function deriveDiscountRate(price: number, finalPrice: number): number {
+  if (!Number.isFinite(price) || price <= 0) {
+    return 0;
+  }
+
+  const ratio = (1 - finalPrice / price) * 100;
+  return clampDiscountRate(Math.round(ratio));
+}
+
 function formatDuration(durationMinutes: number | null) {
   return durationMinutes === null ? "미설정" : `${durationMinutes}분`;
+}
+
+function formatCount(count: number) {
+  return new Intl.NumberFormat("ko-KR").format(count);
 }
 
 export function ReferenceDetailPanel({
@@ -24,6 +41,14 @@ export function ReferenceDetailPanel({
   onRequestEdit,
   canEdit = true
 }: ReferenceDetailPanelProps) {
+  const likeCount = item.likeCount ?? 0;
+  const likeCountText = formatCount(likeCount);
+  const basePrice = Number.isFinite(item.price) ? Math.max(0, Math.floor(item.price)) : 0;
+  const finalPrice = Number.isFinite(item.finalPrice)
+    ? Math.max(0, Math.min(basePrice, Math.floor(item.finalPrice)))
+    : basePrice;
+  const discountRate = deriveDiscountRate(basePrice, finalPrice);
+
   return (
     <section className="relative mx-auto flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-2xl dark:border-gray-700 dark:bg-surface-dark">
       <header className="z-10 flex items-center justify-between border-b border-gray-100 bg-white px-6 py-5 dark:border-gray-800 dark:bg-surface-dark">
@@ -53,6 +78,15 @@ export function ReferenceDetailPanel({
             <p className="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-200">대표 이미지</p>
             <div className="relative aspect-[4/5] overflow-hidden rounded-xl border border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-800">
               <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover" />
+              <p
+                className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm"
+                aria-label={`좋아요 ${likeCountText}건`}
+              >
+                <span className="material-icons text-sm leading-none text-rose-400" aria-hidden="true">
+                  favorite
+                </span>
+                <span>{likeCountText}</span>
+              </p>
             </div>
 
             {item.imageUrls.length > 1 ? (
@@ -97,11 +131,23 @@ export function ReferenceDetailPanel({
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div>
                 <p className="mb-1.5 text-sm font-semibold text-gray-700 dark:text-gray-200">기본 가격 (KRW)</p>
                 <p className="rounded-lg border border-gray-200 bg-gray-50/70 px-4 py-2.5 text-gray-900 dark:border-gray-700 dark:bg-surface-dark dark:text-white">
-                  {formatKrw(item.price)}
+                  {formatKrw(basePrice)}
+                </p>
+              </div>
+              <div>
+                <p className="mb-1.5 text-sm font-semibold text-gray-700 dark:text-gray-200">할인율 (%)</p>
+                <p className="rounded-lg border border-gray-200 bg-gray-50/70 px-4 py-2.5 text-gray-900 dark:border-gray-700 dark:bg-surface-dark dark:text-white">
+                  {discountRate}%
+                </p>
+              </div>
+              <div>
+                <p className="mb-1.5 text-sm font-semibold text-gray-700 dark:text-gray-200">최종 노출 가격 (KRW)</p>
+                <p className="rounded-lg border border-gray-200 bg-gray-50/70 px-4 py-2.5 text-primary dark:border-gray-700 dark:bg-surface-dark">
+                  {formatKrw(finalPrice)}
                 </p>
               </div>
               <div>

@@ -19,6 +19,10 @@ function formatKrw(price: number) {
   return `${new Intl.NumberFormat("ko-KR").format(price)}원`;
 }
 
+function formatCount(count: number) {
+  return new Intl.NumberFormat("ko-KR").format(count);
+}
+
 export function ReferenceListRow({
   item,
   visible,
@@ -34,6 +38,8 @@ export function ReferenceListRow({
   const isToggleDisabled = readOnly || toggleDisabled;
   const isEditDisabled = readOnly || editDisabled;
   const isDeleteDisabled = readOnly || deleteDisabled;
+  const likeCount = item.likeCount ?? 0;
+  const likeCountText = formatCount(likeCount);
 
   return (
     <article
@@ -68,6 +74,15 @@ export function ReferenceListRow({
                 {item.badge}
               </div>
             ) : null}
+            <div
+              className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-semibold text-white backdrop-blur-sm"
+              aria-label={`좋아요 ${likeCountText}건`}
+            >
+              <span className="material-icons text-xs leading-none text-rose-400" aria-hidden="true">
+                favorite
+              </span>
+              <span>{likeCountText}</span>
+            </div>
           </div>
 
           <div className="min-w-0 flex-1">
@@ -79,33 +94,34 @@ export function ReferenceListRow({
             >
               {item.name}
             </h3>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {item.categories.map((category) => (
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex min-w-0 flex-wrap gap-1.5">
+                {item.categories.map((category) => (
+                  <span
+                    key={category}
+                    className={cn(
+                      "rounded-full px-2.5 py-1 text-[11px] font-semibold",
+                      visible
+                        ? "bg-chip-bg text-chip-text"
+                        : "bg-gray-50 text-gray-400 dark:bg-gray-800 dark:text-gray-400"
+                    )}
+                  >
+                    {category}
+                  </span>
+                ))}
+              </div>
+              <div className="flex flex-shrink-0 items-baseline gap-1.5">
+                <span className="text-xs text-gray-400">기본가</span>
                 <span
-                  key={category}
                   className={cn(
-                    "rounded-full px-2.5 py-1 text-[11px] font-semibold",
-                    visible
-                      ? "bg-chip-bg text-chip-text"
-                      : "bg-gray-50 text-gray-400 dark:bg-gray-800 dark:text-gray-400"
+                    "text-base font-bold",
+                    visible ? "text-primary" : "text-gray-400"
                   )}
                 >
-                  {category}
+                  {formatKrw(item.price)}
                 </span>
-              ))}
+              </div>
             </div>
-          </div>
-
-          <div className="flex items-baseline gap-2 sm:flex-col sm:items-end sm:gap-0.5">
-            <span className="text-xs text-gray-400">기본가</span>
-            <span
-              className={cn(
-                "text-lg font-bold",
-                visible ? "text-primary" : "text-gray-400"
-              )}
-            >
-              {formatKrw(item.price)}
-            </span>
           </div>
         </button>
 
