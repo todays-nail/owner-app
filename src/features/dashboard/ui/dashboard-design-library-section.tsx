@@ -1,12 +1,15 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useRouter} from "next/navigation";
 
 import {BaseModal} from "@/components/ui/base-modal";
 import type {DesignReference} from "@/features/references/model/references";
+import {createReferenceForCurrentUser} from "@/features/references/services/create-reference-browser-service";
+import {updateReferenceForCurrentUser} from "@/features/references/services/update-reference-browser-service";
 import {ReferenceDetailPanel} from "@/features/references/ui/reference-detail-panel";
+import {ReferenceEditorForm, type ReferenceEditorFormValues} from "@/features/references/ui/reference-editor-form";
 
 interface DashboardDesignLibrarySectionProps {
   references: DesignReference[];
@@ -18,15 +21,99 @@ function formatKrw(price: number): string {
 
 export function DashboardDesignLibrarySection({ references }: DashboardDesignLibrarySectionProps) {
   const router = useRouter();
+
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
   const [selectedReferenceId, setSelectedReferenceId] = useState<string | null>(null);
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [createPending, setCreatePending] = useState(false);
+
+  const [editingReferenceId, setEditingReferenceId] = useState<string | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editPending, setEditPending] = useState(false);
 
   const selectedReference = useMemo(
     () => references.find((item) => item.id === selectedReferenceId) ?? null,
     [references, selectedReferenceId]
   );
 
+  const editingReference = useMemo(
+    () => references.find((item) => item.id === editingReferenceId) ?? null,
+    [editingReferenceId, references]
+  );
+
+  useEffect(() => {
+    if (!toastMessage) return;
+
+    const timeoutId = window.setTimeout(() => {
+      setToastMessage(null);
+    }, 2500);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [toastMessage]);
+
+  useEffect(() => {
+    if (!selectedReferenceId) {
+      return;
+    }
+
+    const exists = references.some((item) => item.id === selectedReferenceId);
+    if (!exists) {
+      setSelectedReferenceId(null);
+    }
+  }, [references, selectedReferenceId]);
+
+  useEffect(() => {
+    if (!editingReferenceId) {
+      return;
+    }
+
+    const exists = references.some((item) => item.id === editingReferenceId);
+    if (!exists) {
+      setEditingReferenceId(null);
+      setIsEditModalOpen(false);
+    }
+  }, [editingReferenceId, references]);
+
   const handleOpenCreate = () => {
-    router.push("/references?modal=create");
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCloseCreate = () => {
+    if (createPending) return;
+    setIsCreateModalOpen(false);
+  };
+
+  const handleCreateSubmit = async (values: ReferenceEditorFormValues) => {
+    if (createPending) return;
+    setCreatePending(true);
+
+    try {
+      await createReferenceForCurrentUser(values);
+      setIsCreateModalOpen(false);
+      setToastMessage("레퍼런스가 등록되었습니다.");
+      router.refresh();
+    } catch (error) {
+      console.error("[dashboard:references:create] failed", {
+        error,
+        inputSummary: {
+          name: values.name,
+          price: values.price,
+          durationMinutes: values.durationMinutes,
+          imageCount: values.imageUrls.length,
+          categoryCount: values.categories.length,
+          isVisible: values.isVisible
+        }
+      });
+
+      const message = error instanceof Error ? error.message : "레퍼런스 등록에 실패했습니다.";
+      setToastMessage(message);
+    } finally {
+      setCreatePending(false);
+    }
   };
 
   const handleOpenDetail = (id: string) => {
@@ -37,7 +124,51 @@ export function DashboardDesignLibrarySection({ references }: DashboardDesignLib
     setSelectedReferenceId(null);
   };
 
-  const hasReferences = references.length > 0;
+  const handleOpenEdit = () => {
+    if (!selectedReference) return;
+    setSelectedReferenceId(null);
+    setEditingReferenceId(selectedReference.id);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEdit = () => {
+    if (editPending) return;
+    setIsEditModalOpen(false);
+    setEditingReferenceId(null);
+  };
+
+  const handleEditSubmit = async (values: ReferenceEditorFormValues) => {
+    if (!editingReferenceId || editPending) return;
+    setEditPending(true);
+
+    try {
+      await updateReferenceForCurrentUser(editingReferenceId, values);
+      setIsEditModalOpen(false);
+      setEditingReferenceId(null);
+      setToastMessage("레퍼런스가 수정되었습니다.");
+      router.refresh();
+    } catch (error) {
+      console.error("[dashboard:references:update] failed", {
+        referenceId: editingReferenceId,
+        error,
+        inputSummary: {
+          name: values.name,
+          price: values.price,
+          durationMinutes: values.durationMinutes,
+          imageCount: values.imageUrls.length,
+          categoryCount: values.categories.length,
+          isVisible: values.isVisible
+        }
+      });
+
+      const message = error instanceof Error ? error.message : "레퍼런스 수정에 실패했습니다.";
+      setToastMessage(message);
+    } finally {
+      setEditPending(false);
+    }
+  };
+
+  const hasAnyReferences = references.length > 0;
 
   return (
     <div className="space-y-6">
@@ -45,7 +176,7 @@ export function DashboardDesignLibrarySection({ references }: DashboardDesignLib
         <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div>
             <h3 className="text-lg font-bold">디자인 관리</h3>
-            <p className="text-xs text-slate-400">노출중 레퍼런스 조회</p>
+            <p className="text-xs text-slate-400">노출중 레퍼런스 조회 및 관리</p>
           </div>
           <button
             type="button"
@@ -59,7 +190,7 @@ export function DashboardDesignLibrarySection({ references }: DashboardDesignLib
           </button>
         </div>
 
-        {hasReferences ? (
+        {hasAnyReferences ? (
           <div
             className="no-scrollbar max-h-[22rem] overflow-y-auto pr-1 sm:max-h-[26rem] lg:max-h-[30rem]"
             tabIndex={0}
@@ -93,7 +224,7 @@ export function DashboardDesignLibrarySection({ references }: DashboardDesignLib
               현재 노출중인 레퍼런스가 없습니다.
             </p>
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              레퍼런스 관리에서 디자인을 등록하거나 노출 상태를 변경해 주세요.
+              이 화면에서 바로 디자인을 등록해 주세요.
             </p>
             <button
               type="button"
@@ -101,9 +232,9 @@ export function DashboardDesignLibrarySection({ references }: DashboardDesignLib
               className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-primary/90"
             >
               <span className="material-icons text-sm" aria-hidden="true">
-                open_in_new
+                add
               </span>
-              디자인 등록하러 가기
+              디자인 등록하기
             </button>
           </div>
         )}
@@ -122,13 +253,72 @@ export function DashboardDesignLibrarySection({ references }: DashboardDesignLib
             item={selectedReference}
             titleId="dashboard-design-detail-title"
             onClose={handleCloseDetail}
-            canEdit={false}
+            onRequestEdit={handleOpenEdit}
+            canEdit
           />
         ) : null}
         <p id="dashboard-design-detail-description" className="sr-only">
-          대시보드 디자인 상세 정보를 확인하는 모달입니다.
+          대시보드 디자인 상세 정보를 확인하고 수정하는 모달입니다.
         </p>
       </BaseModal>
+
+      <BaseModal
+        open={isCreateModalOpen}
+        onClose={handleCloseCreate}
+        titleId="dashboard-reference-create-title"
+        descriptionId="dashboard-reference-create-description"
+      >
+        <ReferenceEditorForm
+          mode="create"
+          titleId="dashboard-reference-create-title"
+          title="레퍼런스 등록"
+          subtitle="대시보드에서 바로 레퍼런스를 등록합니다."
+          submitLabel={createPending ? "등록 중..." : "등록하기"}
+          onCancel={handleCloseCreate}
+          onSubmit={handleCreateSubmit}
+        />
+        <p id="dashboard-reference-create-description" className="sr-only">
+          대시보드에서 레퍼런스를 등록하는 모달입니다.
+        </p>
+      </BaseModal>
+
+      <BaseModal
+        open={isEditModalOpen && editingReference !== null}
+        onClose={handleCloseEdit}
+        titleId="dashboard-reference-edit-title"
+        descriptionId="dashboard-reference-edit-description"
+      >
+        {editingReference ? (
+          <>
+            <ReferenceEditorForm
+              mode="edit"
+              initialValue={editingReference}
+              titleId="dashboard-reference-edit-title"
+              title="레퍼런스 수정"
+              subtitle="대시보드에서 레퍼런스 정보를 수정합니다."
+              submitLabel={editPending ? "저장 중..." : "저장하기"}
+              onCancel={handleCloseEdit}
+              onSubmit={handleEditSubmit}
+            />
+            <p id="dashboard-reference-edit-description" className="sr-only">
+              대시보드에서 레퍼런스를 수정하는 모달입니다.
+            </p>
+          </>
+        ) : null}
+      </BaseModal>
+
+      {toastMessage ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed right-4 top-4 z-[95] inline-flex items-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-medium text-white shadow-xl dark:bg-gray-100 dark:text-gray-900 sm:right-6 sm:top-6"
+        >
+          <span className="material-icons text-base" aria-hidden="true">
+            check_circle
+          </span>
+          <span>{toastMessage}</span>
+        </div>
+      ) : null}
     </div>
   );
 }
