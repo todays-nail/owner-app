@@ -24,16 +24,22 @@ interface RawReferenceStyleTag {
   style_tags: RawStyleTag | RawStyleTag[] | null;
 }
 
+interface RawReferenceLikeAggregate {
+  count: number | string | null;
+}
+
 interface RawReferenceRow {
   id: string;
   title: string | null;
   description: string | null;
   base_price: number | null;
+  created_at: string | null;
   service_duration_min: number | null;
   is_active: boolean | null;
   badge: string | null;
   reference_images: RawReferenceImage[] | null;
   reference_style_tags: RawReferenceStyleTag[] | null;
+  reference_likes: RawReferenceLikeAggregate[] | RawReferenceLikeAggregate | null;
 }
 
 const REFERENCE_CATEGORY_SET = new Set<ReferenceCategory>(REFERENCE_CATEGORIES);
@@ -102,6 +108,23 @@ function parseCategories(tags: RawReferenceStyleTag[] | null): ReferenceCategory
   return next;
 }
 
+function parseLikeCount(
+  rawLikes: RawReferenceLikeAggregate[] | RawReferenceLikeAggregate | null
+): number {
+  const maybeCount = Array.isArray(rawLikes) ? rawLikes[0]?.count : rawLikes?.count;
+
+  if (typeof maybeCount === "number" && Number.isFinite(maybeCount)) {
+    return maybeCount;
+  }
+
+  if (typeof maybeCount === "string") {
+    const parsed = Number(maybeCount);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  return 0;
+}
+
 function mapReferenceRow(row: RawReferenceRow): DesignReference | null {
   const name = readNonEmptyString(row.title);
   if (!name) {
@@ -133,7 +156,9 @@ function mapReferenceRow(row: RawReferenceRow): DesignReference | null {
     isVisible: row.is_active !== false,
     badge: parseBadge(row.badge),
     durationMinutes,
-    description: typeof row.description === "string" ? row.description : ""
+    description: typeof row.description === "string" ? row.description : "",
+    likeCount: parseLikeCount(row.reference_likes),
+    createdAt: typeof row.created_at === "string" ? row.created_at : ""
   };
 }
 
@@ -172,7 +197,7 @@ export async function getReferencesForCurrentUser(): Promise<DesignReference[]> 
   const { data: rawReferences, error: referencesError } = await supabase
     .from("references")
     .select(
-      "id,title,description,base_price,service_duration_min,is_active,badge,reference_images(image_url,is_primary,sort_order),reference_style_tags(style_tags(name))"
+      "id,title,description,base_price,created_at,service_duration_min,is_active,badge,reference_images(image_url,is_primary,sort_order),reference_style_tags(style_tags(name)),reference_likes(count)"
     )
     .in("shop_id", shopIds)
     .order("updated_at", { ascending: false });

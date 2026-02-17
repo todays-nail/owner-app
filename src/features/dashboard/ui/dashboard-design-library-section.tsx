@@ -20,6 +20,15 @@ function formatKrw(price: number): string {
   return `₩${new Intl.NumberFormat("ko-KR").format(price)}`;
 }
 
+function parseCreatedAt(value: string | undefined): number {
+  if (!value) {
+    return 0;
+  }
+
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
 export function DashboardDesignLibrarySection({ references }: DashboardDesignLibrarySectionProps) {
   const router = useRouter();
   const { showToast } = useAppToast();
@@ -43,17 +52,18 @@ export function DashboardDesignLibrarySection({ references }: DashboardDesignLib
     [editingReferenceId, references]
   );
 
-  useEffect(() => {
-    if (!toastMessage) return;
+  const topReferences = useMemo(() => {
+    return [...references]
+      .sort((a, b) => {
+        const likeOrder = (b.likeCount ?? 0) - (a.likeCount ?? 0);
+        if (likeOrder !== 0) {
+          return likeOrder;
+        }
 
-    const timeoutId = window.setTimeout(() => {
-      setToastMessage(null);
-    }, 2500);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [toastMessage]);
+        return parseCreatedAt(b.createdAt) - parseCreatedAt(a.createdAt);
+      })
+      .slice(0, 5);
+  }, [references]);
 
   useEffect(() => {
     if (!selectedReferenceId) {
@@ -174,7 +184,7 @@ export function DashboardDesignLibrarySection({ references }: DashboardDesignLib
     }
   };
 
-  const hasAnyReferences = references.length > 0;
+  const hasAnyReferences = topReferences.length > 0;
 
   return (
     <div className="space-y-6">
@@ -202,8 +212,8 @@ export function DashboardDesignLibrarySection({ references }: DashboardDesignLib
             tabIndex={0}
             aria-label="디자인 목록"
           >
-            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-              {references.map((item) => (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+              {topReferences.map((item) => (
                 <button
                   key={item.id}
                   type="button"
@@ -217,8 +227,8 @@ export function DashboardDesignLibrarySection({ references }: DashboardDesignLib
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/60 via-transparent to-transparent p-3">
-                    <p className="text-[10px] font-bold text-white">{item.name}</p>
-                    <p className="text-[10px] text-white/80">{formatKrw(item.price)}</p>
+                    <p className="text-xs font-bold text-white sm:text-sm">{item.name}</p>
+                    <p className="text-xs text-white/80 sm:text-sm">{formatKrw(item.price)}</p>
                   </div>
                 </button>
               ))}
