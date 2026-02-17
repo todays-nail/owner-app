@@ -4,6 +4,7 @@
 import {useEffect, useMemo, useState} from "react";
 import {useRouter} from "next/navigation";
 
+import {useAppToast} from "@/components/ui/app-toast-provider";
 import {BaseModal} from "@/components/ui/base-modal";
 import type {DesignReference} from "@/features/references/model/references";
 import {createReferenceForCurrentUser} from "@/features/references/services/create-reference-browser-service";
@@ -21,8 +22,7 @@ function formatKrw(price: number): string {
 
 export function DashboardDesignLibrarySection({ references }: DashboardDesignLibrarySectionProps) {
   const router = useRouter();
-
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const { showToast } = useAppToast();
 
   const [selectedReferenceId, setSelectedReferenceId] = useState<string | null>(null);
 
@@ -94,7 +94,7 @@ export function DashboardDesignLibrarySection({ references }: DashboardDesignLib
     try {
       await createReferenceForCurrentUser(values);
       setIsCreateModalOpen(false);
-      setToastMessage("레퍼런스가 등록되었습니다.");
+      showToast("레퍼런스가 등록되었습니다.");
       router.refresh();
     } catch (error) {
       console.error("[dashboard:references:create] failed", {
@@ -110,7 +110,10 @@ export function DashboardDesignLibrarySection({ references }: DashboardDesignLib
       });
 
       const message = error instanceof Error ? error.message : "레퍼런스 등록에 실패했습니다.";
-      setToastMessage(message);
+      showToast({
+        message,
+        variant: "error"
+      });
     } finally {
       setCreatePending(false);
     }
@@ -145,7 +148,7 @@ export function DashboardDesignLibrarySection({ references }: DashboardDesignLib
       await updateReferenceForCurrentUser(editingReferenceId, values);
       setIsEditModalOpen(false);
       setEditingReferenceId(null);
-      setToastMessage("레퍼런스가 수정되었습니다.");
+      showToast("레퍼런스가 수정되었습니다.");
       router.refresh();
     } catch (error) {
       console.error("[dashboard:references:update] failed", {
@@ -162,7 +165,10 @@ export function DashboardDesignLibrarySection({ references }: DashboardDesignLib
       });
 
       const message = error instanceof Error ? error.message : "레퍼런스 수정에 실패했습니다.";
-      setToastMessage(message);
+      showToast({
+        message,
+        variant: "error"
+      });
     } finally {
       setEditPending(false);
     }
@@ -306,19 +312,6 @@ export function DashboardDesignLibrarySection({ references }: DashboardDesignLib
           </>
         ) : null}
       </BaseModal>
-
-      {toastMessage ? (
-        <div
-          role="status"
-          aria-live="polite"
-          className="fixed right-4 top-4 z-[95] inline-flex items-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-medium text-white shadow-xl dark:bg-gray-100 dark:text-gray-900 sm:right-6 sm:top-6"
-        >
-          <span className="material-icons text-base" aria-hidden="true">
-            check_circle
-          </span>
-          <span>{toastMessage}</span>
-        </div>
-      ) : null}
     </div>
   );
 }

@@ -7,6 +7,7 @@ import {useProtectedUserProfile} from "@/components/auth/protected-user-profile-
 import {NotificationBellButton} from "@/components/common/notification-bell-button";
 import {NotificationPopover} from "@/components/common/notification-popover";
 import {OwnerSidebar} from "@/components/shell/owner-sidebar";
+import {useAppToast} from "@/components/ui/app-toast-provider";
 import {MetricCard} from "@/components/ui/metric-card";
 import {DashboardBookingPipelineSection} from "@/features/dashboard/ui/dashboard-booking-pipeline-section";
 import {
@@ -27,6 +28,7 @@ export interface DashboardViewProps {
 
 export function DashboardView({ references, scheduleItems }: DashboardViewProps) {
   const router = useRouter();
+  const { showToast } = useAppToast();
   const { displayName } = useProtectedUserProfile();
   const greetingName = displayName.endsWith("님")
     ? displayName
@@ -39,7 +41,6 @@ export function DashboardView({ references, scheduleItems }: DashboardViewProps)
   );
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const unreadCount = notificationItems.filter((item) => !item.isRead).length;
 
   useEffect(() => {
@@ -70,20 +71,6 @@ export function DashboardView({ references, scheduleItems }: DashboardViewProps)
       window.removeEventListener("resize", syncScheduleSectionHeight);
     };
   }, []);
-
-  useEffect(() => {
-    if (!toastMessage) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setToastMessage(null);
-    }, 2500);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [toastMessage]);
 
   const handleMarkRead = (id: string) => {
     setNotificationItems((prevItems) =>
@@ -128,7 +115,7 @@ export function DashboardView({ references, scheduleItems }: DashboardViewProps)
       values.customerName.trim().length > 0
         ? `${values.customerName} 고객`
         : "새 예약";
-    setToastMessage(`${customerName} 등록 예시가 저장되었습니다.`);
+    showToast(`${customerName} 등록 예시가 저장되었습니다.`);
     setIsBookingModalOpen(false);
   };
 
@@ -238,19 +225,6 @@ export function DashboardView({ references, scheduleItems }: DashboardViewProps)
         onClose={handleCloseBookingModal}
         onSubmit={handleBookingCreateSubmit}
       />
-
-      {toastMessage ? (
-        <div
-          role="status"
-          aria-live="polite"
-          className="fixed right-4 top-4 z-[70] inline-flex items-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-medium text-white shadow-xl dark:bg-gray-100 dark:text-gray-900 sm:right-6 sm:top-6"
-        >
-          <span className="material-icons text-base" aria-hidden="true">
-            check_circle
-          </span>
-          <span>{toastMessage}</span>
-        </div>
-      ) : null}
 
       <div className="pointer-events-none fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         <button

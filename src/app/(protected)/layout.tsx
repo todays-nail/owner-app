@@ -5,6 +5,7 @@ import {
   type ProtectedUserProfile,
   ProtectedUserProfileProvider
 } from "@/components/auth/protected-user-profile-context";
+import {AppToastProvider} from "@/components/ui/app-toast-provider";
 import {createPageMetadata} from "@/lib/metadata";
 import {createSupabaseServerClient} from "@/lib/supabase/server";
 
@@ -83,7 +84,7 @@ export default async function ProtectedLayout({
   if (!supabase) {
     return (
       <ProtectedUserProfileProvider profile={buildProtectedUserProfile(null)}>
-        {children}
+        <AppToastProvider>{children}</AppToastProvider>
       </ProtectedUserProfileProvider>
     );
   }
@@ -98,7 +99,7 @@ export default async function ProtectedLayout({
 
   return (
     <ProtectedUserProfileProvider profile={buildProtectedUserProfile(user)}>
-      {children}
+      <AppToastProvider>{children}</AppToastProvider>
     </ProtectedUserProfileProvider>
   );
 }

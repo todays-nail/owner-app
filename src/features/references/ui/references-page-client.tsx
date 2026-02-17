@@ -3,6 +3,7 @@
 import {useEffect, useMemo, useState} from "react";
 import {useRouter, useSearchParams} from "next/navigation";
 
+import {useAppToast} from "@/components/ui/app-toast-provider";
 import {BaseModal} from "@/components/ui/base-modal";
 import {cn} from "@/lib/utils";
 import {
@@ -30,12 +31,12 @@ interface ReferencesPageClientProps {
 export function ReferencesPageClient({ initialReferences }: ReferencesPageClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { showToast } = useAppToast();
 
   const [query, setQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<Set<ReferenceCategory>>(new Set());
   const [viewMode, setViewMode] = useState<ReferenceViewMode>("grid");
   const [currentPage, setCurrentPage] = useState(1);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const [selectedReferenceId, setSelectedReferenceId] = useState<string | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -56,10 +57,16 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
   const normalizedQuery = query.trim().toLowerCase();
 
   useEffect(() => {
-    const messageByNotice: Record<string, string> = {
-      created: "새 레퍼런스가 등록되었습니다.",
-      updated: "레퍼런스가 수정되었습니다.",
-      "create-modal-only": "레퍼런스 등록 모달을 열었습니다."
+    const toastByNotice: Record<
+      string,
+      { message: string; variant?: "success" | "info" }
+    > = {
+      created: { message: "새 레퍼런스가 등록되었습니다." },
+      updated: { message: "레퍼런스가 수정되었습니다." },
+      "create-modal-only": {
+        message: "레퍼런스 등록 모달을 열었습니다.",
+        variant: "info"
+      }
     };
 
     const params = new URLSearchParams(searchParams.toString());
@@ -74,9 +81,9 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
 
     const notice = params.get("notice");
     if (notice) {
-      const mapped = messageByNotice[notice];
+      const mapped = toastByNotice[notice];
       if (mapped) {
-        setToastMessage(mapped);
+        showToast(mapped);
       }
       params.delete("notice");
       shouldReplace = true;
@@ -87,19 +94,7 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
         scroll: false
       });
     }
-  }, [router, searchParams]);
-
-  useEffect(() => {
-    if (!toastMessage) return;
-
-    const timer = window.setTimeout(() => {
-      setToastMessage(null);
-    }, 2600);
-
-    return () => {
-      window.clearTimeout(timer);
-    };
-  }, [toastMessage]);
+  }, [router, searchParams, showToast]);
 
   const filteredReferences = useMemo(() => {
     return initialReferences.filter((item) => {
@@ -151,8 +146,11 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
 
     setIsDetailModalOpen(false);
     setSelectedReferenceId(null);
-    setToastMessage("선택한 레퍼런스를 찾을 수 없습니다.");
-  }, [isDetailModalOpen, selectedReference]);
+    showToast({
+      message: "선택한 레퍼런스를 찾을 수 없습니다.",
+      variant: "info"
+    });
+  }, [isDetailModalOpen, selectedReference, showToast]);
 
   useEffect(() => {
     if (!isEditModalOpen) return;
@@ -211,7 +209,7 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
     try {
       await createReferenceForCurrentUser(values);
       setIsCreateModalOpen(false);
-      setToastMessage("새 레퍼런스가 등록되었습니다.");
+      showToast("새 레퍼런스가 등록되었습니다.");
       router.refresh();
     } catch (error) {
       console.error("[references:create] submit failed", {
@@ -227,7 +225,10 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
       });
 
       const message = error instanceof Error ? error.message : "레퍼런스 등록에 실패했습니다.";
-      setToastMessage(message);
+      showToast({
+        message,
+        variant: "error"
+      });
     } finally {
       setCreatePending(false);
     }
@@ -253,7 +254,7 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
       await updateReferenceForCurrentUser(editingReferenceId, values);
       setIsEditModalOpen(false);
       setEditingReferenceId(null);
-      setToastMessage("레퍼런스가 수정되었습니다.");
+      showToast("레퍼런스가 수정되었습니다.");
       router.refresh();
     } catch (error) {
       console.error("[references:update] submit failed", {
@@ -270,7 +271,10 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
       });
 
       const message = error instanceof Error ? error.message : "레퍼런스 수정에 실패했습니다.";
-      setToastMessage(message);
+      showToast({
+        message,
+        variant: "error"
+      });
     } finally {
       setEditPending(false);
     }
@@ -301,7 +305,7 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
 
       setIsDeleteModalOpen(false);
       setDeletingReferenceId(null);
-      setToastMessage("레퍼런스가 삭제되었습니다.");
+      showToast("레퍼런스가 삭제되었습니다.");
       router.refresh();
     } catch (error) {
       console.error("[references:delete] submit failed", {
@@ -310,7 +314,10 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
       });
 
       const message = error instanceof Error ? error.message : "레퍼런스 삭제에 실패했습니다.";
-      setToastMessage(message);
+      showToast({
+        message,
+        variant: "error"
+      });
     } finally {
       setDeletePending(false);
     }
@@ -327,12 +334,15 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
 
     try {
       await setReferenceVisibilityForCurrentUser(id, nextValue);
-      setToastMessage(nextValue ? "레퍼런스가 노출 상태로 변경되었습니다." : "레퍼런스가 비노출 처리되었습니다.");
+      showToast(nextValue ? "레퍼런스가 노출 상태로 변경되었습니다." : "레퍼런스가 비노출 처리되었습니다.");
       router.refresh();
     } catch (error) {
       console.error("[references:visibility] submit failed", { referenceId: id, nextValue, error });
       const message = error instanceof Error ? error.message : "노출 상태 변경에 실패했습니다.";
-      setToastMessage(message);
+      showToast({
+        message,
+        variant: "error"
+      });
     } finally {
       setTogglePendingIds((prev) => {
         const next = new Set(prev);
@@ -716,19 +726,6 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
           </>
         ) : null}
       </BaseModal>
-
-      {toastMessage ? (
-        <div
-          role="status"
-          aria-live="polite"
-          className="fixed right-4 top-4 z-50 inline-flex items-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-medium text-white shadow-xl dark:bg-gray-100 dark:text-gray-900 sm:right-6 sm:top-6"
-        >
-          <span className="material-icons text-base" aria-hidden="true">
-            check_circle
-          </span>
-          <span>{toastMessage}</span>
-        </div>
-      ) : null}
     </div>
   );
 }
