@@ -98,7 +98,7 @@ export default function ResetPasswordPage() {
 
               setMessage("비밀번호가 변경되었습니다. 잠시 후 이동합니다.");
               router.refresh();
-              router.push("/");
+              router.push("/dashboard");
             } finally {
               setPending(false);
             }

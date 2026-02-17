@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const AUTH_ENTRY_PATHS = new Set(["/login", "/signup", "/signup/check-email"]);
 
-const PUBLIC_PATHS = new Set(["/terms", "/privacy"]);
+const PUBLIC_PATHS = new Set(["/", "/owner", "/user", "/terms", "/privacy"]);
 
 function isPublicPath(pathname: string) {
   if (AUTH_ENTRY_PATHS.has(pathname)) return true;
@@ -60,7 +60,7 @@ export async function updateSession(request: NextRequest) {
 
   if (user && AUTH_ENTRY_PATHS.has(pathname)) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/";
+    redirectUrl.pathname = "/dashboard";
     redirectUrl.search = "";
     return NextResponse.redirect(redirectUrl);
   }

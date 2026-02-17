@@ -4,9 +4,9 @@ import { NextResponse } from "next/server";
 import { createSupabaseRouteHandlerClient } from "@/lib/supabase/route-handler";
 
 function safeNextPath(value: string | null) {
-  if (!value) return "/";
-  if (!value.startsWith("/")) return "/";
-  if (value.startsWith("//")) return "/";
+  if (!value) return "/dashboard";
+  if (!value.startsWith("/")) return "/dashboard";
+  if (value.startsWith("//")) return "/dashboard";
   return value;
 }
 
@@ -37,4 +37,3 @@ export async function GET(request: NextRequest) {
 
   return applyCookies(NextResponse.redirect(redirectUrl));
 }
-
