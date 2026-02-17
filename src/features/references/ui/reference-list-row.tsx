@@ -49,81 +49,127 @@ export function ReferenceListRow({
       )}
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <button
-          type="button"
-          onClick={() => onOpenDetail(item.id)}
-          aria-label={`${item.name} 상세보기`}
-          className="flex min-w-0 flex-1 flex-col gap-4 text-left sm:flex-row sm:items-center"
-        >
-          <div className="relative h-24 w-full flex-shrink-0 overflow-hidden rounded-xl bg-gray-100 sm:h-20 sm:w-28">
-            <img
-              src={item.imageUrl}
-              alt={item.name}
-              className={cn(
-                "h-full w-full object-cover transition-all duration-500",
-                visible ? "group-hover:scale-105" : "grayscale group-hover:grayscale-0"
-              )}
-            />
-            {item.badge ? (
-              <div
+        <div className="flex min-w-0 flex-1 flex-col gap-4 sm:flex-row sm:items-center">
+          <div className="relative h-24 w-full flex-shrink-0 sm:h-20 sm:w-28">
+            <button
+              type="button"
+              onClick={() => onOpenDetail(item.id)}
+              aria-label={`${item.name} 상세보기`}
+              className="block h-full w-full overflow-hidden rounded-xl bg-gray-100 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            >
+              <img
+                src={item.imageUrl}
+                alt={item.name}
                 className={cn(
-                  "absolute right-2 top-2 rounded-md px-2 py-1 text-[10px] font-bold text-white",
-                  item.badge === "NEW" ? "bg-primary shadow-sm" : "bg-black/40 backdrop-blur-md"
+                  "h-full w-full object-cover transition-all duration-500",
+                  visible ? "group-hover:scale-105" : "grayscale group-hover:grayscale-0"
+                )}
+              />
+              {item.badge ? (
+                <div
+                  className={cn(
+                    "absolute right-2 top-2 rounded-md px-2 py-1 text-[10px] font-bold text-white",
+                    item.badge === "NEW" ? "bg-primary shadow-sm" : "bg-black/40 backdrop-blur-md"
+                  )}
+                >
+                  {item.badge}
+                </div>
+              ) : null}
+              <div
+                className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-semibold text-white backdrop-blur-sm"
+                aria-label={`좋아요 ${likeCountText}건`}
+              >
+                <span className="material-icons text-xs leading-none text-rose-400" aria-hidden="true">
+                  favorite
+                </span>
+                <span>{likeCountText}</span>
+              </div>
+            </button>
+
+            <div className="absolute bottom-2 right-2 z-10 flex items-center gap-1">
+              <button
+                type="button"
+                aria-label={`${item.name} 수정`}
+                onClick={() => onEdit(item.id)}
+                disabled={isEditDisabled}
+                aria-disabled={isEditDisabled}
+                className={cn(
+                  "rounded-full bg-white/90 p-1.5 text-gray-500 shadow-sm backdrop-blur transition-colors hover:bg-white hover:text-primary dark:bg-gray-900/80 dark:text-gray-200 dark:hover:bg-gray-900 dark:hover:text-primary",
+                  isEditDisabled
+                    ? "cursor-not-allowed opacity-50 hover:bg-white/90 hover:text-gray-500 dark:hover:bg-gray-900/80 dark:hover:text-gray-200"
+                    : ""
                 )}
               >
-                {item.badge}
-              </div>
-            ) : null}
-            <div
-              className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-semibold text-white backdrop-blur-sm"
-              aria-label={`좋아요 ${likeCountText}건`}
-            >
-              <span className="material-icons text-xs leading-none text-rose-400" aria-hidden="true">
-                favorite
-              </span>
-              <span>{likeCountText}</span>
+                <span className="material-icons text-base" aria-hidden="true">
+                  edit
+                </span>
+              </button>
+              <button
+                type="button"
+                aria-label={`${item.name} 삭제`}
+                onClick={() => onDelete(item.id)}
+                disabled={isDeleteDisabled}
+                aria-disabled={isDeleteDisabled}
+                className={cn(
+                  "rounded-full bg-white/90 p-1.5 text-gray-500 shadow-sm backdrop-blur transition-colors hover:bg-white hover:text-red-500 dark:bg-gray-900/80 dark:text-gray-200 dark:hover:bg-gray-900 dark:hover:text-red-400",
+                  isDeleteDisabled
+                    ? "cursor-not-allowed opacity-50 hover:bg-white/90 hover:text-gray-500 dark:hover:bg-gray-900/80 dark:hover:text-gray-200"
+                    : ""
+                )}
+              >
+                <span className="material-icons text-base" aria-hidden="true">
+                  delete
+                </span>
+              </button>
             </div>
           </div>
 
-          <div className="min-w-0 flex-1">
-            <h3
-              className={cn(
-                "truncate text-base font-bold dark:text-white",
-                visible ? "text-gray-900" : "text-gray-500 dark:text-gray-400"
-              )}
-            >
-              {item.name}
-            </h3>
-            <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-              <div className="flex min-w-0 flex-wrap gap-1.5">
-                {item.categories.map((category) => (
+          <button
+            type="button"
+            onClick={() => onOpenDetail(item.id)}
+            aria-label={`${item.name} 상세보기`}
+            className="min-w-0 flex-1 text-left focus-visible:outline-none"
+          >
+            <div className="min-w-0 flex-1">
+              <h3
+                className={cn(
+                  "truncate text-base font-bold dark:text-white",
+                  visible ? "text-gray-900" : "text-gray-500 dark:text-gray-400"
+                )}
+              >
+                {item.name}
+              </h3>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex min-w-0 flex-wrap gap-1.5">
+                  {item.categories.map((category) => (
+                    <span
+                      key={category}
+                      className={cn(
+                        "rounded-full px-2.5 py-1 text-[11px] font-semibold",
+                        visible
+                          ? "bg-chip-bg text-chip-text"
+                          : "bg-gray-50 text-gray-400 dark:bg-gray-800 dark:text-gray-400"
+                      )}
+                    >
+                      {category}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex flex-shrink-0 items-baseline gap-1.5">
+                  <span className="text-xs text-gray-400">기본가</span>
                   <span
-                    key={category}
                     className={cn(
-                      "rounded-full px-2.5 py-1 text-[11px] font-semibold",
-                      visible
-                        ? "bg-chip-bg text-chip-text"
-                        : "bg-gray-50 text-gray-400 dark:bg-gray-800 dark:text-gray-400"
+                      "text-base font-bold",
+                      visible ? "text-primary" : "text-gray-400"
                     )}
                   >
-                    {category}
+                    {formatKrw(item.price)}
                   </span>
-                ))}
-              </div>
-              <div className="flex flex-shrink-0 items-baseline gap-1.5">
-                <span className="text-xs text-gray-400">기본가</span>
-                <span
-                  className={cn(
-                    "text-base font-bold",
-                    visible ? "text-primary" : "text-gray-400"
-                  )}
-                >
-                  {formatKrw(item.price)}
-                </span>
+                </div>
               </div>
             </div>
-          </div>
-        </button>
+          </button>
+        </div>
 
         <div className="flex items-center gap-3 sm:ml-2">
           <button
@@ -164,43 +210,6 @@ export function ReferenceListRow({
               {visible ? "노출" : "비노출"}
             </span>
           </button>
-
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              aria-label={`${item.name} 수정`}
-              onClick={() => onEdit(item.id)}
-              disabled={isEditDisabled}
-              aria-disabled={isEditDisabled}
-              className={cn(
-                "rounded-xl p-2 text-gray-400 transition-colors hover:bg-primary/5 hover:text-primary",
-                isEditDisabled
-                  ? "cursor-not-allowed opacity-50 hover:bg-transparent hover:text-gray-400"
-                  : ""
-              )}
-            >
-              <span className="material-icons text-lg" aria-hidden="true">
-                edit
-              </span>
-            </button>
-            <button
-              type="button"
-              aria-label={`${item.name} 삭제`}
-              onClick={() => onDelete(item.id)}
-              disabled={isDeleteDisabled}
-              aria-disabled={isDeleteDisabled}
-              className={cn(
-                "rounded-xl p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500",
-                isDeleteDisabled
-                  ? "cursor-not-allowed opacity-50 hover:bg-transparent hover:text-gray-400"
-                  : ""
-              )}
-            >
-              <span className="material-icons text-lg" aria-hidden="true">
-                delete
-              </span>
-            </button>
-          </div>
         </div>
       </div>
     </article>
