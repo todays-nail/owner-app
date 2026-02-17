@@ -13,12 +13,17 @@ import {
   type ReferenceViewMode
 } from "@/features/references/model/references";
 import {createReferenceForCurrentUser} from "@/features/references/services/create-reference-browser-service";
+import {deleteReferenceForCurrentUser} from "@/features/references/services/delete-reference-browser-service";
+import {
+  setReferenceVisibilityForCurrentUser
+} from "@/features/references/services/set-reference-visibility-browser-service";
+import {updateReferenceForCurrentUser} from "@/features/references/services/update-reference-browser-service";
 import {ReferenceCard} from "@/features/references/ui/reference-card";
 import {ReferenceDetailPanel} from "@/features/references/ui/reference-detail-panel";
 import {ReferenceEditorForm, type ReferenceEditorFormValues} from "@/features/references/ui/reference-editor-form";
 import {ReferenceListRow} from "@/features/references/ui/reference-list-row";
 
-const READ_ONLY_NOTICE = "생성만 지원, 편집 기능은 준비중입니다.";
+const FEATURE_NOTICE = "수정/삭제/노출 토글 연동 완료";
 
 interface ReferencesPageClientProps {
   initialReferences: DesignReference[];
@@ -33,18 +38,30 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
   const [viewMode, setViewMode] = useState<ReferenceViewMode>("grid");
   const [currentPage, setCurrentPage] = useState(1);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
   const [selectedReferenceId, setSelectedReferenceId] = useState<string | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [createPending, setCreatePending] = useState(false);
+
+  const [editingReferenceId, setEditingReferenceId] = useState<string | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editPending, setEditPending] = useState(false);
+
+  const [deletingReferenceId, setDeletingReferenceId] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletePending, setDeletePending] = useState(false);
+
+  const [togglePendingIds, setTogglePendingIds] = useState<Set<string>>(new Set());
 
   const normalizedQuery = query.trim().toLowerCase();
 
   useEffect(() => {
     const messageByNotice: Record<string, string> = {
-      created: "새 디자인이 등록되었습니다.",
+      created: "새 레퍼런스가 등록되었습니다.",
       updated: "레퍼런스가 수정되었습니다.",
-      "create-modal-only": "디자인 등록 모달을 열었습니다."
+      "create-modal-only": "레퍼런스 등록 모달을 열었습니다."
     };
 
     const params = new URLSearchParams(searchParams.toString());
@@ -116,23 +133,44 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
   );
 
   const selectedReference = useMemo(
-    () => filteredReferences.find((item) => item.id === selectedReferenceId) ?? null,
-    [filteredReferences, selectedReferenceId]
+    () => initialReferences.find((item) => item.id === selectedReferenceId) ?? null,
+    [initialReferences, selectedReferenceId]
+  );
+
+  const editingReference = useMemo(
+    () => initialReferences.find((item) => item.id === editingReferenceId) ?? null,
+    [initialReferences, editingReferenceId]
+  );
+
+  const deletingReference = useMemo(
+    () => initialReferences.find((item) => item.id === deletingReferenceId) ?? null,
+    [initialReferences, deletingReferenceId]
   );
 
   useEffect(() => {
-    if (!isDetailModalOpen) {
-      return;
-    }
-
-    if (selectedReference !== null) {
-      return;
-    }
+    if (!isDetailModalOpen) return;
+    if (selectedReference !== null) return;
 
     setIsDetailModalOpen(false);
     setSelectedReferenceId(null);
     setToastMessage("선택한 레퍼런스를 찾을 수 없습니다.");
   }, [isDetailModalOpen, selectedReference]);
+
+  useEffect(() => {
+    if (!isEditModalOpen) return;
+    if (editingReference !== null) return;
+
+    setIsEditModalOpen(false);
+    setEditingReferenceId(null);
+  }, [editingReference, isEditModalOpen]);
+
+  useEffect(() => {
+    if (!isDeleteModalOpen) return;
+    if (deletingReference !== null) return;
+
+    setIsDeleteModalOpen(false);
+    setDeletingReferenceId(null);
+  }, [deletingReference, isDeleteModalOpen]);
 
   const handleCategoryToggle = (category: ReferenceCategory) => {
     setCurrentPage(1);
@@ -159,10 +197,6 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
     setSelectedReferenceId(null);
   };
 
-  const handleReadOnlyAction = () => {
-    setToastMessage(READ_ONLY_NOTICE);
-  };
-
   const handleOpenCreateModal = () => {
     setIsCreateModalOpen(true);
   };
@@ -175,10 +209,11 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
   const handleCreateSubmit = async (values: ReferenceEditorFormValues) => {
     if (createPending) return;
     setCreatePending(true);
+
     try {
       await createReferenceForCurrentUser(values);
       setIsCreateModalOpen(false);
-      setToastMessage("새 디자인이 등록되었습니다.");
+      setToastMessage("새 레퍼런스가 등록되었습니다.");
       router.refresh();
     } catch (error) {
       console.error("[references:create] submit failed", {
@@ -192,10 +227,120 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
           isVisible: values.isVisible
         }
       });
-      const message = error instanceof Error ? error.message : "디자인 등록에 실패했습니다.";
+
+      const message = error instanceof Error ? error.message : "레퍼런스 등록에 실패했습니다.";
       setToastMessage(message);
     } finally {
       setCreatePending(false);
+    }
+  };
+
+  const handleOpenEdit = (id: string) => {
+    setIsDetailModalOpen(false);
+    setEditingReferenceId(id);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    if (editPending) return;
+    setIsEditModalOpen(false);
+    setEditingReferenceId(null);
+  };
+
+  const handleEditSubmit = async (values: ReferenceEditorFormValues) => {
+    if (!editingReferenceId || editPending) return;
+    setEditPending(true);
+
+    try {
+      await updateReferenceForCurrentUser(editingReferenceId, values);
+      setIsEditModalOpen(false);
+      setEditingReferenceId(null);
+      setToastMessage("레퍼런스가 수정되었습니다.");
+      router.refresh();
+    } catch (error) {
+      console.error("[references:update] submit failed", {
+        referenceId: editingReferenceId,
+        error,
+        inputSummary: {
+          name: values.name,
+          price: values.price,
+          durationMinutes: values.durationMinutes,
+          imageCount: values.imageUrls.length,
+          categoryCount: values.categories.length,
+          isVisible: values.isVisible
+        }
+      });
+
+      const message = error instanceof Error ? error.message : "레퍼런스 수정에 실패했습니다.";
+      setToastMessage(message);
+    } finally {
+      setEditPending(false);
+    }
+  };
+
+  const handleOpenDeleteModal = (id: string) => {
+    setIsDetailModalOpen(false);
+    setDeletingReferenceId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    if (deletePending) return;
+    setIsDeleteModalOpen(false);
+    setDeletingReferenceId(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingReferenceId || deletePending) return;
+    setDeletePending(true);
+
+    try {
+      await deleteReferenceForCurrentUser(deletingReferenceId);
+
+      if (selectedReferenceId === deletingReferenceId) {
+        closeDetailModal();
+      }
+
+      setIsDeleteModalOpen(false);
+      setDeletingReferenceId(null);
+      setToastMessage("레퍼런스가 삭제되었습니다.");
+      router.refresh();
+    } catch (error) {
+      console.error("[references:delete] submit failed", {
+        referenceId: deletingReferenceId,
+        error
+      });
+
+      const message = error instanceof Error ? error.message : "레퍼런스 삭제에 실패했습니다.";
+      setToastMessage(message);
+    } finally {
+      setDeletePending(false);
+    }
+  };
+
+  const handleToggleVisible = async (id: string, nextValue: boolean) => {
+    if (togglePendingIds.has(id)) return;
+
+    setTogglePendingIds((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+
+    try {
+      await setReferenceVisibilityForCurrentUser(id, nextValue);
+      setToastMessage(nextValue ? "레퍼런스가 노출 상태로 변경되었습니다." : "레퍼런스가 비노출 처리되었습니다.");
+      router.refresh();
+    } catch (error) {
+      console.error("[references:visibility] submit failed", { referenceId: id, nextValue, error });
+      const message = error instanceof Error ? error.message : "노출 상태 변경에 실패했습니다.";
+      setToastMessage(message);
+    } finally {
+      setTogglePendingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
   };
 
@@ -224,6 +369,11 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   };
 
+  const handleEditFromDetail = () => {
+    if (!selectedReference) return;
+    handleOpenEdit(selectedReference.id);
+  };
+
   return (
     <div className="space-y-8 p-4 sm:p-6 lg:p-8">
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -241,12 +391,12 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
           <span className="material-icons mr-2 text-sm" aria-hidden="true">
             add
           </span>
-          디자인 등록
+          레퍼런스 등록
         </button>
       </header>
 
-      <section className="rounded-2xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
-        {READ_ONLY_NOTICE}
+      <section className="rounded-2xl border border-emerald-200 bg-emerald-50/90 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-200">
+        {FEATURE_NOTICE}
       </section>
 
       <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-surface-dark">
@@ -331,23 +481,30 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
         {hasResults ? (
           viewMode === "grid" ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {paginatedReferences.map((item) => (
-                <ReferenceCard
-                  key={item.id}
-                  item={item}
-                  visible={item.isVisible}
-                  readOnly
-                  onOpenDetail={handleOpenDetail}
-                  onToggleVisible={handleReadOnlyAction}
-                  onEdit={handleReadOnlyAction}
-                  onDelete={handleReadOnlyAction}
-                />
-              ))}
+              {paginatedReferences.map((item) => {
+                const isPending = togglePendingIds.has(item.id);
+                const actionsDisabled = createPending || editPending || deletePending;
+
+                return (
+                  <ReferenceCard
+                    key={item.id}
+                    item={item}
+                    visible={item.isVisible}
+                    onOpenDetail={handleOpenDetail}
+                    onToggleVisible={handleToggleVisible}
+                    onEdit={handleOpenEdit}
+                    onDelete={handleOpenDeleteModal}
+                    toggleDisabled={actionsDisabled || isPending}
+                    editDisabled={actionsDisabled}
+                    deleteDisabled={actionsDisabled}
+                  />
+                );
+              })}
 
               <button
                 type="button"
                 onClick={handleOpenCreateModal}
-                className="flex min-h-[300px] h-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-white p-6 transition-all duration-300 hover:border-primary hover:bg-primary/5 dark:border-gray-700 dark:bg-surface-dark"
+                className="flex h-full min-h-[300px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-white p-6 transition-all duration-300 hover:border-primary hover:bg-primary/5 dark:border-gray-700 dark:bg-surface-dark"
               >
                 <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gray-50 shadow-sm transition-colors dark:bg-gray-800">
                   <span className="material-icons text-3xl text-gray-300" aria-hidden="true">
@@ -364,18 +521,25 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
             </div>
           ) : (
             <div className="space-y-4">
-              {paginatedReferences.map((item) => (
-                <ReferenceListRow
-                  key={item.id}
-                  item={item}
-                  visible={item.isVisible}
-                  readOnly
-                  onOpenDetail={handleOpenDetail}
-                  onToggleVisible={handleReadOnlyAction}
-                  onEdit={handleReadOnlyAction}
-                  onDelete={handleReadOnlyAction}
-                />
-              ))}
+              {paginatedReferences.map((item) => {
+                const isPending = togglePendingIds.has(item.id);
+                const actionsDisabled = createPending || editPending || deletePending;
+
+                return (
+                  <ReferenceListRow
+                    key={item.id}
+                    item={item}
+                    visible={item.isVisible}
+                    onOpenDetail={handleOpenDetail}
+                    onToggleVisible={handleToggleVisible}
+                    onEdit={handleOpenEdit}
+                    onDelete={handleOpenDeleteModal}
+                    toggleDisabled={actionsDisabled || isPending}
+                    editDisabled={actionsDisabled}
+                    deleteDisabled={actionsDisabled}
+                  />
+                );
+              })}
 
               <button
                 type="button"
@@ -458,15 +622,83 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
         <ReferenceEditorForm
           mode="create"
           titleId="reference-create-title"
-          title="디자인 등록"
+          title="레퍼런스 등록"
           subtitle="새로운 네일 디자인을 라이브러리에 추가합니다."
           submitLabel={createPending ? "등록 중..." : "등록하기"}
           onCancel={handleCloseCreateModal}
           onSubmit={handleCreateSubmit}
         />
         <p id="reference-create-description" className="sr-only">
-          새로운 디자인을 등록하는 모달입니다.
+          새로운 레퍼런스를 등록하는 모달입니다.
         </p>
+      </BaseModal>
+
+      <BaseModal
+        open={isEditModalOpen && editingReference !== null}
+        onClose={handleCloseEditModal}
+        titleId="reference-edit-title"
+        descriptionId="reference-edit-description"
+      >
+        {editingReference ? (
+          <>
+            <ReferenceEditorForm
+              mode="edit"
+              initialValue={editingReference}
+              titleId="reference-edit-title"
+              title="레퍼런스 수정"
+              subtitle="등록된 디자인 정보를 수정합니다."
+              submitLabel={editPending ? "저장 중..." : "저장하기"}
+              onCancel={handleCloseEditModal}
+              onSubmit={handleEditSubmit}
+            />
+            <p id="reference-edit-description" className="sr-only">
+              레퍼런스 정보를 수정하는 모달입니다.
+            </p>
+          </>
+        ) : null}
+      </BaseModal>
+
+      <BaseModal
+        open={isDeleteModalOpen && deletingReference !== null}
+        onClose={handleCloseDeleteModal}
+        titleId="reference-delete-title"
+        descriptionId="reference-delete-description"
+        contentClassName="max-w-md rounded-2xl border border-gray-100 bg-white p-6 shadow-2xl dark:border-gray-700 dark:bg-surface-dark"
+      >
+        {deletingReference ? (
+          <section className="space-y-4">
+            <header>
+              <h2 id="reference-delete-title" className="text-lg font-bold text-gray-900 dark:text-white">
+                레퍼런스를 삭제할까요?
+              </h2>
+              <p id="reference-delete-description" className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                <span className="font-semibold text-gray-800 dark:text-gray-200">
+                  {deletingReference.name}
+                </span>
+                를 삭제하면 복구할 수 없습니다.
+              </p>
+            </header>
+
+            <div className="flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleCloseDeleteModal}
+                disabled={deletePending}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={deletePending}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {deletePending ? "삭제 중..." : "삭제하기"}
+              </button>
+            </div>
+          </section>
+        ) : null}
       </BaseModal>
 
       <BaseModal
@@ -481,11 +713,11 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
               item={selectedReference}
               titleId="reference-detail-title"
               onClose={closeDetailModal}
-              onRequestEdit={handleReadOnlyAction}
-              canEdit={false}
+              onRequestEdit={handleEditFromDetail}
+              canEdit
             />
             <p id="reference-detail-description" className="sr-only">
-              레퍼런스 상세 정보를 읽기 전용으로 확인하는 모달입니다.
+              레퍼런스 상세 정보를 확인하고 수정할 수 있는 모달입니다.
             </p>
           </>
         ) : null}

@@ -6,6 +6,9 @@ export interface ReferenceCardProps {
   item: DesignReference;
   visible: boolean;
   readOnly?: boolean;
+  toggleDisabled?: boolean;
+  editDisabled?: boolean;
+  deleteDisabled?: boolean;
   onOpenDetail: (id: string) => void;
   onToggleVisible: (id: string, nextValue: boolean) => void;
   onEdit: (id: string) => void;
@@ -20,11 +23,18 @@ export function ReferenceCard({
   item,
   visible,
   readOnly = false,
+  toggleDisabled = false,
+  editDisabled = false,
+  deleteDisabled = false,
   onOpenDetail,
   onToggleVisible,
   onEdit,
   onDelete
 }: ReferenceCardProps) {
+  const isToggleDisabled = readOnly || toggleDisabled;
+  const isEditDisabled = readOnly || editDisabled;
+  const isDeleteDisabled = readOnly || deleteDisabled;
+
   return (
     <article
       className={cn(
@@ -109,12 +119,15 @@ export function ReferenceCard({
             aria-checked={visible}
             aria-label={`${item.name} ${visible ? "비노출" : "노출"} 전환`}
             onClick={() => {
-              if (readOnly) return;
+              if (isToggleDisabled) return;
               onToggleVisible(item.id, !visible);
             }}
-            disabled={readOnly}
-            aria-disabled={readOnly}
-            className={cn("inline-flex items-center gap-2", readOnly ? "cursor-not-allowed opacity-50" : "")}
+            disabled={isToggleDisabled}
+            aria-disabled={isToggleDisabled}
+            className={cn(
+              "inline-flex items-center gap-2",
+              isToggleDisabled ? "cursor-not-allowed opacity-50" : ""
+            )}
           >
             <span
               className={cn(
@@ -144,11 +157,13 @@ export function ReferenceCard({
               type="button"
               aria-label={`${item.name} 수정`}
               onClick={() => onEdit(item.id)}
-              disabled={readOnly}
-              aria-disabled={readOnly}
+              disabled={isEditDisabled}
+              aria-disabled={isEditDisabled}
               className={cn(
                 "rounded-xl p-2 text-gray-400 transition-colors hover:bg-primary/5 hover:text-primary",
-                readOnly ? "cursor-not-allowed opacity-50 hover:bg-transparent hover:text-gray-400" : ""
+                isEditDisabled
+                  ? "cursor-not-allowed opacity-50 hover:bg-transparent hover:text-gray-400"
+                  : ""
               )}
             >
               <span className="material-icons text-lg" aria-hidden="true">
@@ -159,11 +174,13 @@ export function ReferenceCard({
               type="button"
               aria-label={`${item.name} 삭제`}
               onClick={() => onDelete(item.id)}
-              disabled={readOnly}
-              aria-disabled={readOnly}
+              disabled={isDeleteDisabled}
+              aria-disabled={isDeleteDisabled}
               className={cn(
                 "rounded-xl p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500",
-                readOnly ? "cursor-not-allowed opacity-50 hover:bg-transparent hover:text-gray-400" : ""
+                isDeleteDisabled
+                  ? "cursor-not-allowed opacity-50 hover:bg-transparent hover:text-gray-400"
+                  : ""
               )}
             >
               <span className="material-icons text-lg" aria-hidden="true">
