@@ -29,7 +29,7 @@ export function ReferenceDetailPanel({
       <header className="z-10 flex items-center justify-between border-b border-gray-100 bg-white px-6 py-5 dark:border-gray-800 dark:bg-surface-dark">
         <div>
           <h2 id={titleId} className="text-xl font-bold text-gray-900 dark:text-white">
-            레퍼런스 상세
+            디자인 상세
           </h2>
           <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
             등록된 디자인 정보를 확인할 수 있습니다.

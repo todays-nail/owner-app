@@ -622,14 +622,14 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
         <ReferenceEditorForm
           mode="create"
           titleId="reference-create-title"
-          title="레퍼런스 등록"
+          title="디자인 등록"
           subtitle="새로운 네일 디자인을 라이브러리에 추가합니다."
           submitLabel={createPending ? "등록 중..." : "등록하기"}
           onCancel={handleCloseCreateModal}
           onSubmit={handleCreateSubmit}
         />
         <p id="reference-create-description" className="sr-only">
-          새로운 레퍼런스를 등록하는 모달입니다.
+          새로운 디자인을 등록하는 모달입니다.
         </p>
       </BaseModal>
 
@@ -645,14 +645,14 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
               mode="edit"
               initialValue={editingReference}
               titleId="reference-edit-title"
-              title="레퍼런스 수정"
+              title="디자인 수정"
               subtitle="등록된 디자인 정보를 수정합니다."
               submitLabel={editPending ? "저장 중..." : "저장하기"}
               onCancel={handleCloseEditModal}
               onSubmit={handleEditSubmit}
             />
             <p id="reference-edit-description" className="sr-only">
-              레퍼런스 정보를 수정하는 모달입니다.
+              디자인 정보를 수정하는 모달입니다.
             </p>
           </>
         ) : null}
@@ -669,7 +669,7 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
           <section className="space-y-4">
             <header>
               <h2 id="reference-delete-title" className="text-lg font-bold text-gray-900 dark:text-white">
-                레퍼런스를 삭제할까요?
+                디자인을 삭제할까요?
               </h2>
               <p id="reference-delete-description" className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 <span className="font-semibold text-gray-800 dark:text-gray-200">
@@ -717,7 +717,7 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
               canEdit
             />
             <p id="reference-detail-description" className="sr-only">
-              레퍼런스 상세 정보를 확인하고 수정할 수 있는 모달입니다.
+              디자인 상세 정보를 확인하고 수정할 수 있는 모달입니다.
             </p>
           </>
         ) : null}

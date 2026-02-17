@@ -271,14 +271,14 @@ export function DashboardDesignLibrarySection({ references }: DashboardDesignLib
         <ReferenceEditorForm
           mode="create"
           titleId="dashboard-reference-create-title"
-          title="레퍼런스 등록"
-          subtitle="대시보드에서 바로 레퍼런스를 등록합니다."
+          title="디자인 등록"
+          subtitle="대시보드에서 바로 디자인을 등록합니다."
           submitLabel={createPending ? "등록 중..." : "등록하기"}
           onCancel={handleCloseCreate}
           onSubmit={handleCreateSubmit}
         />
         <p id="dashboard-reference-create-description" className="sr-only">
-          대시보드에서 레퍼런스를 등록하는 모달입니다.
+          대시보드에서 디자인을 등록하는 모달입니다.
         </p>
       </BaseModal>
 
@@ -294,14 +294,14 @@ export function DashboardDesignLibrarySection({ references }: DashboardDesignLib
               mode="edit"
               initialValue={editingReference}
               titleId="dashboard-reference-edit-title"
-              title="레퍼런스 수정"
-              subtitle="대시보드에서 레퍼런스 정보를 수정합니다."
+              title="디자인 수정"
+              subtitle="대시보드에서 디자인 정보를 수정합니다."
               submitLabel={editPending ? "저장 중..." : "저장하기"}
               onCancel={handleCloseEdit}
               onSubmit={handleEditSubmit}
             />
             <p id="dashboard-reference-edit-description" className="sr-only">
-              대시보드에서 레퍼런스를 수정하는 모달입니다.
+              대시보드에서 디자인을 수정하는 모달입니다.
             </p>
           </>
         ) : null}
