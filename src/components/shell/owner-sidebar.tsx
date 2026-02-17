@@ -44,7 +44,7 @@ const navItems: NavItem[] = [
   },
   {
     key: "settings",
-    label: "샵 정보 관리",
+    label: "설정",
     href: "/settings",
     icon: "storefront"
   }

@@ -48,3 +48,13 @@ export interface ShopSettingsDto {
   notifyPaymentCompleted: boolean;
   galleryImages: ShopGalleryImageDto[];
 }
+
+export interface AccountSettingsDto {
+  name: string;
+  nickname: string;
+  email: string;
+  profileImageUrl: string | null;
+  notifySystemNotice: boolean;
+  notifySecurityNotice: boolean;
+  notifyMarketing: boolean;
+}
