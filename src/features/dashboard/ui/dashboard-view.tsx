@@ -7,6 +7,8 @@ import {useProtectedUserProfile} from "@/components/auth/protected-user-profile-
 import {NotificationBellButton} from "@/components/common/notification-bell-button";
 import {NotificationPopover} from "@/components/common/notification-popover";
 import {OwnerSidebar} from "@/components/shell/owner-sidebar";
+import {useAppToast} from "@/components/ui/app-toast-provider";
+import {MetricCard} from "@/components/ui/metric-card";
 import {DashboardBookingPipelineSection} from "@/features/dashboard/ui/dashboard-booking-pipeline-section";
 import {
   type DashboardBookingCreateFormValues,
@@ -14,18 +16,19 @@ import {
 } from "@/features/dashboard/ui/dashboard-booking-create-modal";
 import {DashboardDesignLibrarySection} from "@/features/dashboard/ui/dashboard-design-library-section";
 import {DashboardTodayScheduleAside} from "@/features/dashboard/ui/dashboard-today-schedule-aside";
-import type {DashboardDesignItem, DashboardScheduleItem} from "@/features/dashboard/model/dashboard";
+import type {DashboardScheduleItem} from "@/features/dashboard/model/dashboard";
 import {MOCK_NOTIFICATION_ITEMS} from "@/features/notifications/model/mock-notifications";
 import type {NotificationItem} from "@/features/notifications/model/types";
+import type {DesignReference} from "@/features/references/model/references";
 
 export interface DashboardViewProps {
-  designItems: DashboardDesignItem[];
+  references: DesignReference[];
   scheduleItems: DashboardScheduleItem[];
-  onUpdateDesignItem: (id: string, patch: Partial<Pick<DashboardDesignItem, "name" | "price" | "image">>) => void;
 }
 
-export function DashboardView({ designItems, scheduleItems, onUpdateDesignItem }: DashboardViewProps) {
+export function DashboardView({ references, scheduleItems }: DashboardViewProps) {
   const router = useRouter();
+  const { showToast } = useAppToast();
   const { displayName } = useProtectedUserProfile();
   const greetingName = displayName.endsWith("님")
     ? displayName
@@ -38,7 +41,6 @@ export function DashboardView({ designItems, scheduleItems, onUpdateDesignItem }
   );
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const unreadCount = notificationItems.filter((item) => !item.isRead).length;
 
   useEffect(() => {
@@ -69,20 +71,6 @@ export function DashboardView({ designItems, scheduleItems, onUpdateDesignItem }
       window.removeEventListener("resize", syncScheduleSectionHeight);
     };
   }, []);
-
-  useEffect(() => {
-    if (!toastMessage) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setToastMessage(null);
-    }, 2500);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [toastMessage]);
 
   const handleMarkRead = (id: string) => {
     setNotificationItems((prevItems) =>
@@ -127,7 +115,7 @@ export function DashboardView({ designItems, scheduleItems, onUpdateDesignItem }
       values.customerName.trim().length > 0
         ? `${values.customerName} 고객`
         : "새 예약";
-    setToastMessage(`${customerName} 등록 예시가 저장되었습니다.`);
+    showToast(`${customerName} 등록 예시가 저장되었습니다.`);
     setIsBookingModalOpen(false);
   };
 
@@ -137,103 +125,89 @@ export function DashboardView({ designItems, scheduleItems, onUpdateDesignItem }
         <OwnerSidebar activeItem="dashboard" />
 
         <main className="flex-1 bg-nude-soft p-4 sm:p-6 lg:p-7 dark:bg-background-dark/30">
-          <div className="flex flex-col gap-6 xl:flex-row">
-            <div ref={mainColumnRef} className="min-w-0 flex-1">
-              <header className="mb-8 flex flex-col justify-between gap-4 sm:mb-10 sm:flex-row sm:items-center">
-                <div>
-                  <h2 className="text-2xl font-light tracking-tight dark:text-white sm:text-3xl">
-                    안녕하세요, <span className="font-bold text-primary">{greetingName}</span>
-                  </h2>
-                  <p className="mt-1 text-sm text-slate-500">
-                    오늘 샵의 현황을 확인해보세요.
-                  </p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <NotificationPopover
-                    items={notificationItems}
-                    isOpen={isNotificationOpen}
-                    onOpenChange={setIsNotificationOpen}
-                    onItemClick={handleNotificationItemClick}
-                    onMarkRead={handleMarkRead}
-                    onMarkAllRead={handleMarkAllRead}
-                    trigger={({ isOpen, controlsId, toggle }) => (
-                      <NotificationBellButton
-                        variant="dashboard"
-                        unreadCount={unreadCount}
-                        showUnreadDot={unreadCount > 0}
-                        ariaExpanded={isOpen}
-                        ariaControls={controlsId}
-                        onClick={toggle}
-                      />
-                    )}
+          <header className="mb-8 flex flex-col justify-between gap-4 sm:mb-10 sm:flex-row sm:items-center">
+            <div>
+              <h2 className="text-2xl font-light tracking-tight dark:text-white sm:text-3xl">
+                <span className="font-[350]">안녕하세요,</span>{" "}
+                <span className="font-bold text-primary">{greetingName}</span>
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                오늘 샵의 현황을 확인해보세요.
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              <NotificationPopover
+                items={notificationItems}
+                isOpen={isNotificationOpen}
+                onOpenChange={setIsNotificationOpen}
+                onItemClick={handleNotificationItemClick}
+                onMarkRead={handleMarkRead}
+                onMarkAllRead={handleMarkAllRead}
+                trigger={({ isOpen, controlsId, toggle }) => (
+                  <NotificationBellButton
+                    variant="dashboard"
+                    unreadCount={unreadCount}
+                    showUnreadDot={unreadCount > 0}
+                    ariaExpanded={isOpen}
+                    ariaControls={controlsId}
+                    onClick={toggle}
                   />
-                  <button
-                    type="button"
-                    onClick={handleOpenBookingModal}
-                    className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-primary/90"
-                  >
-                    <span className="material-icons text-sm" aria-hidden="true">
-                      add
-                    </span>
-                    새 예약 등록
-                  </button>
-                </div>
-              </header>
+                )}
+              />
+              <button
+                type="button"
+                onClick={handleOpenBookingModal}
+                className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-primary/90"
+              >
+                <span className="material-icons text-sm" aria-hidden="true">
+                  add
+                </span>
+                새 예약 등록
+              </button>
+            </div>
+          </header>
 
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
+            <div ref={mainColumnRef} className="min-w-0 flex-1">
               <section className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div className="rounded-xl border border-primary/5 bg-white p-6 shadow-sm dark:bg-background-dark">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                        오늘 매출
-                      </p>
-                      <h3 className="mt-2 text-3xl font-extrabold tracking-tight">
-                        ₩1,240,000
-                      </h3>
-                      <p className="mt-2 flex items-center gap-1 text-xs font-bold text-emerald-500">
-                        <span className="material-icons text-xs" aria-hidden="true">
-                          trending_up
-                        </span>
-                        어제 대비 +12.4%
-                      </p>
-                    </div>
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                      <span className="material-icons text-[22px]" aria-hidden="true">
-                        payments
+                <MetricCard
+                  label="오늘 매출"
+                  value="₩1,240,000"
+                  icon="payments"
+                  helper={(
+                    <p className="mt-2 flex items-center gap-1 text-xs font-bold text-emerald-500">
+                      <span className="material-icons text-xs" aria-hidden="true">
+                        trending_up
                       </span>
-                    </div>
-                  </div>
-                </div>
+                      어제 대비 +12.4%
+                    </p>
+                  )}
+                  labelClassName="text-xs font-bold uppercase tracking-wider text-slate-500"
+                  valueClassName="mt-2 text-3xl font-extrabold tracking-tight"
+                  iconWrapperClassName="bg-emerald-100 text-emerald-600"
+                />
 
-                <div className="rounded-xl border border-primary/5 bg-white p-6 shadow-sm dark:bg-background-dark">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                        신규 예약
-                      </p>
-                      <h3 className="mt-2 text-3xl font-extrabold tracking-tight">28</h3>
-                      <p className="mt-2 flex items-center gap-1 text-xs font-bold text-primary">
-                        <span className="material-icons text-xs" aria-hidden="true">
-                          priority_high
-                        </span>
-                        5건의 긴급 요청
-                      </p>
-                    </div>
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <span className="material-icons text-[22px]" aria-hidden="true">
-                        calendar_month
+                <MetricCard
+                  label="신규 예약"
+                  value="28"
+                  icon="calendar_month"
+                  helper={(
+                    <p className="mt-2 flex items-center gap-1 text-xs font-bold text-primary">
+                      <span className="material-icons text-xs" aria-hidden="true">
+                        priority_high
                       </span>
-                    </div>
-                  </div>
-                </div>
+                      5건의 긴급 요청
+                    </p>
+                  )}
+                  labelClassName="text-xs font-bold uppercase tracking-wider text-slate-500"
+                  valueClassName="mt-2 text-3xl font-extrabold tracking-tight"
+                  iconWrapperClassName="bg-primary/10 text-primary"
+                />
               </section>
 
               <DashboardBookingPipelineSection />
 
-              <DashboardDesignLibrarySection
-                designItems={designItems}
-                onUpdateDesignItem={onUpdateDesignItem}
-              />
+              <DashboardDesignLibrarySection references={references} />
             </div>
 
             <DashboardTodayScheduleAside
@@ -251,19 +225,6 @@ export function DashboardView({ designItems, scheduleItems, onUpdateDesignItem }
         onClose={handleCloseBookingModal}
         onSubmit={handleBookingCreateSubmit}
       />
-
-      {toastMessage ? (
-        <div
-          role="status"
-          aria-live="polite"
-          className="fixed right-4 top-4 z-[70] inline-flex items-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-medium text-white shadow-xl dark:bg-gray-100 dark:text-gray-900 sm:right-6 sm:top-6"
-        >
-          <span className="material-icons text-base" aria-hidden="true">
-            check_circle
-          </span>
-          <span>{toastMessage}</span>
-        </div>
-      ) : null}
 
       <div className="pointer-events-none fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         <button

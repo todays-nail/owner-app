@@ -5,6 +5,10 @@ import type {DesignReference} from "@/features/references/model/references";
 export interface ReferenceListRowProps {
   item: DesignReference;
   visible: boolean;
+  readOnly?: boolean;
+  toggleDisabled?: boolean;
+  editDisabled?: boolean;
+  deleteDisabled?: boolean;
   onOpenDetail: (id: string) => void;
   onToggleVisible: (id: string, nextValue: boolean) => void;
   onEdit: (id: string) => void;
@@ -18,11 +22,19 @@ function formatKrw(price: number) {
 export function ReferenceListRow({
   item,
   visible,
+  readOnly = false,
+  toggleDisabled = false,
+  editDisabled = false,
+  deleteDisabled = false,
   onOpenDetail,
   onToggleVisible,
   onEdit,
   onDelete
 }: ReferenceListRowProps) {
+  const isToggleDisabled = readOnly || toggleDisabled;
+  const isEditDisabled = readOnly || editDisabled;
+  const isDeleteDisabled = readOnly || deleteDisabled;
+
   return (
     <article
       className={cn(
@@ -103,8 +115,16 @@ export function ReferenceListRow({
             role="switch"
             aria-checked={visible}
             aria-label={`${item.name} ${visible ? "비노출" : "노출"} 전환`}
-            onClick={() => onToggleVisible(item.id, !visible)}
-            className="inline-flex items-center gap-2"
+            onClick={() => {
+              if (isToggleDisabled) return;
+              onToggleVisible(item.id, !visible);
+            }}
+            disabled={isToggleDisabled}
+            aria-disabled={isToggleDisabled}
+            className={cn(
+              "inline-flex items-center gap-2",
+              isToggleDisabled ? "cursor-not-allowed opacity-50" : ""
+            )}
           >
             <span
               className={cn(
@@ -134,7 +154,14 @@ export function ReferenceListRow({
               type="button"
               aria-label={`${item.name} 수정`}
               onClick={() => onEdit(item.id)}
-              className="rounded-xl p-2 text-gray-400 transition-colors hover:bg-primary/5 hover:text-primary"
+              disabled={isEditDisabled}
+              aria-disabled={isEditDisabled}
+              className={cn(
+                "rounded-xl p-2 text-gray-400 transition-colors hover:bg-primary/5 hover:text-primary",
+                isEditDisabled
+                  ? "cursor-not-allowed opacity-50 hover:bg-transparent hover:text-gray-400"
+                  : ""
+              )}
             >
               <span className="material-icons text-lg" aria-hidden="true">
                 edit
@@ -144,7 +171,14 @@ export function ReferenceListRow({
               type="button"
               aria-label={`${item.name} 삭제`}
               onClick={() => onDelete(item.id)}
-              className="rounded-xl p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+              disabled={isDeleteDisabled}
+              aria-disabled={isDeleteDisabled}
+              className={cn(
+                "rounded-xl p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500",
+                isDeleteDisabled
+                  ? "cursor-not-allowed opacity-50 hover:bg-transparent hover:text-gray-400"
+                  : ""
+              )}
             >
               <span className="material-icons text-lg" aria-hidden="true">
                 delete

@@ -1,4 +1,5 @@
 import {ReferencesScreen} from "@/features/references/screens/references-screen";
+import {getReferencesForCurrentUser} from "@/features/references/server/get-references-for-current-user";
 import {createPageMetadata} from "@/lib/metadata";
 
 export const metadata = createPageMetadata({
@@ -8,6 +9,8 @@ export const metadata = createPageMetadata({
 
 export const dynamic = "force-dynamic";
 
-export default function ReferencesPage() {
-  return <ReferencesScreen />;
+export default async function ReferencesPage() {
+  const initialReferences = await getReferencesForCurrentUser();
+
+  return <ReferencesScreen initialReferences={initialReferences} />;
 }

@@ -135,16 +135,23 @@ export function ReferenceEditorForm({
 
     try {
       const newUrls = await Promise.all(files.map((file) => readFileAsDataUrl(file)));
-      setImageUrls((prev) => [...prev, ...newUrls]);
-    } catch {
-      window.alert("이미지 업로드 중 오류가 발생했습니다.");
+      setImageUrls((prev) => [...newUrls, ...prev]);
+    } catch (error) {
+      console.error("[references:create] image read failed", {
+        error,
+        files: files.map((file) => ({
+          name: file.name,
+          type: file.type,
+          size: file.size
+        }))
+      });
     }
 
     event.target.value = "";
   };
 
-  const handleRemoveImage = (targetUrl: string) => {
-    setImageUrls((prev) => prev.filter((url) => url !== targetUrl));
+  const handleRemoveImageAt = (index: number) => {
+    setImageUrls((prev) => prev.filter((_, currentIndex) => currentIndex !== index));
   };
 
   const handleToggleTag = (tag: ReferenceCategory) => {
@@ -233,11 +240,27 @@ export function ReferenceEditorForm({
 
             <label className="group relative flex aspect-[4/5] w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-6 text-center transition-all hover:border-primary/50 hover:bg-primary/5 dark:border-gray-600 dark:bg-[#2a1d1c]">
               {representativeImage ? (
-                <img
-                  src={representativeImage}
-                  alt="대표 이미지 미리보기"
-                  className="absolute inset-0 h-full w-full rounded-xl object-cover"
-                />
+                <>
+                  <img
+                    src={representativeImage}
+                    alt="대표 이미지 미리보기"
+                    className="absolute inset-0 h-full w-full rounded-xl object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      handleRemoveImageAt(0);
+                    }}
+                    aria-label="대표 이미지 삭제"
+                    className="absolute right-3 top-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/55 text-white transition-colors hover:bg-black/70"
+                  >
+                    <span className="material-icons text-base" aria-hidden="true">
+                      delete
+                    </span>
+                  </button>
+                </>
               ) : (
                 <div className="flex flex-col items-center">
                   <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white text-primary shadow-sm transition-transform group-hover:scale-110 dark:bg-surface-dark">
@@ -279,11 +302,11 @@ export function ReferenceEditorForm({
                 />
               </label>
 
-              {thumbnailUrls.map((url) => (
+              {thumbnailUrls.map((url, index) => (
                 <button
-                  key={url}
+                  key={`${url}-${index}`}
                   type="button"
-                  onClick={() => handleRemoveImage(url)}
+                  onClick={() => handleRemoveImageAt(index + 1)}
                   className="group relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-800"
                 >
                   <img src={url} alt="추가 이미지 썸네일" className="h-full w-full object-cover" />

@@ -31,6 +31,8 @@ export interface DesignReference {
   badge: ReferenceBadge;
   durationMinutes: number | null;
   description: string;
+  likeCount?: number;
+  createdAt?: string;
 }
 
 export const INITIAL_REFERENCES: DesignReference[] = [
