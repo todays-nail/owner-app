@@ -259,5 +259,12 @@ export async function getReferencesForCurrentUser(): Promise<DesignReference[]> 
 
   return rawReferences
     .map((row) => mapReferenceRow(row))
-    .filter((row): row is DesignReference => row !== null);
+    .filter((row): row is DesignReference => row !== null)
+    .sort((a, b) => {
+      if (a.isVisible === b.isVisible) {
+        return 0;
+      }
+
+      return a.isVisible ? -1 : 1;
+    });
 }
