@@ -10,6 +10,15 @@ jobs:
   schema-validation:
     runs-on: ubuntu-latest
     steps:
+      - name: Validate SUBMODULE_PAT secret
+        run: |
+          if [ -z "${{ secrets.SUBMODULE_PAT }}" ]; then
+            echo "::error::Missing Actions secret SUBMODULE_PAT."
+            echo "::error::SUBMODULE_PAT must have read access to todays-nail/shared-schema for private submodule checkout."
+            echo "::error::Add it in Settings > Secrets and variables > Actions, then re-run this workflow."
+            exit 1
+          fi
+
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.SUBMODULE_PAT }}
@@ -31,6 +40,15 @@ jobs:
     needs: schema-validation
     runs-on: ubuntu-latest
     steps:
+      - name: Validate SUBMODULE_PAT secret
+        run: |
+          if [ -z "${{ secrets.SUBMODULE_PAT }}" ]; then
+            echo "::error::Missing Actions secret SUBMODULE_PAT."
+            echo "::error::SUBMODULE_PAT must have read access to todays-nail/shared-schema for private submodule checkout."
+            echo "::error::Add it in Settings > Secrets and variables > Actions, then re-run this workflow."
+            exit 1
+          fi
+
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.SUBMODULE_PAT }}
