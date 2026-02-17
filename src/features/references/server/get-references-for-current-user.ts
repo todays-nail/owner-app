@@ -13,7 +13,7 @@ interface ShopMembershipRow {
 interface RawReferenceImage {
   image_url: string | null;
   is_primary: boolean | null;
-  sort_order: number | null;
+  sort_order: number | string | null;
 }
 
 interface RawStyleTag {
@@ -32,9 +32,10 @@ interface RawReferenceRow {
   id: string;
   title: string | null;
   description: string | null;
-  base_price: number | null;
+  base_price: number | string | null;
+  final_price: number | string | null;
   created_at: string | null;
-  service_duration_min: number | null;
+  service_duration_min: number | string | null;
   is_active: boolean | null;
   badge: string | null;
   reference_images: RawReferenceImage[] | null;
@@ -57,6 +58,19 @@ function readNonEmptyString(value: unknown): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
+function parseFiniteNumber(value: unknown): number | null {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : null;
+  }
+
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  return null;
+}
+
 function parseImageUrls(images: RawReferenceImage[] | null): string[] {
   if (!images || images.length === 0) {
     return [];
@@ -66,7 +80,7 @@ function parseImageUrls(images: RawReferenceImage[] | null): string[] {
     .map((item) => ({
       image_url: readNonEmptyString(item.image_url),
       is_primary: item.is_primary === true,
-      sort_order: typeof item.sort_order === "number" ? item.sort_order : Number.MAX_SAFE_INTEGER
+      sort_order: parseFiniteNumber(item.sort_order) ?? Number.MAX_SAFE_INTEGER
     }))
     .filter((item): item is { image_url: string; is_primary: boolean; sort_order: number } =>
       item.image_url !== null
@@ -131,9 +145,16 @@ function mapReferenceRow(row: RawReferenceRow): DesignReference | null {
     return null;
   }
 
-  if (typeof row.base_price !== "number" || !Number.isFinite(row.base_price)) {
+  const price = parseFiniteNumber(row.base_price);
+  if (price === null) {
     return null;
   }
+  const safeBasePrice = Math.max(0, Math.floor(price));
+  const parsedFinalPrice = parseFiniteNumber(row.final_price);
+  const finalPrice =
+    parsedFinalPrice === null
+      ? safeBasePrice
+      : Math.max(0, Math.min(safeBasePrice, Math.floor(parsedFinalPrice)));
 
   const imageUrls = parseImageUrls(row.reference_images);
   if (imageUrls.length === 0) {
@@ -141,15 +162,13 @@ function mapReferenceRow(row: RawReferenceRow): DesignReference | null {
   }
 
   const categories = parseCategories(row.reference_style_tags);
-  const durationMinutes =
-    typeof row.service_duration_min === "number" && Number.isFinite(row.service_duration_min)
-      ? row.service_duration_min
-      : null;
+  const durationMinutes = parseFiniteNumber(row.service_duration_min);
 
   return {
     id: row.id,
     name,
-    price: row.base_price,
+    price: safeBasePrice,
+    finalPrice,
     imageUrl: imageUrls[0],
     imageUrls,
     categories,
@@ -194,19 +213,51 @@ export async function getReferencesForCurrentUser(): Promise<DesignReference[]> 
     return [];
   }
 
-  const { data: rawReferences, error: referencesError } = await supabase
+  const baseSelect =
+    "id,title,description,base_price,final_price,created_at,service_duration_min,is_active,badge,reference_images(image_url,is_primary,sort_order),reference_style_tags(style_tags(name))";
+  const selectWithLikes = `${baseSelect},reference_likes(count)`;
+
+  const { data: likedReferences, error: likedReferencesError } = await supabase
     .from("references")
-    .select(
-      "id,title,description,base_price,created_at,service_duration_min,is_active,badge,reference_images(image_url,is_primary,sort_order),reference_style_tags(style_tags(name)),reference_likes(count)"
-    )
+    .select(selectWithLikes)
     .in("shop_id", shopIds)
     .order("updated_at", { ascending: false });
 
-  if (referencesError || !rawReferences) {
+  let rawReferences = likedReferences as RawReferenceRow[] | null;
+
+  if (likedReferencesError) {
+    console.error("[references:get] select with likes failed", {
+      error: likedReferencesError,
+      userId: user.id,
+      shopIds
+    });
+
+    const { data: fallbackReferences, error: fallbackReferencesError } = await supabase
+      .from("references")
+      .select(baseSelect)
+      .in("shop_id", shopIds)
+      .order("updated_at", { ascending: false });
+
+    if (fallbackReferencesError || !fallbackReferences) {
+      console.error("[references:get] fallback select failed", {
+        error: fallbackReferencesError,
+        userId: user.id,
+        shopIds
+      });
+      return [];
+    }
+
+    rawReferences = (fallbackReferences as RawReferenceRow[]).map((row) => ({
+      ...row,
+      reference_likes: null
+    }));
+  }
+
+  if (!rawReferences) {
     return [];
   }
 
-  return (rawReferences as RawReferenceRow[])
+  return rawReferences
     .map((row) => mapReferenceRow(row))
     .filter((row): row is DesignReference => row !== null);
 }
