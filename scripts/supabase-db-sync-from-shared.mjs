@@ -11,6 +11,19 @@ import path from "node:path";
 
 const CHECK_ONLY = process.argv.includes("--check");
 
+function printSubmoduleHelp(errorMessage) {
+  console.error("[db-sync] shared-schema submodule unavailable.");
+  if (errorMessage) {
+    console.error(`[db-sync] reason: ${errorMessage}`);
+  }
+  console.error("[db-sync] next checks:");
+  console.error("  - SUBMODULE_PAT 시크릿이 있으면, 해당 토큰으로 submodule URL 접근 권한(읽기)이 있는지 확인하세요.");
+  console.error("  - actions checkout에서 token 입력값이 유효하고, .github/workflows/ci.yml의 checkout step이 적용되었는지 확인하세요.");
+  console.error("  - .gitmodules의 shared-schema URL이 HTTPS인지(현재 https://github.com/todays-nail/shared-schema.git) 확인하세요.");
+  console.error("  - 로컬에서 `git submodule update --init --recursive` 실행 후 `git submodule status`가 정상인지 확인하세요.");
+  console.error("[db-sync] 위 항목을 해결한 뒤 다시 실행하세요.");
+}
+
 function listSql(dir) {
   return readdirSync(dir)
     .sort()
@@ -42,9 +55,9 @@ function main() {
   let srcFiles;
   try {
     srcFiles = listSql(srcDir);
-  } catch {
+  } catch (error) {
     console.error(`[db-sync] source directory not found: ${srcDir}`);
-    console.error("[db-sync] shared-schema submodule을 먼저 초기화하세요.");
+    printSubmoduleHelp(error?.message);
     process.exit(1);
   }
 
