@@ -27,6 +27,7 @@ Codex 작업 규칙과 프로젝트 컨텍스트를 정의합니다. (이 저장
 - DB 토폴로지는 `web-dev`, `ios-dev`, `shared-staging/prod` 분리를 기본값으로 사용한다.
 - 이 저장소는 `web-dev` 대상에서만 직접 `db push`를 허용한다.
 - `shared-staging/prod`는 `shared-schema` 저장소의 CI에서만 반영한다. 로컬에서 직접 push 금지.
+- `shared-prod` 환경은 유지한다. 해커톤/초기 단계에서는 승인자(`Required reviewers`)를 비워둘 수 있고, 운영 전환 시 1명 이상 권장한다.
 - 공용 마이그레이션 canonical은 submodule `shared-schema/migrations`다.
 - 서브모듈 초기화/업데이트: `git submodule update --init --recursive`
 - 실행 대상 경로는 `supabase/migrations`이며, `pnpm db:sync:from-shared`로 동기화한다.
