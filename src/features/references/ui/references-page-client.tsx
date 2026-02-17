@@ -23,8 +23,6 @@ import {ReferenceDetailPanel} from "@/features/references/ui/reference-detail-pa
 import {ReferenceEditorForm, type ReferenceEditorFormValues} from "@/features/references/ui/reference-editor-form";
 import {ReferenceListRow} from "@/features/references/ui/reference-list-row";
 
-const FEATURE_NOTICE = "수정/삭제/노출 토글 연동 완료";
-
 interface ReferencesPageClientProps {
   initialReferences: DesignReference[];
 }
@@ -395,10 +393,6 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
         </button>
       </header>
 
-      <section className="rounded-2xl border border-emerald-200 bg-emerald-50/90 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-200">
-        {FEATURE_NOTICE}
-      </section>
-
       <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-surface-dark">
         <div className="space-y-4">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
@@ -480,7 +474,7 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
       <section className="space-y-6">
         {hasResults ? (
           viewMode === "grid" ? (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
               {paginatedReferences.map((item) => {
                 const isPending = togglePendingIds.has(item.id);
                 const actionsDisabled = createPending || editPending || deletePending;
