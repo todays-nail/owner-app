@@ -1,8 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import type { ShopGalleryImageDto, ShopSettingsDto, Weekday } from "@/features/settings/model/types";
+import { updateShopSettingsForCurrentUser } from "@/features/settings/services/update-shop-settings-browser-service";
 import { cn } from "@/lib/utils";
 
 const BANK_OPTIONS = ["카카오뱅크", "신한은행", "국민은행"] as const;
@@ -189,16 +191,6 @@ function buildNewFormState(initialData: ShopSettingsDto): SettingsFormState {
   };
 }
 
-function isLocalMockGalleryImage(image: Pick<ShopGalleryImageDto, "storagePath">) {
-  return image.storagePath.startsWith("mock-local://");
-}
-
-function revokePreviewIfLocal(image: Pick<ShopGalleryImageDto, "storagePath" | "signedUrl">) {
-  if (isLocalMockGalleryImage(image) && image.signedUrl) {
-    URL.revokeObjectURL(image.signedUrl);
-  }
-}
-
 function ToggleSwitch({
   checked,
   onChange,
@@ -256,6 +248,7 @@ function ReadonlyInput({ value }: { value: string }) {
 }
 
 export function SettingsPageClient({ initialData }: { initialData: ShopSettingsDto }) {
+  const router = useRouter();
   const [form, setForm] = useState<SettingsFormState>(() => buildNewFormState(initialData));
   const [galleryImages, setGalleryImages] = useState<ShopGalleryImageDto[]>(
     initialData.galleryImages
@@ -270,26 +263,31 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const detailAddressInputRef = useRef<HTMLInputElement | null>(null);
   const pendingFilesRef = useRef<PendingUploadFile[]>([]);
-  const galleryImagesRef = useRef<ShopGalleryImageDto[]>(initialData.galleryImages);
 
   useEffect(() => {
     pendingFilesRef.current = pendingFiles;
   }, [pendingFiles]);
 
   useEffect(() => {
-    galleryImagesRef.current = galleryImages;
-  }, [galleryImages]);
-
-  useEffect(() => {
     return () => {
       pendingFilesRef.current.forEach((pendingFile) => {
         URL.revokeObjectURL(pendingFile.previewUrl);
       });
-      galleryImagesRef.current.forEach((image) => {
-        revokePreviewIfLocal(image);
-      });
     };
   }, []);
+
+  useEffect(() => {
+    setForm(buildNewFormState(initialData));
+    setGalleryImages(initialData.galleryImages);
+    setRemovedImageIds(new Set());
+    setErrorMessage(null);
+    setPendingFiles((prev) => {
+      prev.forEach((pendingFile) => {
+        URL.revokeObjectURL(pendingFile.previewUrl);
+      });
+      return [];
+    });
+  }, [initialData]);
 
   useEffect(() => {
     if (!toastMessage) {
@@ -508,41 +506,46 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
     setIsSaving(true);
 
     try {
-      await new Promise((resolve) => {
-        window.setTimeout(resolve, 260);
+      await updateShopSettingsForCurrentUser({
+        addressLine1: form.addressLine1,
+        addressLine2: form.addressLine2,
+        contactPhone: form.contactPhone,
+        openTime: form.openTime,
+        closeTime: form.closeTime,
+        closedWeekdays: form.closedWeekdays,
+        intro: form.intro,
+        baseGelPrice: baseGelPrice.value,
+        removalPrice: removalPrice.value,
+        extensionPrice: extensionPrice.value,
+        artUnitPrice: artUnitPrice.value,
+        depositAmount: depositAmount.value,
+        autoConfirm: form.autoConfirm,
+        allowOnsitePayment: form.allowOnsitePayment,
+        invoiceEmail: form.invoiceEmail,
+        settlementBank: form.settlementBank,
+        settlementAccount: form.settlementAccount,
+        notifyQuoteRequest: form.notifyQuoteRequest,
+        notifyBookingCreated: form.notifyBookingCreated,
+        notifyPaymentCompleted: form.notifyPaymentCompleted,
+        removedImageIds: Array.from(removedImageIds),
+        newGalleryFiles: pendingFiles.map((pendingFile) => pendingFile.file)
       });
 
-      const removedSet = removedImageIds;
-      const keptImages = galleryImages.filter((image) => !removedSet.has(image.id));
-      const removedImages = galleryImages.filter((image) => removedSet.has(image.id));
-
-      removedImages.forEach((image) => {
-        revokePreviewIfLocal(image);
+      setPendingFiles((prev) => {
+        prev.forEach((pendingFile) => {
+          URL.revokeObjectURL(pendingFile.previewUrl);
+        });
+        return [];
       });
-
-      const nextSortOrder =
-        keptImages.reduce((max, image) => Math.max(max, image.sortOrder), 0) + 1;
-
-      const now = new Date().toISOString();
-      const addedImages: ShopGalleryImageDto[] = pendingFiles.map((pendingFile, index) => ({
-        id: `mock-image-${crypto.randomUUID()}`,
-        storagePath: `mock-local://${pendingFile.id}`,
-        sortOrder: nextSortOrder + index,
-        createdAt: now,
-        signedUrl: pendingFile.previewUrl
-      }));
-
-      const nextGalleryImages = [...keptImages, ...addedImages].sort((a, b) => {
-        if (a.sortOrder !== b.sortOrder) {
-          return a.sortOrder - b.sortOrder;
-        }
-        return a.createdAt.localeCompare(b.createdAt);
-      });
-
-      setGalleryImages(nextGalleryImages);
-      setPendingFiles([]);
       setRemovedImageIds(new Set());
-      setToastMessage("목업 데이터 기준으로 변경사항을 저장했습니다.");
+      setToastMessage("변경사항을 저장했습니다.");
+      router.refresh();
+    } catch (error) {
+      const message =
+        error instanceof Error && error.message.trim().length > 0
+          ? error.message
+          : "설정 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.";
+      setErrorMessage(message);
     } finally {
       setIsSaving(false);
     }
