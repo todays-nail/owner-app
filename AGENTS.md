@@ -37,6 +37,7 @@ Codex 작업 규칙과 프로젝트 컨텍스트를 정의합니다. (이 저장
 - migration 작업 기본 검증 순서:
   - `pnpm db:check` (`migration list` + `db push --dry-run` + `db diff`)
   - `pnpm db:push:shared` (shared-staging으로 push)
+  - 공용 스키마 관련 파일(예: `supabase/migrations`, `shared-schema` 변경) 작업 시 `pnpm db:check`를 PR/변경 건의 게이트로 항상 통과해야 한다.
 - `--linked` 인증이 불안정하면 스크립트가 `SUPABASE_DB_URL_SHARED_STAGING`로 자동 fallback한다.
 - Docker가 실행 중이 아니면 `db:check`에서 `db diff`는 자동 스킵한다.
 - 새 migration 파일(전환 시점 이후)은 `YYYYMMDDHHMMSS_<team>_<description>.sql` 형식을 지킨다. (`team`: `ios` 또는 `web`)
