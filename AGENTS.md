@@ -22,6 +22,25 @@ Codex 작업 규칙과 프로젝트 컨텍스트를 정의합니다. (이 저장
 - Build: `pnpm build`
 - Start: `pnpm start`
 
+## Supabase Workflow
+
+- DB 토폴로지는 `web-dev`, `ios-dev`, `shared-staging/prod` 분리를 기본값으로 사용한다.
+- 이 저장소는 `web-dev` 대상에서만 직접 `db push`를 허용한다.
+- `shared-staging/prod`는 `shared-schema` 저장소의 CI에서만 반영한다. 로컬에서 직접 push 금지.
+- 공용 마이그레이션 canonical은 submodule `shared-schema/migrations`다.
+- 서브모듈 초기화/업데이트: `git submodule update --init --recursive`
+- 실행 대상 경로는 `supabase/migrations`이며, `pnpm db:sync:from-shared`로 동기화한다.
+- 환경 변수 계약:
+  - `SUPABASE_DB_URL_WEB_DEV`
+  - `SUPABASE_DB_URL_IOS_DEV`
+  - `SUPABASE_DB_URL_SHARED_STAGING`
+  - `SUPABASE_DB_URL_SHARED_PROD`
+- migration 작업 기본 검증 순서:
+  - `pnpm db:check` (`migration list` + `db push --dry-run` + `db diff`)
+  - `pnpm db:push:dev` (web-dev로만 push)
+- `--linked` 인증이 불안정하면 스크립트가 `SUPABASE_DB_URL_WEB_DEV`로 자동 fallback한다.
+- 새 migration 파일(전환 시점 이후)은 `YYYYMMDDHHMMSS_<team>_<description>.sql` 형식을 지킨다. (`team`: `ios` 또는 `web`)
+
 ## Architecture Rules
 
 - Routing: `src/app` App Router 기반. 공개/보호는 Route Group으로 분리한다: `(public)`, `(protected)`.

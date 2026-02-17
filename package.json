@@ -13,8 +13,11 @@
     "start": "next start -p 3001",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "db:check": "node scripts/supabase-db-check.mjs",
+    "db:push:dev": "node scripts/supabase-db-push-dev.mjs",
+    "db:sync:from-shared": "node scripts/supabase-db-sync-from-shared.mjs",
     "seed:dev-users": "node --env-file=.env.local scripts/seed-dev-users.mjs --yes",
-    "db:push": "node --env-file=.env.local scripts/supabase-db-push.mjs",
+    "db:push": "node --env-file=.env.local scripts/supabase-db-push-dev.mjs",
     "db:push-and-seed": "pnpm db:push && pnpm seed:dev-users"
   },
   "dependencies": {

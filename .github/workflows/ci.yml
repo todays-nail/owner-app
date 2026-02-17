@@ -7,10 +7,31 @@ on:
       - main
 
 jobs:
-  build:
+  schema-validation:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Validate migration filenames
+        run: node scripts/supabase-migrations-lint.mjs
+
+      - name: Validate shared-schema sync
+        run: node scripts/supabase-db-sync-from-shared.mjs --check
+
+  build:
+    needs: schema-validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Use Node.js 24
         uses: actions/setup-node@v4
