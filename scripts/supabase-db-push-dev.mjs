@@ -6,28 +6,18 @@ function requireEnv(name) {
   return value;
 }
 
-function assertNotShared(url) {
+function resolveTargetDbUrl() {
   const sharedStaging = process.env.SUPABASE_DB_URL_SHARED_STAGING;
-  const sharedProd = process.env.SUPABASE_DB_URL_SHARED_PROD;
-
-  if (sharedStaging && url === sharedStaging) {
-    throw new Error("SUPABASE_DB_URL_WEB_DEV must not point to shared staging DB.");
-  }
-
-  if (sharedProd && url === sharedProd) {
-    throw new Error("SUPABASE_DB_URL_WEB_DEV must not point to shared prod DB.");
-  }
-
-  if (url.includes("twahqxjhyocyqrmtjbdf")) {
-    throw new Error(
-      "SUPABASE_DB_URL_WEB_DEV points to shared-staging project(ref: twahqxjhyocyqrmtjbdf). Shared DB direct push is forbidden."
-    );
-  }
+  const legacyWebDev = process.env.SUPABASE_DB_URL_WEB_DEV;
+  return sharedStaging || legacyWebDev || requireEnv("SUPABASE_DB_URL_SHARED_STAGING");
 }
 
 function main() {
-  const dbUrl = requireEnv("SUPABASE_DB_URL_WEB_DEV");
-  assertNotShared(dbUrl);
+  const dbUrl = resolveTargetDbUrl();
+  const sharedProd = process.env.SUPABASE_DB_URL_SHARED_PROD;
+  if (sharedProd && dbUrl === sharedProd) {
+    throw new Error("Push target must not be shared-prod DB.");
+  }
 
   const lint = spawnSync("node", ["scripts/supabase-migrations-lint.mjs"], {
     stdio: "inherit",
@@ -39,7 +29,7 @@ function main() {
 
   const result = spawnSync(
     "supabase",
-    ["db", "push", "--db-url", dbUrl, "--yes"],
+    ["db", "push", "--db-url", dbUrl],
     { stdio: "inherit" }
   );
 

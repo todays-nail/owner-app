@@ -13,13 +13,19 @@ function runOrThrow(label, cmd, args, opts = {}) {
   }
 }
 
+function hasDocker() {
+  const check = spawnSync("docker", ["info"], { stdio: "ignore" });
+  if (check.error) return false;
+  return (check.status ?? 1) === 0;
+}
+
 function runWithFallback(label, linkedArgs, dbUrlArgs, dbUrl) {
   const linkedStatus = run("supabase", linkedArgs);
   if (linkedStatus === 0) return;
 
   if (!dbUrl) {
     throw new Error(
-      `${label} failed on --linked and SUPABASE_DB_URL_WEB_DEV is not set for fallback.`
+      `${label} failed on --linked and SUPABASE_DB_URL_SHARED_STAGING is not set for fallback.`
     );
   }
 
@@ -31,7 +37,8 @@ function runWithFallback(label, linkedArgs, dbUrlArgs, dbUrl) {
 }
 
 function main() {
-  const dbUrl = process.env.SUPABASE_DB_URL_WEB_DEV;
+  const dbUrl =
+    process.env.SUPABASE_DB_URL_SHARED_STAGING ?? process.env.SUPABASE_DB_URL_WEB_DEV;
 
   runOrThrow("migration lint", "node", ["scripts/supabase-migrations-lint.mjs"]);
   runOrThrow("shared-schema sync check", "node", [
@@ -53,12 +60,16 @@ function main() {
     dbUrl
   );
 
-  runWithFallback(
-    "supabase db diff",
-    ["db", "diff", "--linked"],
-    ["db", "diff", "--db-url", dbUrl ?? ""],
-    dbUrl
-  );
+  if (hasDocker()) {
+    runWithFallback(
+      "supabase db diff",
+      ["db", "diff", "--linked"],
+      ["db", "diff", "--db-url", dbUrl ?? ""],
+      dbUrl
+    );
+  } else {
+    console.warn("[db-check] docker unavailable: skip supabase db diff");
+  }
 
   console.log("[db-check] completed");
 }
