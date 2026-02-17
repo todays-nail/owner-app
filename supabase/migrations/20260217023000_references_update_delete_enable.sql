@@ -20,7 +20,6 @@ with check (
     where sm.user_id = auth.uid()
   )
 );
-
 -- reference_images DELETE policy
 drop policy if exists reference_images_delete_by_membership on public.reference_images;
 create policy reference_images_delete_by_membership
@@ -36,7 +35,6 @@ using (
       and sm.user_id = auth.uid()
   )
 );
-
 -- reference_style_tags DELETE policy
 drop policy if exists reference_style_tags_delete_by_membership on public.reference_style_tags;
 create policy reference_style_tags_delete_by_membership
@@ -52,6 +50,5 @@ using (
       and sm.user_id = auth.uid()
   )
 );
-
 -- This trigger blocks deleting all tags and conflicts with hard-delete flow.
 drop trigger if exists trg_prevent_delete_last_style_tag on public.reference_style_tags;

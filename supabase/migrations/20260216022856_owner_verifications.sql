@@ -19,16 +19,13 @@ create table if not exists public.owner_verifications (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
-
 alter table public.owner_verifications enable row level security;
-
 -- Ensure columns exist if the table was created previously.
 alter table public.owner_verifications
   add column if not exists shop_address1 text,
   add column if not exists shop_address2 text,
   add column if not exists shop_postcode text,
   add column if not exists shop_photo_path text;
-
 -- updated_at trigger
 create or replace function public.set_updated_at()
 returns trigger
@@ -39,12 +36,10 @@ begin
   return new;
 end;
 $$;
-
 drop trigger if exists set_owner_verifications_updated_at on public.owner_verifications;
 create trigger set_owner_verifications_updated_at
 before update on public.owner_verifications
 for each row execute function public.set_updated_at();
-
 -- RLS policies
 drop policy if exists "owner_verifications_select_own" on public.owner_verifications;
 create policy "owner_verifications_select_own"
@@ -52,14 +47,12 @@ on public.owner_verifications
 for select
 to authenticated
 using (user_id = auth.uid());
-
 drop policy if exists "owner_verifications_insert_own" on public.owner_verifications;
 create policy "owner_verifications_insert_own"
 on public.owner_verifications
 for insert
 to authenticated
 with check (user_id = auth.uid() and status = 'PENDING');
-
 drop policy if exists "owner_verifications_update_own_pending_only" on public.owner_verifications;
 create policy "owner_verifications_update_own_pending_only"
 on public.owner_verifications
@@ -67,12 +60,10 @@ for update
 to authenticated
 using (user_id = auth.uid() and status in ('UNSUBMITTED','REJECTED','PENDING'))
 with check (user_id = auth.uid() and status = 'PENDING');
-
 -- Storage: private bucket + object policies
 insert into storage.buckets (id, name, public)
 values ('owner-licenses', 'owner-licenses', false)
 on conflict (id) do nothing;
-
 drop policy if exists "owner_licenses_select_own" on storage.objects;
 create policy "owner_licenses_select_own"
 on storage.objects
@@ -85,7 +76,6 @@ using (
     or name like ('shops/' || auth.uid()::text || '/%')
   )
 );
-
 drop policy if exists "owner_licenses_insert_own" on storage.objects;
 create policy "owner_licenses_insert_own"
 on storage.objects
@@ -98,7 +88,6 @@ with check (
     or name like ('shops/' || auth.uid()::text || '/%')
   )
 );
-
 drop policy if exists "owner_licenses_delete_own" on storage.objects;
 create policy "owner_licenses_delete_own"
 on storage.objects
@@ -111,4 +100,3 @@ using (
     or name like ('shops/' || auth.uid()::text || '/%')
   )
 );
-

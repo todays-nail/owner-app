@@ -176,7 +176,6 @@ begin
   return v_shop_id;
 end;
 $$;
-
 create or replace function public.handle_auth_user_created_provision_shop()
 returns trigger
 language plpgsql
@@ -188,13 +187,11 @@ begin
   return new;
 end;
 $$;
-
 drop trigger if exists on_auth_user_created_provision_shop on auth.users;
 create trigger on_auth_user_created_provision_shop
 after insert on auth.users
 for each row
 execute function public.handle_auth_user_created_provision_shop();
-
 -- Backfill all existing auth users.
 do $$
 declare
@@ -208,7 +205,6 @@ begin
   end loop;
 end
 $$;
-
 -- Keep only one membership per user (oldest created_at, then smallest shop_id).
 with ranked as (
   select
@@ -225,10 +221,8 @@ using ranked r
 where sm.user_id = r.user_id
   and sm.shop_id = r.shop_id
   and r.rn > 1;
-
 create unique index if not exists shop_members_user_id_unique
   on public.shop_members (user_id);
-
 -- Fix references policies to avoid ambiguous column resolution.
 drop policy if exists references_select_by_membership on public.references;
 create policy references_select_by_membership
@@ -242,7 +236,6 @@ using (
     where sm.user_id = auth.uid()
   )
 );
-
 drop policy if exists references_insert_by_membership on public.references;
 create policy references_insert_by_membership
 on public.references
@@ -255,7 +248,6 @@ with check (
     where sm.user_id = auth.uid()
   )
 );
-
 drop policy if exists references_delete_by_membership on public.references;
 create policy references_delete_by_membership
 on public.references
