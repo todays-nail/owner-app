@@ -28,7 +28,7 @@ export default async function OwnerVerificationSubmitPage() {
   }
 
   if (res.status === "APPROVED") {
-    redirect("/");
+    redirect("/dashboard");
   }
 
   if (res.status === "PENDING") {

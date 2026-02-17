@@ -30,7 +30,7 @@ export default async function OwnerVerificationPendingPage() {
   }
 
   if (res.status === "APPROVED") {
-    redirect("/");
+    redirect("/dashboard");
   }
 
   if (res.status !== "PENDING") {
