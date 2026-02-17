@@ -31,6 +31,7 @@ Codex 작업 규칙과 프로젝트 컨텍스트를 정의합니다. (이 저장
 - 공용 마이그레이션 canonical은 submodule `shared-schema/migrations`다.
 - 서브모듈 초기화/업데이트: `git submodule update --init --recursive`
 - 실행 대상 경로는 `supabase/migrations`이며, `pnpm db:sync:from-shared`로 동기화한다.
+- 동기화 기준 브랜치 고정 체크: `pnpm db:shared:branch:check` (`shared-schema` HEAD가 `origin/main` 계열인지 검증)
 - 환경 변수 계약:
   - `SUPABASE_DB_URL_SHARED_STAGING`
   - `SUPABASE_DB_URL_SHARED_PROD`

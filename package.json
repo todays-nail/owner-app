@@ -15,6 +15,7 @@
     "typecheck": "tsc --noEmit",
     "db:check": "node scripts/supabase-db-check.mjs",
     "db:check:shared": "node scripts/supabase-db-check.mjs",
+    "db:shared:branch:check": "node scripts/supabase-shared-schema-branch-check.mjs",
     "db:push:dev": "node scripts/supabase-db-push-dev.mjs",
     "db:push:shared": "node scripts/supabase-db-push-dev.mjs",
     "db:sync:from-shared": "node scripts/supabase-db-sync-from-shared.mjs",
