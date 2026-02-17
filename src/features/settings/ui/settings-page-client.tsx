@@ -5,6 +5,8 @@ import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import type { ShopGalleryImageDto, ShopSettingsDto, Weekday } from "@/features/settings/model/types";
 import { updateShopSettingsForCurrentUser } from "@/features/settings/services/update-shop-settings-browser-service";
+import { PricePolicyEditor, type PricePolicyEditorHandle } from "@/features/settings/ui/price-policy-editor";
+import { SettingsSectionTabs } from "@/features/settings/ui/settings-section-tabs";
 import { cn } from "@/lib/utils";
 
 const BANK_OPTIONS = ["카카오뱅크", "신한은행", "국민은행"] as const;
@@ -191,6 +193,16 @@ function buildNewFormState(initialData: ShopSettingsDto): SettingsFormState {
   };
 }
 
+function isLocalMockGalleryImage(image: Pick<ShopGalleryImageDto, "storagePath">) {
+  return image.storagePath.startsWith("mock-local://");
+}
+
+function revokePreviewIfLocal(image: Pick<ShopGalleryImageDto, "storagePath" | "signedUrl">) {
+  if (isLocalMockGalleryImage(image) && image.signedUrl) {
+    URL.revokeObjectURL(image.signedUrl);
+  }
+}
+
 function ToggleSwitch({
   checked,
   onChange,
@@ -262,6 +274,7 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const detailAddressInputRef = useRef<HTMLInputElement | null>(null);
+  const pricePolicyEditorRef = useRef<PricePolicyEditorHandle | null>(null);
   const pendingFilesRef = useRef<PendingUploadFile[]>([]);
 
   useEffect(() => {
@@ -480,7 +493,6 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
     const removalPrice = parseNonNegativeInteger(form.removalPrice, "타샵 제거 가격");
     const extensionPrice = parseNonNegativeInteger(form.extensionPrice, "연장 가격");
     const artUnitPrice = parseNonNegativeInteger(form.artUnitPrice, "아트 추가 단가");
-    const depositAmount = parseNonNegativeInteger(form.depositAmount, "예약금");
 
     if (!baseGelPrice.ok) {
       setErrorMessage(baseGelPrice.message);
@@ -498,6 +510,15 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
       setErrorMessage(artUnitPrice.message);
       return;
     }
+
+    const pricePolicyValidationMessage = pricePolicyEditorRef.current?.validateBeforeSave();
+    if (pricePolicyValidationMessage) {
+      setErrorMessage(pricePolicyValidationMessage);
+      return;
+    }
+
+    const depositAmount = parseNonNegativeInteger(form.depositAmount, "예약금");
+
     if (!depositAmount.ok) {
       setErrorMessage(depositAmount.message);
       return;
@@ -531,6 +552,12 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
         newGalleryFiles: pendingFiles.map((pendingFile) => pendingFile.file)
       });
 
+      const pricePolicySaveResult = await pricePolicyEditorRef.current?.saveChanges();
+      if (pricePolicySaveResult && !pricePolicySaveResult.ok) {
+        setErrorMessage(pricePolicySaveResult.errorMessage ?? "가격 정책 저장에 실패했습니다.");
+        return;
+      }
+
       setPendingFiles((prev) => {
         prev.forEach((pendingFile) => {
           URL.revokeObjectURL(pendingFile.previewUrl);
@@ -539,6 +566,12 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
       });
       setRemovedImageIds(new Set());
       setToastMessage("변경사항을 저장했습니다.");
+
+      const removedSet = removedImageIds;
+      const removedImages = galleryImages.filter((image) => removedSet.has(image.id));
+      removedImages.forEach((image) => {
+        revokePreviewIfLocal(image);
+      });
       router.refresh();
     } catch (error) {
       const message =
@@ -553,25 +586,29 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
 
   return (
     <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-10">
-      <header className="mb-8 flex flex-col gap-4 md:mb-10 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">샵 정보 관리</h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            매장의 기본 정보와 운영 정책을 설정하세요.
-          </p>
+      <header className="mb-8 space-y-6 md:mb-10">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">설정</h1>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              샵 정보와 계정 설정을 관리하세요.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={isSaving}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/30 transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <span className="material-icons-round text-sm" aria-hidden="true">
+              save
+            </span>
+            {isSaving ? "저장 중..." : "변경사항 저장"}
+          </button>
         </div>
 
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={isSaving}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/30 transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <span className="material-icons-round text-sm" aria-hidden="true">
-            save
-          </span>
-          {isSaving ? "저장 중..." : "변경사항 저장"}
-        </button>
+        <SettingsSectionTabs />
       </header>
 
       {errorMessage ? (
@@ -783,64 +820,53 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
             </div>
           </section>
 
+          <PricePolicyEditor
+            ref={pricePolicyEditorRef}
+            shopId={initialData.shopId}
+            disabled={isSaving}
+            onRequestSave={handleSave}
+          />
+
           <section className="rounded-2xl border border-stone-100 bg-white p-6 shadow-sm dark:border-stone-800 dark:bg-surface-dark md:p-8">
-            <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex items-center gap-3">
                 <div className="rounded-lg bg-primary/10 p-2 text-primary">
                   <span className="material-icons-round" aria-hidden="true">
-                    payments
+                    event_available
                   </span>
                 </div>
-                <h2 className="text-xl font-bold text-stone-800 dark:text-white">가격 정책</h2>
+                <h2 className="text-xl font-bold text-stone-800 dark:text-white">예약 운영 정책</h2>
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              {[
-                { label: "기본 젤 (Base Gel)", key: "baseGelPrice" as const },
-                { label: "타샵 제거 (Removal)", key: "removalPrice" as const },
-                { label: "연장 개당 (Extension)", key: "extensionPrice" as const },
-                { label: "아트 추가 단위 (Art Unit)", key: "artUnitPrice" as const }
-              ].map((field) => (
-                <div key={field.key}>
-                  <label className="mb-2 block text-sm font-semibold text-stone-700 dark:text-stone-300">{field.label}</label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={form[field.key]}
-                      onChange={(event) => handleNumberChange(field.key, event.target.value)}
-                      className="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2.5 pr-10 text-right text-sm text-stone-800 transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-stone-700 dark:bg-stone-800/50 dark:text-stone-100"
-                    />
-                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-stone-500">원</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-stone-100 bg-white p-6 shadow-sm dark:border-stone-800 dark:bg-surface-dark md:p-8">
-            <div className="mb-6 flex items-center gap-3">
-              <div className="rounded-lg bg-primary/10 p-2 text-primary">
-                <span className="material-icons-round" aria-hidden="true">
-                  event_available
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={isSaving}
+                className="inline-flex items-center justify-center gap-2 self-end rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:self-start"
+              >
+                <span className="material-icons-round text-sm" aria-hidden="true">
+                  save
                 </span>
-              </div>
-              <h2 className="text-xl font-bold text-stone-800 dark:text-white">예약 운영 정책</h2>
+                {isSaving ? "저장 중..." : "변경사항 저장하기"}
+              </button>
             </div>
 
             <div className="space-y-6">
               <div className="w-full">
-                <label className="mb-2 block text-sm font-semibold text-stone-700 dark:text-stone-300">예약금 설정</label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    value={form.depositAmount}
-                    onChange={(event) => handleNumberChange("depositAmount", event.target.value)}
-                    className="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2.5 pr-10 text-right text-sm font-semibold text-stone-800 transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-stone-700 dark:bg-stone-800/50 dark:text-stone-100"
-                  />
-                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-stone-500">원</span>
+                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:gap-4">
+                  <label className="text-sm font-semibold text-stone-700 md:whitespace-nowrap dark:text-stone-300">
+                    예약금 설정
+                  </label>
+                  <div className="relative w-full md:max-w-[280px]">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={form.depositAmount}
+                      onChange={(event) => handleNumberChange("depositAmount", event.target.value)}
+                      className="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2.5 pr-10 text-right text-sm font-semibold text-stone-800 transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-stone-700 dark:bg-stone-800/50 dark:text-stone-100"
+                    />
+                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-stone-500">원</span>
+                  </div>
                 </div>
                 <p className="mt-2 text-xs text-stone-500">노쇼 방지를 위한 기본 예약금 수준을 설정합니다.</p>
               </div>
@@ -874,13 +900,27 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
           </section>
 
           <section className="rounded-2xl border border-stone-100 bg-white p-6 shadow-sm dark:border-stone-800 dark:bg-surface-dark md:p-8">
-            <div className="mb-6 flex items-center gap-3">
-              <div className="rounded-lg bg-primary/10 p-2 text-primary">
-                <span className="material-icons-round" aria-hidden="true">
-                  account_balance
-                </span>
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-primary/10 p-2 text-primary">
+                  <span className="material-icons-round" aria-hidden="true">
+                    account_balance
+                  </span>
+                </div>
+                <h2 className="text-xl font-bold text-stone-800 dark:text-white">정산 및 사업자 정보</h2>
               </div>
-              <h2 className="text-xl font-bold text-stone-800 dark:text-white">정산 및 사업자 정보</h2>
+
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={isSaving}
+                className="inline-flex items-center justify-center gap-2 self-end rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:self-start"
+              >
+                <span className="material-icons-round text-sm" aria-hidden="true">
+                  save
+                </span>
+                {isSaving ? "저장 중..." : "변경사항 저장하기"}
+              </button>
             </div>
 
             <div className="space-y-5">

@@ -27,7 +27,7 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { key: "dashboard", label: "대시보드", href: "/", icon: "dashboard" },
+  { key: "dashboard", label: "대시보드", href: "/dashboard", icon: "dashboard" },
   { key: "bookings", label: "예약 관리", href: "/bookings", icon: "calendar_today" },
   {
     key: "references",
@@ -44,7 +44,7 @@ const navItems: NavItem[] = [
   },
   {
     key: "settings",
-    label: "샵 정보 관리",
+    label: "설정",
     href: "/settings",
     icon: "storefront"
   }

@@ -37,6 +37,11 @@
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - (옵션) `NEXT_PUBLIC_SITE_URL`
+- (옵션) `NEXT_PUBLIC_MARKETING_URL` (외부 마케팅 페이지 링크)
+- (옵션) `NEXT_PUBLIC_CUSTOMER_APP_URL` (고객 예약 앱 URL)
+- (옵션) `NEXT_PUBLIC_AI_FITTING_DEMO_URL` (AI 손 피팅/커스텀 데모 영상 URL)
+- (옵션) `NEXT_PUBLIC_PLAYSTORE_URL` (Google Play 이동 URL)
+- (옵션) `NEXT_PUBLIC_APPSTORE_URL` (App Store 이동 URL)
 - (서버 전용) `SUPABASE_SERVICE_ROLE_KEY` (브라우저 노출 금지)
 
 ## Future

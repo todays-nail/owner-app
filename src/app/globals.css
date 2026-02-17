@@ -147,6 +147,90 @@ body {
     transform-origin: top left;
   }
 
+  .promo-root {
+    background:
+      radial-gradient(at 0% 0%, #f5f5dc 0%, transparent 50%),
+      radial-gradient(at 100% 0%, #ffdab9 0%, transparent 50%),
+      radial-gradient(at 100% 100%, #f88379 0%, transparent 50%),
+      radial-gradient(at 0% 100%, #f5f5dc 0%, transparent 50%);
+    background-attachment: fixed;
+    background-color: #faf9f6;
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 8px 32px 0 rgba(232, 91, 78, 0.05);
+  }
+
+  .glass-card:hover {
+    border: 1px solid rgba(232, 91, 78, 0.3);
+    box-shadow: 0 20px 60px -12px rgba(232, 91, 78, 0.15);
+  }
+
+  .btn-glass {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-glass::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transform: rotate(45deg);
+    transition: 0.6s;
+  }
+
+  .btn-glass:hover::after {
+    left: 100%;
+  }
+
+  .floating-icon {
+    filter: drop-shadow(0 10px 15px rgba(232, 91, 78, 0.2));
+  }
+
+  .korean-headline {
+    font-weight: 900;
+    letter-spacing: -0.05em;
+  }
+
+  .landing-readable h1,
+  .landing-readable h2,
+  .landing-readable h3 {
+    text-wrap: balance;
+  }
+
+  .landing-readable p,
+  .landing-readable li {
+    line-height: 1.68;
+    text-wrap: pretty;
+  }
+
+  .landing-readable p {
+    max-width: min(72ch, 100%);
+  }
+
+  .landing-readable .text-center p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  @media (max-width: 767px) {
+    .landing-readable h1 {
+      line-height: 1.18;
+    }
+
+    .landing-readable h2 {
+      line-height: 1.24;
+    }
+  }
+
   @media (min-width: 1280px) {
     .owner-dashboard-fit-root {
       height: 100vh;
