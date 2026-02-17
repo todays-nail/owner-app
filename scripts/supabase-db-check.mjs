@@ -1,4 +1,8 @@
 import { spawnSync } from "node:child_process";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import path from "node:path";
+
+const LOCK_DIR = path.join("/tmp", "todays-nail-shared-db-check.lock");
 function run(cmd, args, opts = {}) {
   const res = spawnSync(cmd, args, { stdio: "inherit", ...opts });
   if (res.error) throw res.error;
@@ -35,9 +39,48 @@ function runWithFallback(label, linkedArgs, dbUrlArgs, dbUrl) {
   }
 }
 
+function acquireLock() {
+  try {
+    mkdirSync(LOCK_DIR);
+    writeFileSync(path.join(LOCK_DIR, "pid"), `${process.pid}`);
+    return;
+  } catch {
+    // Continue to stale lock handling.
+  }
+
+  const pidFile = path.join(LOCK_DIR, "pid");
+  let stale = true;
+  try {
+    const pid = Number.parseInt(readFileSync(pidFile, "utf-8"), 10);
+    if (!Number.isNaN(pid) && pid > 0) {
+      try {
+        process.kill(pid, 0);
+        stale = false;
+      } catch {
+        stale = true;
+      }
+    }
+  } catch {
+    stale = true;
+  }
+
+  if (!stale) {
+    throw new Error(
+      "[db-check] another db-check is already running. run checks sequentially per repository."
+    );
+  }
+
+  rmSync(LOCK_DIR, { recursive: true, force: true });
+  mkdirSync(LOCK_DIR);
+  writeFileSync(path.join(LOCK_DIR, "pid"), `${process.pid}`);
+}
+
 function main() {
   const dbUrl =
     process.env.SUPABASE_DB_URL_SHARED_STAGING ?? process.env.SUPABASE_DB_URL_WEB_DEV;
+
+  acquireLock();
+  process.on("exit", () => rmSync(LOCK_DIR, { recursive: true, force: true }));
 
   runOrThrow("migration lint", "node", ["scripts/supabase-migrations-lint.mjs"]);
   runOrThrow("shared-schema branch check", "node", [
