@@ -10,8 +10,7 @@ import {
   type DesignReference,
   REFERENCE_CATEGORIES,
   type ReferenceCategory,
-  REFERENCES_PAGE_SIZE,
-  type ReferenceViewMode
+  REFERENCES_PAGE_SIZE
 } from "@/features/references/model/references";
 import {createReferenceForCurrentUser} from "@/features/references/services/create-reference-browser-service";
 import {deleteReferenceForCurrentUser} from "@/features/references/services/delete-reference-browser-service";
@@ -22,7 +21,6 @@ import {updateReferenceForCurrentUser} from "@/features/references/services/upda
 import {ReferenceCard} from "@/features/references/ui/reference-card";
 import {ReferenceDetailPanel} from "@/features/references/ui/reference-detail-panel";
 import {ReferenceEditorForm, type ReferenceEditorFormValues} from "@/features/references/ui/reference-editor-form";
-import {ReferenceListRow} from "@/features/references/ui/reference-list-row";
 
 interface ReferencesPageClientProps {
   initialReferences: DesignReference[];
@@ -35,7 +33,6 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
 
   const [query, setQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<Set<ReferenceCategory>>(new Set());
-  const [viewMode, setViewMode] = useState<ReferenceViewMode>("grid");
   const [currentPage, setCurrentPage] = useState(1);
 
   const [selectedReferenceId, setSelectedReferenceId] = useState<string | null>(null);
@@ -354,16 +351,6 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
 
   const hasResults = filteredReferences.length > 0;
 
-  const handleGridView = () => {
-    setViewMode("grid");
-    setCurrentPage(1);
-  };
-
-  const handleListView = () => {
-    setViewMode("list");
-    setCurrentPage(1);
-  };
-
   const handleQueryChange = (value: string) => {
     setQuery(value);
     setCurrentPage(1);
@@ -399,7 +386,7 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
           <span className="material-icons mr-2 text-sm" aria-hidden="true">
             add
           </span>
-          레퍼런스 등록
+          디자인 등록
         </button>
       </header>
 
@@ -421,40 +408,6 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
               />
             </div>
 
-            <div className="flex flex-shrink-0 items-center space-x-2 rounded-lg bg-gray-50 p-1 dark:bg-gray-800">
-              <button
-                type="button"
-                onClick={handleGridView}
-                aria-label="그리드 보기"
-                aria-pressed={viewMode === "grid"}
-                className={cn(
-                  "rounded-md p-2 transition-colors",
-                  viewMode === "grid"
-                    ? "bg-white text-primary shadow-sm dark:bg-surface-dark"
-                    : "text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
-                )}
-              >
-                <span className="material-icons" aria-hidden="true">
-                  grid_view
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={handleListView}
-                aria-label="리스트 보기"
-                aria-pressed={viewMode === "list"}
-                className={cn(
-                  "rounded-md p-2 transition-colors",
-                  viewMode === "list"
-                    ? "bg-white text-primary shadow-sm dark:bg-surface-dark"
-                    : "text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
-                )}
-              >
-                <span className="material-icons" aria-hidden="true">
-                  list
-                </span>
-              </button>
-            </div>
           </div>
 
           <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1 pt-1">
@@ -483,80 +436,46 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
 
       <section className="space-y-6">
         {hasResults ? (
-          viewMode === "grid" ? (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-              {paginatedReferences.map((item) => {
-                const isPending = togglePendingIds.has(item.id);
-                const actionsDisabled = createPending || editPending || deletePending;
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {paginatedReferences.map((item) => {
+              const isPending = togglePendingIds.has(item.id);
+              const actionsDisabled = createPending || editPending || deletePending;
 
-                return (
-                  <ReferenceCard
-                    key={item.id}
-                    item={item}
-                    visible={item.isVisible}
-                    onOpenDetail={handleOpenDetail}
-                    onToggleVisible={handleToggleVisible}
-                    onEdit={handleOpenEdit}
-                    onDelete={handleOpenDeleteModal}
-                    toggleDisabled={actionsDisabled || isPending}
-                    editDisabled={actionsDisabled}
-                    deleteDisabled={actionsDisabled}
-                  />
-                );
-              })}
+              return (
+                <ReferenceCard
+                  key={item.id}
+                  item={item}
+                  visible={item.isVisible}
+                  onOpenDetail={handleOpenDetail}
+                  onToggleVisible={handleToggleVisible}
+                  onEdit={handleOpenEdit}
+                  onDelete={handleOpenDeleteModal}
+                  togglePending={isPending}
+                  toggleDisabled={actionsDisabled || isPending}
+                  editDisabled={actionsDisabled || isPending}
+                  deleteDisabled={actionsDisabled || isPending}
+                />
+              );
+            })}
 
-              <button
-                type="button"
-                onClick={handleOpenCreateModal}
-                className="flex h-full min-h-[300px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-white p-6 transition-all duration-300 hover:border-primary hover:bg-primary/5 dark:border-gray-700 dark:bg-surface-dark"
-              >
-                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gray-50 shadow-sm transition-colors dark:bg-gray-800">
-                  <span className="material-icons text-3xl text-gray-300" aria-hidden="true">
-                    add
-                  </span>
-                </div>
-                <span className="mb-2 text-base font-bold text-gray-900 dark:text-white">새 디자인 등록</span>
-                <span className="text-center text-xs leading-relaxed text-gray-400">
-                  새로운 네일 디자인을
-                  <br />
-                  포트폴리오에 추가하세요
-                </span>
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {paginatedReferences.map((item) => {
-                const isPending = togglePendingIds.has(item.id);
-                const actionsDisabled = createPending || editPending || deletePending;
-
-                return (
-                  <ReferenceListRow
-                    key={item.id}
-                    item={item}
-                    visible={item.isVisible}
-                    onOpenDetail={handleOpenDetail}
-                    onToggleVisible={handleToggleVisible}
-                    onEdit={handleOpenEdit}
-                    onDelete={handleOpenDeleteModal}
-                    toggleDisabled={actionsDisabled || isPending}
-                    editDisabled={actionsDisabled}
-                    deleteDisabled={actionsDisabled}
-                  />
-                );
-              })}
-
-              <button
-                type="button"
-                onClick={handleOpenCreateModal}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-200 bg-white px-6 py-5 text-sm font-semibold text-gray-500 transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-gray-700 dark:bg-surface-dark dark:text-gray-300"
-              >
-                <span className="material-icons text-lg" aria-hidden="true">
+            <button
+              type="button"
+              onClick={handleOpenCreateModal}
+              className="flex h-full min-h-[300px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-white p-6 transition-all duration-300 hover:border-primary hover:bg-primary/5 dark:border-gray-700 dark:bg-surface-dark"
+            >
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gray-50 shadow-sm transition-colors dark:bg-gray-800">
+                <span className="material-icons text-3xl text-gray-300" aria-hidden="true">
                   add
                 </span>
-                새 디자인 등록
-              </button>
-            </div>
-          )
+              </div>
+              <span className="mb-2 text-base font-bold text-gray-900 dark:text-white">새 디자인 등록</span>
+              <span className="text-center text-xs leading-relaxed text-gray-400">
+                새로운 네일 디자인을
+                <br />
+                포트폴리오에 추가하세요
+              </span>
+            </button>
+          </div>
         ) : (
           <div className="rounded-2xl border border-dashed border-gray-200 bg-white px-6 py-12 text-center dark:border-gray-700 dark:bg-surface-dark">
             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">

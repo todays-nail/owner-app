@@ -28,5 +28,4 @@ begin
   return new;
 end;
 $$;
-
 drop trigger if exists trg_reference_style_tag_check on public.references;

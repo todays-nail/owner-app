@@ -67,6 +67,7 @@ function normalizeReference(raw: unknown): DesignReference | null {
   const imageUrl = imageUrlFromImageUrl || imageUrlFromImageUrls;
   const categories = parseCategories(raw.categories);
   const price = parseNumber(raw.price);
+  const rawFinalPrice = parseNumber(raw.finalPrice ?? raw.final_price);
 
   if (!id || !name || !imageUrl || !categories || price === null) {
     return null;
@@ -77,11 +78,14 @@ function normalizeReference(raw: unknown): DesignReference | null {
   const durationMinutes = parseNumber(raw.durationMinutes);
   const description = typeof raw.description === "string" ? raw.description : "";
   const imageUrls = parseImageUrls(raw.imageUrls, imageUrl);
+  const finalPrice =
+    rawFinalPrice === null ? price : Math.max(0, Math.min(price, Math.floor(rawFinalPrice)));
 
   return {
     id,
     name,
     price,
+    finalPrice,
     imageUrl,
     imageUrls,
     categories,

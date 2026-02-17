@@ -1,28 +1,12 @@
 import { spawnSync } from "node:child_process";
 
-function requireEnv(name) {
-  const v = process.env[name];
-  if (!v) throw new Error(`Missing env: ${name}`);
-  return v;
-}
+const res = spawnSync("node", ["scripts/supabase-db-push-dev.mjs"], {
+  stdio: "inherit",
+});
 
-function main() {
-  const password = requireEnv("SUPABASE_DB_PASSWORD");
-
-  const res = spawnSync(
-    "supabase",
-    ["db", "push", "--password", password, "--yes"],
-    { stdio: "inherit" }
-  );
-
-  if (res.error) throw res.error;
-  process.exit(res.status ?? 1);
-}
-
-try {
-  main();
-} catch (e) {
-  console.error(e?.message || e);
+if (res.error) {
+  console.error(res.error.message ?? res.error);
   process.exit(1);
 }
 
+process.exit(res.status ?? 1);

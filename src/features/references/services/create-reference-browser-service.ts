@@ -120,6 +120,14 @@ export async function createReferenceForCurrentUser(input: CreateReferenceInput)
     throw new Error("기본 가격을 올바르게 입력해 주세요.");
   }
 
+  if (
+    !Number.isFinite(input.finalPrice) ||
+    input.finalPrice < 0 ||
+    input.finalPrice > input.price
+  ) {
+    throw new Error("최종 노출 가격을 올바르게 입력해 주세요.");
+  }
+
   if (!Array.isArray(input.imageUrls) || input.imageUrls.length === 0) {
     throw new Error("대표 이미지를 업로드해 주세요.");
   }
@@ -151,6 +159,7 @@ export async function createReferenceForCurrentUser(input: CreateReferenceInput)
       title: input.name.trim(),
       description: input.description?.trim() ?? "",
       base_price: input.price,
+      final_price: input.finalPrice,
       service_duration_min: serviceDuration,
       is_active: input.isVisible,
       badge: normalizeBadge(input.badge),

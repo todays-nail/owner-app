@@ -22,6 +22,28 @@ Codex 작업 규칙과 프로젝트 컨텍스트를 정의합니다. (이 저장
 - Build: `pnpm build`
 - Start: `pnpm start`
 
+## Supabase Workflow
+
+- DB는 개발/통합 단계에서 `shared-staging` 단일 프로젝트를 공용으로 사용한다.
+- 이 저장소는 `shared-staging` 대상으로 직접 `db push`를 허용한다.
+- `shared-schema` 저장소 CI도 동일한 `shared-staging/prod`를 사용한다.
+- `shared-prod` 환경은 유지한다. 해커톤/초기 단계에서는 승인자(`Required reviewers`)를 비워둘 수 있고, 운영 전환 시 1명 이상 권장한다.
+- 공용 마이그레이션 canonical은 submodule `shared-schema/migrations`다.
+- 서브모듈 초기화/업데이트: `git submodule update --init --recursive`
+- 실행 대상 경로는 `supabase/migrations`이며, `pnpm db:sync:from-shared`로 동기화한다.
+- 동기화 기준 브랜치 고정 체크: `pnpm db:shared:branch:check` (`shared-schema` HEAD가 `origin/main` 계열인지 검증)
+- 환경 변수 계약:
+  - `SUPABASE_DB_URL_SHARED_STAGING`
+  - `SUPABASE_DB_URL_SHARED_PROD`
+- migration 작업 기본 검증 순서:
+  - `pnpm db:check` (`migration list` + `db push --dry-run` + `db diff`)
+  - `pnpm db:check`는 머신 단위 락(`/tmp/todays-nail-shared-db-check.lock`)으로 동시 실행을 차단해 레포 단위 순차 실행을 강제한다.
+  - `pnpm db:push:shared` (shared-staging으로 push)
+  - 공용 스키마 관련 파일(예: `supabase/migrations`, `shared-schema` 변경) 작업 시 `pnpm db:check`를 PR/변경 건의 게이트로 항상 통과해야 한다.
+- `--linked` 인증이 불안정하면 스크립트가 `SUPABASE_DB_URL_SHARED_STAGING`로 자동 fallback한다.
+- Docker가 실행 중이 아니면 `db:check`에서 `db diff`는 자동 스킵한다.
+- 새 migration 파일(전환 시점 이후)은 `YYYYMMDDHHMMSS_<team>_<description>.sql` 형식을 지킨다. (`team`: `ios` 또는 `web`)
+
 ## Architecture Rules
 
 - Routing: `src/app` App Router 기반. 공개/보호는 Route Group으로 분리한다: `(public)`, `(protected)`.

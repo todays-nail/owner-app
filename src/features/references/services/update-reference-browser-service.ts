@@ -143,6 +143,14 @@ export async function updateReferenceForCurrentUser(
     throw new Error("기본 가격을 올바르게 입력해 주세요.");
   }
 
+  if (
+    !Number.isFinite(values.finalPrice) ||
+    values.finalPrice < 0 ||
+    values.finalPrice > values.price
+  ) {
+    throw new Error("최종 노출 가격을 올바르게 입력해 주세요.");
+  }
+
   if (!Array.isArray(values.imageUrls) || values.imageUrls.length === 0) {
     throw new Error("대표 이미지를 업로드해 주세요.");
   }
@@ -279,6 +287,7 @@ export async function updateReferenceForCurrentUser(
         title: values.name.trim(),
         description: values.description?.trim() ?? "",
         base_price: values.price,
+        final_price: values.finalPrice,
         service_duration_min: serviceDuration,
         is_active: values.isVisible,
         badge: normalizeBadge(values.badge),

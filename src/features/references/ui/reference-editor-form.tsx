@@ -9,6 +9,8 @@ import {cn} from "@/lib/utils";
 
 const DESCRIPTION_MAX_LENGTH = 200;
 const MAX_TAG_SELECTION = 3;
+const DISCOUNT_RATE_MIN = 0;
+const DISCOUNT_RATE_MAX = 100;
 
 export type ReferenceEditorMode = "create" | "edit";
 export type ReferenceEditorFormValues = Omit<ReferenceEntity, "id">;
@@ -29,11 +31,29 @@ interface ReferenceEditorInitialState {
   designName: string;
   selectedTags: Set<ReferenceCategory>;
   price: string;
+  discountRate: string;
   duration: string;
   description: string;
   imageUrls: string[];
   isVisible: boolean;
   badge: ReferenceEntity["badge"];
+}
+
+function clampDiscountRate(value: number): number {
+  return Math.max(DISCOUNT_RATE_MIN, Math.min(DISCOUNT_RATE_MAX, value));
+}
+
+function deriveDiscountRate(price: number, finalPrice: number): number {
+  if (!Number.isFinite(price) || price <= 0) {
+    return 0;
+  }
+
+  const ratio = (1 - finalPrice / price) * 100;
+  return clampDiscountRate(Math.round(ratio));
+}
+
+function formatKrw(value: number): string {
+  return `${new Intl.NumberFormat("ko-KR").format(value)}원`;
 }
 
 function createInitialState(initialValue?: ReferenceEntity | null): ReferenceEditorInitialState {
@@ -42,6 +62,7 @@ function createInitialState(initialValue?: ReferenceEntity | null): ReferenceEdi
       designName: "",
       selectedTags: new Set(),
       price: "",
+      discountRate: "0",
       duration: "",
       description: "",
       imageUrls: [],
@@ -50,10 +71,13 @@ function createInitialState(initialValue?: ReferenceEntity | null): ReferenceEdi
     };
   }
 
+  const discountRate = deriveDiscountRate(initialValue.price, initialValue.finalPrice);
+
   return {
     designName: initialValue.name,
     selectedTags: new Set(initialValue.categories),
     price: String(initialValue.price),
+    discountRate: String(discountRate),
     duration: initialValue.durationMinutes !== null ? String(initialValue.durationMinutes) : "",
     description: initialValue.description,
     imageUrls: initialValue.imageUrls.length > 0 ? [...initialValue.imageUrls] : [initialValue.imageUrl],
@@ -97,6 +121,7 @@ export function ReferenceEditorForm({
   const [designName, setDesignName] = useState("");
   const [selectedTags, setSelectedTags] = useState<Set<ReferenceCategory>>(new Set());
   const [price, setPrice] = useState("");
+  const [discountRate, setDiscountRate] = useState("0");
   const [duration, setDuration] = useState("");
   const [description, setDescription] = useState("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -109,6 +134,7 @@ export function ReferenceEditorForm({
     setDesignName(next.designName);
     setSelectedTags(next.selectedTags);
     setPrice(next.price);
+    setDiscountRate(next.discountRate);
     setDuration(next.duration);
     setDescription(next.description);
     setImageUrls(next.imageUrls);
@@ -123,11 +149,36 @@ export function ReferenceEditorForm({
   const hasRepresentativeImage = imageUrls.length > 0;
   const hasDesignName = designName.trim().length > 0;
   const hasTags = selectedTags.size > 0;
-  const hasPrice = price.trim().length > 0;
   const hasDescription = description.trim().length > 0;
+  const numericPrice =
+    price.trim().length > 0
+      ? Number(price)
+      : Number.NaN;
+  const numericDiscountRate =
+    discountRate.trim().length > 0
+      ? Number(discountRate)
+      : Number.NaN;
+  const hasValidPrice = Number.isFinite(numericPrice) && numericPrice > 0;
+  const hasValidDiscountRate =
+    Number.isFinite(numericDiscountRate) &&
+    Number.isInteger(numericDiscountRate) &&
+    numericDiscountRate >= DISCOUNT_RATE_MIN &&
+    numericDiscountRate <= DISCOUNT_RATE_MAX;
+  const calculatedFinalPrice =
+    hasValidPrice && hasValidDiscountRate
+      ? Math.floor((numericPrice * (100 - numericDiscountRate)) / 100)
+      : null;
 
-  const canSubmit = hasRepresentativeImage && hasDesignName && hasTags && hasPrice && hasDescription;
+  const canSubmit =
+    hasRepresentativeImage &&
+    hasDesignName &&
+    hasTags &&
+    hasDescription &&
+    hasValidPrice &&
+    hasValidDiscountRate &&
+    calculatedFinalPrice !== null;
   const shouldShowTagError = submitted && selectedTags.size === 0;
+  const shouldShowDiscountRateError = submitted && !hasValidDiscountRate;
 
   const handleFilesSelected = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
@@ -173,11 +224,16 @@ export function ReferenceEditorForm({
     setPrice(value.replace(/\D/g, ""));
   };
 
+  const handleDiscountRateChange = (value: string) => {
+    setDiscountRate(value.replace(/\D/g, "").slice(0, 3));
+  };
+
   const handleReset = () => {
     const next = createInitialState(initialValue);
     setDesignName(next.designName);
     setSelectedTags(next.selectedTags);
     setPrice(next.price);
+    setDiscountRate(next.discountRate);
     setDuration(next.duration);
     setDescription(next.description);
     setImageUrls(next.imageUrls);
@@ -194,9 +250,14 @@ export function ReferenceEditorForm({
       return;
     }
 
+    if (calculatedFinalPrice === null) {
+      return;
+    }
+
     onSubmit({
       name: designName.trim(),
-      price: Number(price),
+      price: numericPrice,
+      finalPrice: calculatedFinalPrice,
       imageUrl: imageUrls[0],
       imageUrls,
       categories: Array.from(selectedTags),
@@ -321,21 +382,45 @@ export function ReferenceEditorForm({
           </section>
 
           <section className="space-y-6 lg:col-span-7">
-            <div>
-              <label
-                htmlFor="designName"
-                className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-200"
-              >
-                디자인 이름 <span className="text-primary">*</span>
-              </label>
-              <input
-                id="designName"
-                type="text"
-                value={designName}
-                onChange={(event) => setDesignName(event.target.value)}
-                placeholder="예: 벚꽃 그라데이션, 자석젤 아트"
-                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 transition-colors placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-gray-700 dark:bg-surface-dark dark:text-white dark:placeholder:text-gray-600"
-              />
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="md:col-span-2">
+                <label
+                  htmlFor="designName"
+                  className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-200"
+                >
+                  디자인 이름 <span className="text-primary">*</span>
+                </label>
+                <input
+                  id="designName"
+                  type="text"
+                  value={designName}
+                  onChange={(event) => setDesignName(event.target.value)}
+                  placeholder="예: 벚꽃 그라데이션, 자석젤 아트"
+                  className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-gray-900 transition-colors placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-gray-700 dark:bg-surface-dark dark:text-white dark:placeholder:text-gray-600"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="duration"
+                  className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-200"
+                >
+                  시술 시간 (분)
+                </label>
+                <div className="relative">
+                  <input
+                    id="duration"
+                    type="number"
+                    value={duration}
+                    onChange={(event) => setDuration(event.target.value.replace(/\D/g, ""))}
+                    placeholder="60"
+                    className="w-full rounded-lg border border-gray-200 bg-white py-2.5 pl-4 pr-10 text-gray-900 transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-gray-700 dark:bg-surface-dark dark:text-white"
+                  />
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+                    <span className="text-sm font-medium">min</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div>
@@ -371,7 +456,7 @@ export function ReferenceEditorForm({
               ) : null}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div>
                 <label
                   htmlFor="price"
@@ -398,24 +483,33 @@ export function ReferenceEditorForm({
 
               <div>
                 <label
-                  htmlFor="duration"
+                  htmlFor="discountRate"
                   className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-200"
                 >
-                  시술 시간 (분)
+                  할인율 (%)
                 </label>
                 <div className="relative">
                   <input
-                    id="duration"
-                    type="number"
-                    value={duration}
-                    onChange={(event) => setDuration(event.target.value.replace(/\D/g, ""))}
-                    placeholder="60"
-                    className="w-full rounded-lg border border-gray-200 bg-white py-2.5 pl-4 pr-10 text-gray-900 transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-gray-700 dark:bg-surface-dark dark:text-white"
+                    id="discountRate"
+                    type="text"
+                    value={discountRate}
+                    onChange={(event) => handleDiscountRateChange(event.target.value)}
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    placeholder="0"
+                    className="w-full rounded-lg border border-gray-200 bg-white py-2.5 pl-4 pr-8 text-gray-900 transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-gray-700 dark:bg-surface-dark dark:text-white"
                   />
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
-                    <span className="text-sm font-medium">min</span>
+                    <span className="text-sm font-medium">%</span>
                   </div>
                 </div>
+              </div>
+
+              <div>
+                <p className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-200">최종 노출 가격</p>
+                <p className="rounded-lg border border-gray-200 bg-gray-50/70 px-4 py-2.5 text-base font-bold text-primary dark:border-gray-700 dark:bg-surface-dark">
+                  {calculatedFinalPrice !== null ? formatKrw(calculatedFinalPrice) : "-"}
+                </p>
               </div>
             </div>
 
@@ -457,6 +551,11 @@ export function ReferenceEditorForm({
           {shouldShowTagError ? (
             <span className="mr-2 text-xs font-medium text-red-500">
               최소 1개의 스타일 태그를 선택해주세요.
+            </span>
+          ) : null}
+          {shouldShowDiscountRateError ? (
+            <span className="mr-2 text-xs font-medium text-red-500">
+              할인율은 0~100 사이 정수로 입력해주세요.
             </span>
           ) : null}
           {submitted && !canSubmit ? (

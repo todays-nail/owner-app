@@ -11,15 +11,11 @@ create table if not exists public.shop_members (
   created_at timestamptz not null default now(),
   primary key (user_id, shop_id)
 );
-
 create index if not exists shop_members_shop_id_idx on public.shop_members (shop_id);
 create index if not exists shop_members_user_id_idx on public.shop_members (user_id);
-
 alter table public.shop_members enable row level security;
-
 alter table public.references
   add column if not exists badge text;
-
 do $$
 begin
   if not exists (
@@ -34,13 +30,11 @@ begin
   end if;
 end
 $$;
-
 -- Backfill from existing owner relationship
 insert into public.shop_members (user_id, shop_id, role)
 select distinct s.owner_id, s.id, 'owner'
 from public.shops s
 on conflict (user_id, shop_id) do nothing;
-
 -- Backfill from approved/pending owner verification by business number match
 insert into public.shop_members (user_id, shop_id, role)
 select distinct ov.user_id, s.id, 'owner'
@@ -49,20 +43,17 @@ join public.shops s
   on nullif(regexp_replace(s.business_registration_no, '[^0-9]', '', 'g'), '') =
      nullif(regexp_replace(ov.business_number, '[^0-9]', '', 'g'), '')
 on conflict (user_id, shop_id) do nothing;
-
 alter table public.references enable row level security;
 alter table public.reference_images enable row level security;
 alter table public.reference_style_tags enable row level security;
 alter table public.reference_categories enable row level security;
 alter table public.reference_options enable row level security;
-
 drop policy if exists shop_members_select_own on public.shop_members;
 create policy shop_members_select_own
 on public.shop_members
 for select
 to authenticated
 using (user_id = auth.uid());
-
 drop policy if exists references_select_by_membership on public.references;
 create policy references_select_by_membership
 on public.references
@@ -76,7 +67,6 @@ using (
       and sm.user_id = auth.uid()
   )
 );
-
 drop policy if exists reference_images_select_by_membership on public.reference_images;
 create policy reference_images_select_by_membership
 on public.reference_images
@@ -91,7 +81,6 @@ using (
       and sm.user_id = auth.uid()
   )
 );
-
 drop policy if exists reference_style_tags_select_by_membership on public.reference_style_tags;
 create policy reference_style_tags_select_by_membership
 on public.reference_style_tags
@@ -106,7 +95,6 @@ using (
       and sm.user_id = auth.uid()
   )
 );
-
 drop policy if exists reference_categories_select_by_membership on public.reference_categories;
 create policy reference_categories_select_by_membership
 on public.reference_categories
@@ -121,7 +109,6 @@ using (
       and sm.user_id = auth.uid()
   )
 );
-
 drop policy if exists reference_options_select_by_membership on public.reference_options;
 create policy reference_options_select_by_membership
 on public.reference_options

@@ -5,7 +5,6 @@
 insert into storage.buckets (id, name, public)
 values ('reference-images', 'reference-images', true)
 on conflict (id) do nothing;
-
 -- Storage objects policies for reference-images bucket
 -- Path convention: shops/<shop_id>/references/<reference_id>/<filename>
 drop policy if exists reference_images_storage_insert_by_membership on storage.objects;
@@ -26,7 +25,6 @@ with check (
       and sm.shop_id::text = split_part(name, '/', 2)
   )
 );
-
 drop policy if exists reference_images_storage_delete_by_membership on storage.objects;
 create policy reference_images_storage_delete_by_membership
 on storage.objects
@@ -45,7 +43,6 @@ using (
       and sm.shop_id::text = split_part(name, '/', 2)
   )
 );
-
 -- references write policies
 drop policy if exists references_insert_by_membership on public.references;
 create policy references_insert_by_membership
@@ -60,7 +57,6 @@ with check (
       and sm.shop_id = shop_id
   )
 );
-
 drop policy if exists references_delete_by_membership on public.references;
 create policy references_delete_by_membership
 on public.references
@@ -74,7 +70,6 @@ using (
       and sm.shop_id = shop_id
   )
 );
-
 -- reference_images insert policy
 drop policy if exists reference_images_insert_by_membership on public.reference_images;
 create policy reference_images_insert_by_membership
@@ -90,7 +85,6 @@ with check (
       and sm.user_id = auth.uid()
   )
 );
-
 -- reference_style_tags insert policy
 drop policy if exists reference_style_tags_insert_by_membership on public.reference_style_tags;
 create policy reference_style_tags_insert_by_membership
