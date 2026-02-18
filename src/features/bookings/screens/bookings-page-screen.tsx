@@ -109,11 +109,19 @@ export function BookingsPageScreen() {
           </header>
 
           <div className="kanban-scrollbar flex-1 overflow-x-auto overflow-y-hidden px-4 py-5 lg:px-6 lg:py-6">
+            {vm.errorMessage ? (
+              <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                {vm.errorMessage}
+              </div>
+            ) : null}
             <BookingsBoardClient
               mounted={vm.mounted}
               columns={vm.columns}
               board={vm.board}
             />
+            {vm.isLoading ? (
+              <p className="mt-4 text-sm text-slate-500">예약 데이터를 불러오는 중입니다.</p>
+            ) : null}
           </div>
         </main>
       </div>
