@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { OneulNailLogo } from "@/components/brand/oneulnail-logo";
 import SentenceLines from "@/components/ui/sentence-lines";
 import { createPageMetadata } from "@/lib/metadata";
 import ExploreCategoriesCarousel from "@/app/(public)/user/_components/explore-categories-carousel";
@@ -107,12 +108,7 @@ export default function UserMarketingPage() {
       <nav className="fixed left-0 right-0 top-0 z-50 border-b border-[#f4f1f0] bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
           <Link className="flex items-center gap-2" href="/user">
-            <div className="size-6 text-primary">
-              <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 6H42L36 24L42 42H6L12 24L6 6Z" />
-              </svg>
-            </div>
-            <h2 className="text-lg font-bold tracking-tight">Oneul Nail</h2>
+            <OneulNailLogo size="sidebar" />
           </Link>
           <ActionLink
             className={buttonText}
@@ -299,7 +295,7 @@ export default function UserMarketingPage() {
                     className="object-cover"
                     fill
                     sizes="(max-width: 1024px) 50vw, 25vw"
-                    src="/images/연장네일.png"
+                    src="/images/extension-nail.png"
                   />
                   <div className="absolute inset-0 rounded-2xl border-4 border-primary/30 bg-primary/10" />
                 </div>
@@ -399,7 +395,7 @@ export default function UserMarketingPage() {
                   <span className="material-symbols-outlined text-xs text-[#171211]">person</span>
                 </div>
                 <div className="rounded-2xl rounded-tr-none bg-primary p-4 text-sm text-white">
-                  네, 확인했습니다! 예약 가능한가요?
+                  응답 확인 완료 · 이 샵으로 선택할게요.
                 </div>
               </div>
 
@@ -416,14 +412,14 @@ export default function UserMarketingPage() {
           </div>
 
           <div className="order-1 lg:order-2">
-            <span className="text-lg font-bold text-primary">06 1:1 커스텀 견적</span>
+            <span className="text-lg font-bold text-primary">06 비채팅 커스텀 견적</span>
             <h2 className="mt-2 text-4xl font-bold leading-tight">
               원하는 디자인,
               <br />
               맞춤형 가격 제안
             </h2>
             <p className="mt-6 text-lg text-[#171211]/70">
-              <SentenceLines text="인스타에서 본 그 디자인, 얼마일지 궁금하시죠? 사진을 올리면 주변 샵에서 직접 견적을 제안합니다. 나에게 딱 맞는 가격과 실력을 갖춘 샵을 찾아보세요." />
+              <SentenceLines text="인스타에서 본 그 디자인, 얼마일지 궁금하시죠? 사진을 올리면 주변 샵에서 직접 견적을 제안합니다. 응답 리스트를 비교하고 원하는 샵을 선택해 예약까지 이어가세요." />
             </p>
           </div>
         </div>
@@ -469,10 +465,7 @@ export default function UserMarketingPage() {
         <div className="mx-auto max-w-[1200px] px-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2 text-primary">
-              <svg className="size-6" fill="currentColor" viewBox="0 0 48 48">
-                <path d="M6 6H42L36 24L42 42H6L12 24L6 6Z" />
-              </svg>
-              <h2 className="text-xl font-bold tracking-tight text-[#171211]">Oneul Nail</h2>
+              <OneulNailLogo size="sidebar" />
             </div>
             <p className="max-w-sm text-sm leading-relaxed text-[#171211]/50">
               네일 라이프의 새로운 기준, 오늘의 네일.

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { OneulNailLogo } from "@/components/brand/oneulnail-logo";
 import SentenceLines from "@/components/ui/sentence-lines";
 import { createPageMetadata } from "@/lib/metadata";
 
@@ -63,10 +64,7 @@ export default function OwnerMarketingPage() {
       <nav className="fixed top-0 z-50 w-full border-b border-[#e5dfd8] bg-background-light/80 backdrop-blur-md dark:border-white/10 dark:bg-background-dark/80">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <Link className="flex items-center gap-2" href="/">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
-              <span className="material-symbols-outlined text-sm">auto_awesome</span>
-            </div>
-            <span className="text-lg font-bold tracking-tight">오늘 네일</span>
+            <OneulNailLogo size="sidebar" />
           </Link>
           <div className="flex items-center gap-2">
             <Link
@@ -244,7 +242,7 @@ export default function OwnerMarketingPage() {
           <div className="mb-20 text-center">
             <h2 className="mb-4 text-4xl font-bold tracking-tight">상담이 곧바로 예약으로 이어집니다</h2>
             <p className="mx-auto max-w-2xl text-lg opacity-60">
-              채팅형 커스텀 견적부터 수락과 동시에 예약금 발송까지.
+              비채팅 견적 요청서부터 수락과 동시에 예약금 발송까지.
             </p>
           </div>
 
@@ -255,7 +253,7 @@ export default function OwnerMarketingPage() {
                   <div className="mb-3 flex h-6 w-12 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
                     STEP 1
                   </div>
-                  <h4 className="mb-4 text-base font-bold">커스텀 견적 요청</h4>
+                  <h4 className="mb-4 text-base font-bold">커스텀 견적 요청서</h4>
                   <div className="flex-1 rounded-lg border border-dashed border-zinc-200 bg-zinc-50 p-3 dark:border-white/10 dark:bg-zinc-900/50">
                     <div className="mb-3 flex items-center gap-2">
                       <span className="material-symbols-outlined text-lg text-primary">image</span>
@@ -286,7 +284,7 @@ export default function OwnerMarketingPage() {
                   <div className="mb-3 flex h-6 w-12 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
                     STEP 2
                   </div>
-                  <h4 className="mb-4 text-base font-bold">샵 제안</h4>
+                  <h4 className="mb-4 text-base font-bold">샵 견적 응답</h4>
                   <div className="flex-1 space-y-3">
                     <div className="rounded-lg border border-[#e5dfd8] bg-zinc-50 p-3 dark:border-white/5 dark:bg-zinc-900">
                       <p className="mb-1 text-[10px] uppercase tracking-tighter opacity-40">Expected Price</p>
@@ -317,7 +315,7 @@ export default function OwnerMarketingPage() {
                   <div className="mb-3 flex h-6 w-12 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
                     STEP 3
                   </div>
-                  <h4 className="mb-4 text-base font-bold">사용자 선택</h4>
+                  <h4 className="mb-4 text-base font-bold">사용자 샵 선택</h4>
                   <div className="flex-1">
                     <div className="mb-4 rounded-lg bg-zinc-50 p-3 dark:bg-zinc-900">
                       <p className="mb-3 text-[10px] opacity-50">Time Selection</p>
@@ -464,10 +462,7 @@ export default function OwnerMarketingPage() {
       <footer className="border-t border-[#e5dfd8] py-12 opacity-60 dark:border-white/10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 md:flex-row">
           <Link className="flex items-center gap-2" href="/">
-            <div className="flex h-6 w-6 items-center justify-center rounded bg-primary text-white">
-              <span className="material-symbols-outlined text-[10px]">auto_awesome</span>
-            </div>
-            <span className="text-sm font-bold tracking-tight">오늘 네일</span>
+            <OneulNailLogo size="sidebar" />
           </Link>
 
           <div className="flex gap-8 text-xs">

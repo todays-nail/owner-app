@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { createPageMetadata } from "@/lib/metadata";
 import SentenceLines from "@/components/ui/sentence-lines";
+import { OneulNailLogo } from "@/components/brand/oneulnail-logo";
 
 export const metadata = createPageMetadata({
   title: "오늘 네일 | Oneul Nail",
@@ -14,15 +15,7 @@ export default function RootHubPage() {
     <div className="promo-root landing-readable min-h-screen text-[#1A1A1A] antialiased">
       <div className="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col px-6 pb-16 pt-8 md:px-10">
         <header className="flex items-center justify-between py-2">
-          <div className="flex items-center gap-2">
-            <span
-              className="material-symbols-outlined text-3xl text-[#E85B4E]"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              auto_awesome
-            </span>
-            <span className="text-xl font-black tracking-tight">오늘 네일</span>
-          </div>
+          <OneulNailLogo size="sidebar" />
           <Link
             className="rounded-lg border border-[#e5dfd8] bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-50"
             href="/login"
