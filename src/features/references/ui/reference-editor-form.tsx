@@ -382,8 +382,8 @@ export function ReferenceEditorForm({
           </section>
 
           <section className="space-y-6 lg:col-span-7">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="md:col-span-2">
+            <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-3 sm:gap-4">
+              <div className="min-w-0">
                 <label
                   htmlFor="designName"
                   className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-200"
@@ -400,7 +400,7 @@ export function ReferenceEditorForm({
                 />
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <label
                   htmlFor="duration"
                   className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-200"
