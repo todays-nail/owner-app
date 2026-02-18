@@ -14,7 +14,13 @@ export function DashboardScreen({ initialReferences }: DashboardScreenProps) {
   return (
     <DashboardView
       references={initialReferences}
+      summary={vm.summary}
       scheduleItems={vm.scheduleItems}
+      isLoading={vm.isLoading}
+      isSubmittingPayment={vm.isSubmittingPayment}
+      errorMessage={vm.errorMessage}
+      onRefresh={vm.refresh}
+      onSubmitPayment={vm.submitPayment}
     />
   );
 }

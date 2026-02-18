@@ -1,47 +1,83 @@
 "use client";
 
-import {useRouter} from "next/navigation";
-import {useEffect, useRef, useState} from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-import {useProtectedUserProfile} from "@/components/auth/protected-user-profile-context";
-import {NotificationBellButton} from "@/components/common/notification-bell-button";
-import {NotificationPopover} from "@/components/common/notification-popover";
-import {OwnerSidebar} from "@/components/shell/owner-sidebar";
-import {useAppToast} from "@/components/ui/app-toast-provider";
-import {MetricCard} from "@/components/ui/metric-card";
-import {DashboardBookingPipelineSection} from "@/features/dashboard/ui/dashboard-booking-pipeline-section";
+import { useProtectedUserProfile } from "@/components/auth/protected-user-profile-context";
+import { NotificationBellButton } from "@/components/common/notification-bell-button";
+import { NotificationPopover } from "@/components/common/notification-popover";
+import { OwnerSidebar } from "@/components/shell/owner-sidebar";
+import { useAppToast } from "@/components/ui/app-toast-provider";
+import { BaseModal } from "@/components/ui/base-modal";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { MetricCard } from "@/components/ui/metric-card";
+import {
+  type DashboardPaymentStage,
+  type DashboardScheduleItem,
+  type DashboardSummary,
+  type OwnerPaymentLedgerUpsertInput,
+} from "@/features/dashboard/model/dashboard-summary";
+import { DashboardBookingPipelineSection } from "@/features/dashboard/ui/dashboard-booking-pipeline-section";
 import {
   type DashboardBookingCreateFormValues,
-  DashboardBookingCreateModal
+  DashboardBookingCreateModal,
 } from "@/features/dashboard/ui/dashboard-booking-create-modal";
-import {DashboardDesignLibrarySection} from "@/features/dashboard/ui/dashboard-design-library-section";
-import {DashboardTodayScheduleAside} from "@/features/dashboard/ui/dashboard-today-schedule-aside";
-import type {DashboardScheduleItem} from "@/features/dashboard/model/dashboard";
-import {MOCK_NOTIFICATION_ITEMS} from "@/features/notifications/model/mock-notifications";
-import type {NotificationItem} from "@/features/notifications/model/types";
-import type {DesignReference} from "@/features/references/model/references";
+import { DashboardDesignLibrarySection } from "@/features/dashboard/ui/dashboard-design-library-section";
+import { DashboardTodayScheduleAside } from "@/features/dashboard/ui/dashboard-today-schedule-aside";
+import { useOwnerNotifications } from "@/features/notifications/view-model/use-owner-notifications";
+import type { DesignReference } from "@/features/references/model/references";
 
 export interface DashboardViewProps {
   references: DesignReference[];
+  summary: DashboardSummary;
   scheduleItems: DashboardScheduleItem[];
+  isLoading: boolean;
+  isSubmittingPayment: boolean;
+  errorMessage: string | null;
+  onRefresh: () => Promise<void>;
+  onSubmitPayment: (input: OwnerPaymentLedgerUpsertInput) => Promise<void>;
 }
 
-export function DashboardView({ references, scheduleItems }: DashboardViewProps) {
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat("ko-KR", {
+    style: "currency",
+    currency: "KRW",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+export function DashboardView({
+  references,
+  summary,
+  scheduleItems,
+  isLoading,
+  isSubmittingPayment,
+  errorMessage,
+  onRefresh,
+  onSubmitPayment,
+}: DashboardViewProps) {
   const router = useRouter();
   const { showToast } = useAppToast();
   const { displayName } = useProtectedUserProfile();
+
+  const notificationVm = useOwnerNotifications(80);
+
   const greetingName = displayName.endsWith("님")
     ? displayName
     : `${displayName}님`;
+
   const mainColumnRef = useRef<HTMLDivElement | null>(null);
   const todayScheduleAsideRef = useRef<HTMLElement | null>(null);
+
   const [scheduleSectionMinHeight, setScheduleSectionMinHeight] = useState<number | null>(null);
-  const [notificationItems, setNotificationItems] = useState<NotificationItem[]>(() =>
-    MOCK_NOTIFICATION_ITEMS.map((item) => ({ ...item }))
-  );
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const unreadCount = notificationItems.filter((item) => !item.isRead).length;
+
+  const [paymentTargetReservationId, setPaymentTargetReservationId] = useState<string | null>(null);
+  const [paymentStage, setPaymentStage] = useState<DashboardPaymentStage>("DEPOSIT");
+  const [paymentAmountInput, setPaymentAmountInput] = useState("");
+  const [paymentMemoInput, setPaymentMemoInput] = useState("");
 
   useEffect(() => {
     const mainColumnElement = mainColumnRef.current;
@@ -56,7 +92,7 @@ export function DashboardView({ references, scheduleItems }: DashboardViewProps)
       setScheduleSectionMinHeight((prevMinHeight) =>
         prevMinHeight === nextMinHeight
           ? prevMinHeight
-          : nextMinHeight
+          : nextMinHeight,
       );
     };
 
@@ -72,29 +108,9 @@ export function DashboardView({ references, scheduleItems }: DashboardViewProps)
     };
   }, []);
 
-  const handleMarkRead = (id: string) => {
-    setNotificationItems((prevItems) =>
-      prevItems.map((item) => (item.id === id ? { ...item, isRead: true } : item))
-    );
-  };
+  const todayRevenueValue = useMemo(() => formatCurrency(summary.todayRevenue), [summary.todayRevenue]);
 
-  const handleMarkAllRead = (ids: string[]) => {
-    if (ids.length === 0) {
-      return;
-    }
-
-    const targetIds = new Set(ids);
-
-    setNotificationItems((prevItems) =>
-      prevItems.map((item) =>
-        targetIds.has(item.id)
-          ? { ...item, isRead: true }
-          : item
-      )
-    );
-  };
-
-  const handleNotificationItemClick = (item: NotificationItem) => {
+  const handleNotificationItemClick = (item: { href?: string }) => {
     if (!item.href) {
       return;
     }
@@ -119,6 +135,47 @@ export function DashboardView({ references, scheduleItems }: DashboardViewProps)
     setIsBookingModalOpen(false);
   };
 
+  const handleOpenPaymentModal = (reservationId: string) => {
+    setPaymentTargetReservationId(reservationId);
+    setPaymentStage("DEPOSIT");
+    setPaymentAmountInput("");
+    setPaymentMemoInput("");
+  };
+
+  const handleClosePaymentModal = () => {
+    setPaymentTargetReservationId(null);
+  };
+
+  const handleSubmitPayment = async () => {
+    if (!paymentTargetReservationId) {
+      return;
+    }
+
+    const amount = Number(paymentAmountInput.trim());
+    if (!Number.isInteger(amount) || amount < 0) {
+      showToast("결제 금액은 0 이상의 정수로 입력해 주세요.");
+      return;
+    }
+
+    try {
+      await onSubmitPayment({
+        reservationId: paymentTargetReservationId,
+        paymentStage,
+        amount,
+        memo: paymentMemoInput.trim() || undefined,
+        paidAt: new Date().toISOString(),
+      });
+
+      showToast("결제 기록이 저장되었습니다.");
+      handleClosePaymentModal();
+    } catch (error) {
+      const message = error instanceof Error && error.message.trim().length > 0
+        ? error.message
+        : "결제 기록 저장에 실패했습니다.";
+      showToast(message);
+    }
+  };
+
   return (
     <div className="owner-dashboard-root owner-dashboard-fit-root">
       <div className="owner-dashboard-fit">
@@ -137,17 +194,21 @@ export function DashboardView({ references, scheduleItems }: DashboardViewProps)
             </div>
             <div className="flex items-center gap-4">
               <NotificationPopover
-                items={notificationItems}
+                items={notificationVm.items}
                 isOpen={isNotificationOpen}
                 onOpenChange={setIsNotificationOpen}
                 onItemClick={handleNotificationItemClick}
-                onMarkRead={handleMarkRead}
-                onMarkAllRead={handleMarkAllRead}
+                onMarkRead={(id) => {
+                  void notificationVm.markRead(id);
+                }}
+                onMarkAllRead={() => {
+                  void notificationVm.markAllRead();
+                }}
                 trigger={({ isOpen, controlsId, toggle }) => (
                   <NotificationBellButton
                     variant="dashboard"
-                    unreadCount={unreadCount}
-                    showUnreadDot={unreadCount > 0}
+                    unreadCount={notificationVm.unreadCount}
+                    showUnreadDot={notificationVm.unreadCount > 0}
                     ariaExpanded={isOpen}
                     ariaControls={controlsId}
                     onClick={toggle}
@@ -167,19 +228,31 @@ export function DashboardView({ references, scheduleItems }: DashboardViewProps)
             </div>
           </header>
 
+          {errorMessage ? (
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+              {errorMessage}
+            </div>
+          ) : null}
+
+          {notificationVm.errorMessage ? (
+            <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700">
+              알림 동기화에 실패했습니다. {notificationVm.errorMessage}
+            </div>
+          ) : null}
+
           <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
             <div ref={mainColumnRef} className="min-w-0 flex-1">
               <section className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
                 <MetricCard
                   label="오늘 매출"
-                  value="₩1,240,000"
+                  value={todayRevenueValue}
                   icon="payments"
                   helper={(
                     <p className="mt-2 flex items-center gap-1 text-xs font-bold text-emerald-500">
                       <span className="material-icons text-xs" aria-hidden="true">
-                        trending_up
+                        paid
                       </span>
-                      어제 대비 +12.4%
+                      결제원장 기준 집계
                     </p>
                   )}
                   labelClassName="text-xs font-bold uppercase tracking-wider text-slate-500"
@@ -189,14 +262,14 @@ export function DashboardView({ references, scheduleItems }: DashboardViewProps)
 
                 <MetricCard
                   label="신규 예약"
-                  value="28"
+                  value={`${summary.newBookingsCount}`}
                   icon="calendar_month"
                   helper={(
                     <p className="mt-2 flex items-center gap-1 text-xs font-bold text-primary">
                       <span className="material-icons text-xs" aria-hidden="true">
-                        priority_high
+                        today
                       </span>
-                      5건의 긴급 요청
+                      오늘 생성된 예약 건수
                     </p>
                   )}
                   labelClassName="text-xs font-bold uppercase tracking-wider text-slate-500"
@@ -204,6 +277,19 @@ export function DashboardView({ references, scheduleItems }: DashboardViewProps)
                   iconWrapperClassName="bg-primary/10 text-primary"
                 />
               </section>
+
+              <div className="mb-4 flex justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    void onRefresh();
+                  }}
+                  disabled={isLoading}
+                >
+                  {isLoading ? "새로고침 중..." : "대시보드 새로고침"}
+                </Button>
+              </div>
 
               <DashboardBookingPipelineSection />
 
@@ -213,8 +299,10 @@ export function DashboardView({ references, scheduleItems }: DashboardViewProps)
             <DashboardTodayScheduleAside
               ref={todayScheduleAsideRef}
               scheduleItems={scheduleItems}
+              scheduleDateLabel={summary.dateLabel}
               scheduleSectionMinHeight={scheduleSectionMinHeight}
               onCreateBookingClick={handleOpenBookingModal}
+              onRecordPaymentClick={handleOpenPaymentModal}
             />
           </div>
         </main>
@@ -225,6 +313,109 @@ export function DashboardView({ references, scheduleItems }: DashboardViewProps)
         onClose={handleCloseBookingModal}
         onSubmit={handleBookingCreateSubmit}
       />
+
+      <BaseModal
+        open={paymentTargetReservationId !== null}
+        onClose={handleClosePaymentModal}
+        titleId="payment-ledger-modal-title"
+        descriptionId="payment-ledger-modal-description"
+        rootClassName="z-[70]"
+        overlayClassName="bg-black/40"
+        contentClassName="max-w-lg rounded-2xl border border-primary/10 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-background-dark sm:p-6"
+      >
+        <div>
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <h3 id="payment-ledger-modal-title" className="text-xl font-bold text-slate-900 dark:text-white">
+                결제 기록 등록
+              </h3>
+              <p id="payment-ledger-modal-description" className="mt-1 text-sm text-slate-500 dark:text-slate-300">
+                예약금 또는 잔금 결제를 기록하면 오늘 매출 지표에 즉시 반영됩니다.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleClosePaymentModal}
+              aria-label="모달 닫기"
+              className="rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10 dark:hover:text-slate-200"
+            >
+              <span className="material-icons text-[20px]" aria-hidden="true">
+                close
+              </span>
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1 block text-sm font-semibold">결제 구분</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPaymentStage("DEPOSIT")}
+                  className={`rounded-lg border px-3 py-2 text-sm font-semibold ${
+                    paymentStage === "DEPOSIT"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-slate-200 text-slate-600"
+                  }`}
+                >
+                  예약금
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentStage("BALANCE")}
+                  className={`rounded-lg border px-3 py-2 text-sm font-semibold ${
+                    paymentStage === "BALANCE"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-slate-200 text-slate-600"
+                  }`}
+                >
+                  잔금
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-semibold" htmlFor="payment-amount-input">
+                결제 금액
+              </label>
+              <Input
+                id="payment-amount-input"
+                value={paymentAmountInput}
+                onChange={(event) => setPaymentAmountInput(event.target.value)}
+                placeholder="예: 50000"
+                inputMode="numeric"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-semibold" htmlFor="payment-memo-input">
+                메모 (선택)
+              </label>
+              <Input
+                id="payment-memo-input"
+                value={paymentMemoInput}
+                onChange={(event) => setPaymentMemoInput(event.target.value)}
+                placeholder="예: 현장 결제 완료"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="outline" onClick={handleClosePaymentModal}>
+                취소
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  void handleSubmitPayment();
+                }}
+                disabled={isSubmittingPayment}
+              >
+                {isSubmittingPayment ? "저장 중..." : "결제 기록 저장"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </BaseModal>
 
       <div className="pointer-events-none fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         <button
