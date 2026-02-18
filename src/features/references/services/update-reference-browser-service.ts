@@ -288,8 +288,10 @@ export async function updateReferenceForCurrentUser(
         description: values.description?.trim() ?? "",
         base_price: values.price,
         final_price: values.finalPrice,
+        discounted_price: values.finalPrice,
         service_duration_min: serviceDuration,
         is_active: values.isVisible,
+        is_reservable: values.isReservable,
         badge: normalizeBadge(values.badge),
         updated_at: now
       })
@@ -380,7 +382,8 @@ export async function updateReferenceForCurrentUser(
         price: values.price,
         imageCount: values.imageUrls.length,
         categoryCount: values.categories.length,
-        isVisible: values.isVisible
+        isVisible: values.isVisible,
+        isReservable: values.isReservable
       }
     });
 

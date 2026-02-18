@@ -160,8 +160,10 @@ export async function createReferenceForCurrentUser(input: CreateReferenceInput)
       description: input.description?.trim() ?? "",
       base_price: input.price,
       final_price: input.finalPrice,
+      discounted_price: input.finalPrice,
       service_duration_min: serviceDuration,
       is_active: input.isVisible,
+      is_reservable: input.isReservable,
       badge: normalizeBadge(input.badge),
       created_at: now,
       updated_at: now

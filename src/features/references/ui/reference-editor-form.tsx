@@ -36,6 +36,7 @@ interface ReferenceEditorInitialState {
   description: string;
   imageUrls: string[];
   isVisible: boolean;
+  isReservable: boolean;
   badge: ReferenceEntity["badge"];
 }
 
@@ -67,6 +68,7 @@ function createInitialState(initialValue?: ReferenceEntity | null): ReferenceEdi
       description: "",
       imageUrls: [],
       isVisible: true,
+      isReservable: true,
       badge: null
     };
   }
@@ -82,6 +84,7 @@ function createInitialState(initialValue?: ReferenceEntity | null): ReferenceEdi
     description: initialValue.description,
     imageUrls: initialValue.imageUrls.length > 0 ? [...initialValue.imageUrls] : [initialValue.imageUrl],
     isVisible: initialValue.isVisible,
+    isReservable: initialValue.isReservable,
     badge: initialValue.badge
   };
 }
@@ -126,6 +129,7 @@ export function ReferenceEditorForm({
   const [description, setDescription] = useState("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [isVisible, setIsVisible] = useState(true);
+  const [isReservable, setIsReservable] = useState(true);
   const [badge, setBadge] = useState<ReferenceEntity["badge"]>(null);
   const [submitted, setSubmitted] = useState(false);
 
@@ -139,6 +143,7 @@ export function ReferenceEditorForm({
     setDescription(next.description);
     setImageUrls(next.imageUrls);
     setIsVisible(next.isVisible);
+    setIsReservable(next.isReservable);
     setBadge(next.badge);
     setSubmitted(false);
   }, [initialValue, mode]);
@@ -238,6 +243,7 @@ export function ReferenceEditorForm({
     setDescription(next.description);
     setImageUrls(next.imageUrls);
     setIsVisible(next.isVisible);
+    setIsReservable(next.isReservable);
     setBadge(next.badge);
     setSubmitted(false);
   };
@@ -262,6 +268,7 @@ export function ReferenceEditorForm({
       imageUrls,
       categories: Array.from(selectedTags),
       isVisible,
+      isReservable,
       badge,
       durationMinutes: duration.trim().length > 0 ? Number(duration) : null,
       description: description.trim()
@@ -510,6 +517,44 @@ export function ReferenceEditorForm({
                 <p className="rounded-lg border border-gray-200 bg-gray-50/70 px-4 py-2.5 text-base font-bold text-primary dark:border-gray-700 dark:bg-surface-dark">
                   {calculatedFinalPrice !== null ? formatKrw(calculatedFinalPrice) : "-"}
                 </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="rounded-lg border border-gray-200 bg-gray-50/70 px-4 py-3 dark:border-gray-700 dark:bg-surface-dark">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">예약 가능</p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      피드 상세에서 예약 버튼 노출 여부를 설정합니다.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={isReservable}
+                    aria-label={`예약 가능 ${isReservable ? "해제" : "설정"}`}
+                    onClick={() => setIsReservable((prev) => !prev)}
+                    className="inline-flex items-center gap-2"
+                  >
+                    <span
+                      className={cn(
+                        "relative h-5 w-9 overflow-hidden rounded-full transition-colors",
+                        isReservable ? "bg-primary" : "bg-gray-200 dark:bg-gray-600"
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-[left]",
+                          isReservable ? "left-[18px]" : "left-0.5"
+                        )}
+                      />
+                    </span>
+                    <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                      {isReservable ? "가능" : "불가"}
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
 

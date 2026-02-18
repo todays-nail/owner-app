@@ -217,7 +217,8 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
           durationMinutes: values.durationMinutes,
           imageCount: values.imageUrls.length,
           categoryCount: values.categories.length,
-          isVisible: values.isVisible
+          isVisible: values.isVisible,
+          isReservable: values.isReservable
         }
       });
 
@@ -263,7 +264,8 @@ export function ReferencesPageClient({ initialReferences }: ReferencesPageClient
           durationMinutes: values.durationMinutes,
           imageCount: values.imageUrls.length,
           categoryCount: values.categories.length,
-          isVisible: values.isVisible
+          isVisible: values.isVisible,
+          isReservable: values.isReservable
         }
       });
 

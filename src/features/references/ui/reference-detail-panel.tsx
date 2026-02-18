@@ -156,6 +156,12 @@ export function ReferenceDetailPanel({
                   {formatDuration(item.durationMinutes)}
                 </p>
               </div>
+              <div>
+                <p className="mb-1.5 text-sm font-semibold text-gray-700 dark:text-gray-200">예약 가능</p>
+                <p className="rounded-lg border border-gray-200 bg-gray-50/70 px-4 py-2.5 text-gray-900 dark:border-gray-700 dark:bg-surface-dark dark:text-white">
+                  {item.isReservable ? "가능" : "불가"}
+                </p>
+              </div>
             </div>
 
             <div>

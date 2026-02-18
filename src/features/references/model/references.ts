@@ -28,6 +28,7 @@ export interface DesignReference {
   imageUrls: string[];
   categories: ReferenceCategory[];
   isVisible: boolean;
+  isReservable: boolean;
   badge: ReferenceBadge;
   durationMinutes: number | null;
   description: string;
@@ -48,6 +49,7 @@ export const INITIAL_REFERENCES: DesignReference[] = [
     ],
     categories: ["시즌/홀리데이", "청순/내추럴"],
     isVisible: true,
+    isReservable: true,
     badge: "인기",
     durationMinutes: 60,
     description: "봄 시즌용 파스텔톤 벚꽃 포인트를 더한 인기 디자인입니다."
@@ -64,6 +66,7 @@ export const INITIAL_REFERENCES: DesignReference[] = [
     ],
     categories: ["오피스/미니멀", "프렌치"],
     isVisible: true,
+    isReservable: true,
     badge: null,
     durationMinutes: 50,
     description: "골드 라인으로 마감한 깔끔한 프렌치 스타일입니다."
@@ -80,6 +83,7 @@ export const INITIAL_REFERENCES: DesignReference[] = [
     ],
     categories: ["포인트아트", "시크/모던"],
     isVisible: false,
+    isReservable: true,
     badge: null,
     durationMinutes: 70,
     description: "체크 패턴과 딥 톤 컬러를 조합한 겨울 무드 디자인입니다."
@@ -96,6 +100,7 @@ export const INITIAL_REFERENCES: DesignReference[] = [
     ],
     categories: ["포인트아트", "시크/모던"],
     isVisible: true,
+    isReservable: true,
     badge: null,
     durationMinutes: 80,
     description: "마블 텍스처를 중심으로 완성한 고급 무드 아트입니다."
@@ -112,6 +117,7 @@ export const INITIAL_REFERENCES: DesignReference[] = [
     ],
     categories: ["러블리/귀여움", "키치/유니크"],
     isVisible: true,
+    isReservable: true,
     badge: null,
     durationMinutes: 75,
     description: "베어 파츠를 포인트로 넣은 러블리 무드 디자인입니다."
@@ -128,6 +134,7 @@ export const INITIAL_REFERENCES: DesignReference[] = [
     ],
     categories: ["글리터/펄", "시크/모던"],
     isVisible: true,
+    isReservable: true,
     badge: "NEW",
     durationMinutes: 55,
     description: "딥 그린 베이스에 글리터를 더한 시크한 시즌 디자인입니다."

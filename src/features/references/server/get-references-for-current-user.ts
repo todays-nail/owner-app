@@ -37,6 +37,7 @@ interface RawReferenceRow {
   created_at: string | null;
   service_duration_min: number | string | null;
   is_active: boolean | null;
+  is_reservable: boolean | null;
   badge: string | null;
   reference_images: RawReferenceImage[] | null;
   reference_style_tags: RawReferenceStyleTag[] | null;
@@ -173,6 +174,7 @@ function mapReferenceRow(row: RawReferenceRow): DesignReference | null {
     imageUrls,
     categories,
     isVisible: row.is_active !== false,
+    isReservable: row.is_reservable !== false,
     badge: parseBadge(row.badge),
     durationMinutes,
     description: typeof row.description === "string" ? row.description : "",
@@ -214,7 +216,7 @@ export async function getReferencesForCurrentUser(): Promise<DesignReference[]> 
   }
 
   const baseSelect =
-    "id,title,description,base_price,final_price,created_at,service_duration_min,is_active,badge,reference_images(image_url,is_primary,sort_order),reference_style_tags(style_tags(name))";
+    "id,title,description,base_price,final_price,created_at,service_duration_min,is_active,is_reservable,badge,reference_images(image_url,is_primary,sort_order),reference_style_tags(style_tags(name))";
   const selectWithLikes = `${baseSelect},reference_likes(count)`;
 
   const { data: likedReferences, error: likedReferencesError } = await supabase

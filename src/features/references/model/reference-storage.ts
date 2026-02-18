@@ -75,6 +75,12 @@ function normalizeReference(raw: unknown): DesignReference | null {
 
   const badge = BADGE_SET.has(raw.badge as ReferenceBadge) ? (raw.badge as ReferenceBadge) : null;
   const isVisible = typeof raw.isVisible === "boolean" ? raw.isVisible : true;
+  const isReservable =
+    typeof raw.isReservable === "boolean"
+      ? raw.isReservable
+      : typeof raw.is_reservable === "boolean"
+        ? raw.is_reservable
+        : true;
   const durationMinutes = parseNumber(raw.durationMinutes);
   const description = typeof raw.description === "string" ? raw.description : "";
   const imageUrls = parseImageUrls(raw.imageUrls, imageUrl);
@@ -90,6 +96,7 @@ function normalizeReference(raw: unknown): DesignReference | null {
     imageUrls,
     categories,
     isVisible,
+    isReservable,
     badge,
     durationMinutes,
     description
