@@ -37,7 +37,7 @@ const navItems: NavItem[] = [
   },
   {
     key: "chat",
-    label: "견적 및 채팅",
+    label: "견적 요청서",
     href: "/chat",
     icon: "chat_bubble_outline",
     badge: "4"
