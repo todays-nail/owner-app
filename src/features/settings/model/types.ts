@@ -4,6 +4,7 @@ export const SHOP_SETTINGS_DEFAULTS = {
   extensionPrice: 10000,
   artUnitPrice: 5000,
   depositAmount: 20000,
+  bookingEnabled: false,
   autoConfirm: false,
   allowOnsitePayment: true,
   notifyQuoteRequest: true,
@@ -38,6 +39,7 @@ export interface ShopSettingsDto {
   extensionPrice: number;
   artUnitPrice: number;
   depositAmount: number;
+  bookingEnabled: boolean;
   autoConfirm: boolean;
   allowOnsitePayment: boolean;
   invoiceEmail: string;

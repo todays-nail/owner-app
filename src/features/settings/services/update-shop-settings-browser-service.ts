@@ -30,6 +30,7 @@ export interface UpdateShopSettingsInput {
   extensionPrice: number;
   artUnitPrice: number;
   depositAmount: number;
+  bookingEnabled: boolean;
   autoConfirm: boolean;
   allowOnsitePayment: boolean;
   invoiceEmail: string;
@@ -201,6 +202,7 @@ export async function updateShopSettingsForCurrentUser(
     extension_price: input.extensionPrice,
     art_unit_price: input.artUnitPrice,
     deposit_amount: input.depositAmount,
+    booking_enabled: input.bookingEnabled,
     auto_confirm: input.autoConfirm,
     allow_onsite_payment: input.allowOnsitePayment,
     invoice_email: input.invoiceEmail.trim(),

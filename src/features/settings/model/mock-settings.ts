@@ -18,6 +18,7 @@ export const MOCK_SHOP_SETTINGS: ShopSettingsDto = {
   extensionPrice: 10000,
   artUnitPrice: 5000,
   depositAmount: 20000,
+  bookingEnabled: true,
   autoConfirm: false,
   allowOnsitePayment: true,
   invoiceEmail: "billing@blingnail.com",

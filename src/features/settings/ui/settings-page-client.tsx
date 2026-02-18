@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import type { ShopGalleryImageDto, ShopSettingsDto, Weekday } from "@/features/settings/model/types";
+import { generateBookingSlotsForCurrentUser } from "@/features/settings/services/generate-booking-slots-browser-service";
 import { updateShopSettingsForCurrentUser } from "@/features/settings/services/update-shop-settings-browser-service";
 import { PricePolicyEditor, type PricePolicyEditorHandle } from "@/features/settings/ui/price-policy-editor";
 import { SettingsSectionTabs } from "@/features/settings/ui/settings-section-tabs";
@@ -49,6 +50,7 @@ type SettingsFormState = {
   extensionPrice: string;
   artUnitPrice: string;
   depositAmount: string;
+  bookingEnabled: boolean;
   autoConfirm: boolean;
   allowOnsitePayment: boolean;
   invoiceEmail: string;
@@ -182,6 +184,7 @@ function buildNewFormState(initialData: ShopSettingsDto): SettingsFormState {
     extensionPrice: toDisplayNumber(initialData.extensionPrice),
     artUnitPrice: toDisplayNumber(initialData.artUnitPrice),
     depositAmount: toDisplayNumber(initialData.depositAmount),
+    bookingEnabled: initialData.bookingEnabled,
     autoConfirm: initialData.autoConfirm,
     allowOnsitePayment: initialData.allowOnsitePayment,
     invoiceEmail: initialData.invoiceEmail,
@@ -269,7 +272,9 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
   const [pendingFiles, setPendingFiles] = useState<PendingUploadFile[]>([]);
 
   const [isSaving, setIsSaving] = useState(false);
+  const [isGeneratingSlots, setIsGeneratingSlots] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [slotGenerationMessage, setSlotGenerationMessage] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -294,6 +299,7 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
     setGalleryImages(initialData.galleryImages);
     setRemovedImageIds(new Set());
     setErrorMessage(null);
+    setSlotGenerationMessage(null);
     setPendingFiles((prev) => {
       prev.forEach((pendingFile) => {
         URL.revokeObjectURL(pendingFile.previewUrl);
@@ -332,6 +338,7 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
 
   const handleToggleChange = (
     key:
+      | "bookingEnabled"
       | "autoConfirm"
       | "allowOnsitePayment"
       | "notifyQuoteRequest"
@@ -540,6 +547,7 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
         extensionPrice: extensionPrice.value,
         artUnitPrice: artUnitPrice.value,
         depositAmount: depositAmount.value,
+        bookingEnabled: form.bookingEnabled,
         autoConfirm: form.autoConfirm,
         allowOnsitePayment: form.allowOnsitePayment,
         invoiceEmail: form.invoiceEmail,
@@ -581,6 +589,32 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
       setErrorMessage(message);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleGenerateSlots = async () => {
+    setErrorMessage(null);
+    setSlotGenerationMessage(null);
+
+    setIsGeneratingSlots(true);
+    try {
+      const result = await generateBookingSlotsForCurrentUser({
+        days: 14,
+        stepMinutes: 30,
+        durationMinutes: 60
+      });
+
+      setSlotGenerationMessage(
+        `${result.fromDate}~${result.toDate} 슬롯 갱신 완료: 신규 ${result.insertedCount}개 생성 (1인 샵 시간 점유 기준 적용)`
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error && error.message.trim().length > 0
+          ? error.message
+          : "슬롯 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.";
+      setErrorMessage(message);
+    } finally {
+      setIsGeneratingSlots(false);
     }
   };
 
@@ -852,6 +886,18 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
             </div>
 
             <div className="space-y-6">
+              <div className="flex items-center justify-between rounded-xl bg-stone-50 p-4 dark:bg-stone-800/30">
+                <div>
+                  <span className="block text-sm font-semibold text-stone-800 dark:text-stone-200">예약 접수 활성화</span>
+                  <span className="text-xs text-stone-500">고객 앱에서 실제 예약을 받을지 제어합니다.</span>
+                </div>
+                <ToggleSwitch
+                  checked={form.bookingEnabled}
+                  onChange={(nextValue) => handleToggleChange("bookingEnabled", nextValue)}
+                  ariaLabel="예약 접수 활성화"
+                />
+              </div>
+
               <div className="w-full">
                 <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:gap-4">
                   <label className="text-sm font-semibold text-stone-700 md:whitespace-nowrap dark:text-stone-300">
@@ -895,6 +941,28 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
                     ariaLabel="현장 결제 허용"
                   />
                 </div>
+              </div>
+
+              <div className="flex flex-col items-end gap-2">
+                <button
+                  type="button"
+                  onClick={handleGenerateSlots}
+                  disabled={isGeneratingSlots || isSaving}
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 transition-colors hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
+                >
+                  <span className="material-icons-round text-sm" aria-hidden="true">
+                    schedule
+                  </span>
+                  {isGeneratingSlots ? "슬롯 생성 중..." : "향후 14일 슬롯 생성/갱신"}
+                </button>
+                <p className="text-xs text-stone-500 dark:text-stone-400">
+                  1인 샵 기준으로 한 예약이 시간 점유되면 겹치는 시간은 자동 비가용 처리됩니다.
+                </p>
+                {slotGenerationMessage ? (
+                  <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                    {slotGenerationMessage}
+                  </p>
+                ) : null}
               </div>
             </div>
           </section>

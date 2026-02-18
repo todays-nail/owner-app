@@ -35,6 +35,7 @@ interface ShopSettingsRow {
   extension_price: number | string | null;
   art_unit_price: number | string | null;
   deposit_amount: number | string | null;
+  booking_enabled: boolean | null;
   auto_confirm: boolean | null;
   allow_onsite_payment: boolean | null;
   invoice_email: string | null;
@@ -217,7 +218,7 @@ export async function getShopSettingsForCurrentUser(): Promise<GetShopSettingsRe
   const { data: settings, error: settingsError } = await supabase
     .from("shop_settings")
     .select(
-      "open_time,close_time,closed_weekdays,intro,base_gel_price,removal_price,extension_price,art_unit_price,deposit_amount,auto_confirm,allow_onsite_payment,invoice_email,settlement_bank,settlement_account,notify_quote_request,notify_booking_created,notify_payment_completed"
+      "open_time,close_time,closed_weekdays,intro,base_gel_price,removal_price,extension_price,art_unit_price,deposit_amount,booking_enabled,auto_confirm,allow_onsite_payment,invoice_email,settlement_bank,settlement_account,notify_quote_request,notify_booking_created,notify_payment_completed"
     )
     .eq("shop_id", shopId)
     .maybeSingle();
@@ -299,6 +300,10 @@ export async function getShopSettingsForCurrentUser(): Promise<GetShopSettingsRe
       depositAmount: parseNonNegativeInteger(
         settingsRow?.deposit_amount,
         SHOP_SETTINGS_DEFAULTS.depositAmount
+      ),
+      bookingEnabled: parseBoolean(
+        settingsRow?.booking_enabled,
+        SHOP_SETTINGS_DEFAULTS.bookingEnabled
       ),
       autoConfirm: parseBoolean(settingsRow?.auto_confirm, SHOP_SETTINGS_DEFAULTS.autoConfirm),
       allowOnsitePayment: parseBoolean(
