@@ -159,7 +159,7 @@ export default function UserMarketingPage() {
           </div>
 
           <div className="relative flex justify-center">
-            <div className="relative h-[600px] w-[300px] overflow-hidden rounded-[3rem] border-[8px] border-foreground bg-foreground shadow-2xl">
+            <div className="relative h-[600px] w-[300px] overflow-hidden rounded-device border-[8px] border-foreground bg-foreground shadow-2xl">
               <div className="absolute top-0 z-20 flex h-6 w-full justify-center bg-foreground">
                 <div className="h-4 w-20 rounded-b-xl bg-black" />
               </div>
@@ -426,7 +426,7 @@ export default function UserMarketingPage() {
       </section>
 
       <section className="px-6 py-32">
-        <div className="relative mx-auto max-w-[1200px] overflow-hidden rounded-[2.5rem] bg-primary p-12 text-center text-white lg:p-24">
+        <div className="relative mx-auto max-w-[1200px] overflow-hidden rounded-hero bg-primary p-12 text-center text-white lg:p-24">
           <div className="relative z-10 space-y-10">
             <h2 className="text-4xl font-black tracking-tight lg:text-6xl">고민말고, AI로 오늘 네일</h2>
             <div className="flex flex-wrap items-center justify-center gap-6">

@@ -14,6 +14,10 @@ const config: Config = {
         DEFAULT: "0.5rem",
         lg: "1rem",
         xl: "1.5rem",
+        display: "1.75rem",
+        feature: "2rem",
+        hero: "2.5rem",
+        device: "3rem",
         full: "9999px",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)"

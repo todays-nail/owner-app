@@ -41,7 +41,7 @@ export default async function OwnerVerificationPendingPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl">
-      <div className="overflow-hidden rounded-[28px] border border-border bg-card shadow-[0_26px_70px_-35px_hsl(var(--foreground)/0.25)]">
+      <div className="overflow-hidden rounded-display border border-border bg-card shadow-[0_26px_70px_-35px_hsl(var(--foreground)/0.25)]">
         <div className="grid grid-cols-1 lg:grid-cols-5">
           <aside className="relative lg:col-span-2">
             <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-background to-primary/5" />

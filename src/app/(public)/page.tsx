@@ -33,7 +33,7 @@ export default function RootHubPage() {
           </div>
 
           <div className="mt-12 grid gap-6 md:grid-cols-2">
-            <section className="glass-card flex flex-col rounded-[2rem] p-8 md:p-10">
+            <section className="glass-card flex flex-col rounded-feature p-8 md:p-10">
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Owner</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight">사장님 페이지</h2>
               <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground md:text-base">
@@ -48,7 +48,7 @@ export default function RootHubPage() {
               </Link>
             </section>
 
-            <section className="glass-card flex flex-col rounded-[2rem] p-8 md:p-10">
+            <section className="glass-card flex flex-col rounded-feature p-8 md:p-10">
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">User</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight">사용자 페이지</h2>
               <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground md:text-base">
