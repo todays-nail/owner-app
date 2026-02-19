@@ -5,6 +5,7 @@ import {type ChangeEvent, type FormEvent, useEffect, useMemo, useState} from "re
 
 import {REFERENCE_CATEGORIES, type ReferenceCategory} from "@/features/references/model/references";
 import type {ReferenceEntity} from "@/features/references/model/reference-storage";
+import {Textarea} from "@/components/ui/textarea";
 import {cn} from "@/lib/utils";
 
 const DESCRIPTION_MAX_LENGTH = 200;
@@ -566,7 +567,7 @@ export function ReferenceEditorForm({
                 디자인 설명 <span className="text-primary">*</span>
               </label>
               <div className="relative">
-                <textarea
+                <Textarea
                   id="designDescription"
                   value={description}
                   maxLength={DESCRIPTION_MAX_LENGTH}

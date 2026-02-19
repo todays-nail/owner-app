@@ -8,6 +8,7 @@ import type {
   QuoteRequestStatus,
   QuoteTargetStatus
 } from "@/features/chat/model/chat";
+import { Textarea } from "@/components/ui/textarea";
 import { useQuotePageViewModel } from "@/features/chat/view-model/use-quote-page-view-model";
 import { cn } from "@/lib/utils";
 
@@ -255,7 +256,7 @@ export function ChatPageClient() {
 
                   <div className="mb-4 space-y-2">
                     <label className="block text-xs font-bold text-slate-600">메모</label>
-                    <textarea
+                    <Textarea
                       value={vm.memoInput}
                       onChange={(event) => vm.onMemoChange(event.target.value)}
                       className="h-28 w-full resize-none rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 outline-none focus:border-primary"
