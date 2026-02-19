@@ -3,6 +3,10 @@
 import { type FormEvent, useEffect, useState } from "react";
 
 import type { AccountSettingsDto } from "@/features/settings/model/types";
+import {
+  updateAccountSettingsForCurrentUser,
+  updateCurrentUserPassword
+} from "@/features/settings/services/update-account-settings-browser-service";
 import { SettingsSectionTabs } from "@/features/settings/ui/settings-section-tabs";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +30,14 @@ function buildNewFormState(initialData: AccountSettingsDto): AccountSettingsForm
     notifySecurityNotice: initialData.notifySecurityNotice,
     notifyMarketing: initialData.notifyMarketing
   };
+}
+
+function normalizeErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message.trim().length > 0) {
+    return error.message;
+  }
+
+  return fallback;
 }
 
 function ToggleSwitch({
@@ -92,6 +104,10 @@ export function AccountSettingsPageClient({ initialData }: { initialData: Accoun
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    setForm(buildNewFormState(initialData));
+  }, [initialData]);
+
+  useEffect(() => {
     if (!toastMessage) {
       return;
     }
@@ -148,16 +164,25 @@ export function AccountSettingsPageClient({ initialData }: { initialData: Accoun
     setIsSaving(true);
 
     try {
-      await new Promise((resolve) => {
-        window.setTimeout(resolve, 240);
+      const nextName = form.name.trim();
+      const nextNickname = form.nickname.trim();
+
+      await updateAccountSettingsForCurrentUser({
+        name: nextName,
+        nickname: nextNickname,
+        notifySystemNotice: form.notifySystemNotice,
+        notifySecurityNotice: form.notifySecurityNotice,
+        notifyMarketing: form.notifyMarketing
       });
 
       setForm((prev) => ({
         ...prev,
-        name: prev.name.trim(),
-        nickname: prev.nickname.trim()
+        name: nextName,
+        nickname: nextNickname
       }));
-      setToastMessage("목업 데이터 기준으로 계정 정보를 저장했습니다.");
+      setToastMessage("계정 정보를 저장했습니다.");
+    } catch (error) {
+      setPageErrorMessage(normalizeErrorMessage(error, "계정 정보를 저장하지 못했습니다."));
     } finally {
       setIsSaving(false);
     }
@@ -187,12 +212,13 @@ export function AccountSettingsPageClient({ initialData }: { initialData: Accoun
     setIsChangingPassword(true);
 
     try {
-      await new Promise((resolve) => {
-        window.setTimeout(resolve, 240);
-      });
-
+      await updateCurrentUserPassword(newPassword);
       closePasswordForm();
-      setToastMessage("비밀번호가 변경되었습니다. (목업)");
+      setToastMessage("비밀번호가 변경되었습니다.");
+    } catch (error) {
+      setPasswordErrorMessage(
+        normalizeErrorMessage(error, "비밀번호를 변경하지 못했습니다. 잠시 후 다시 시도해 주세요.")
+      );
     } finally {
       setIsChangingPassword(false);
     }

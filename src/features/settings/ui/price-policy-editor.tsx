@@ -131,7 +131,8 @@ const PRICE_POLICY_TEMPLATES: ReadonlyArray<PricePolicyTemplate> = [
 
 const OPTION_TYPE_LABEL: Record<PricePolicyOptionType, string> = {
   ADDON: "전체",
-  QUANTITY: "개당"
+  QUANTITY: "개당",
+  SELECT: "선택형"
 };
 
 const TYPE_LOCKED_TO_ADDON_ITEM_NAMES = new Set([
@@ -185,11 +186,11 @@ function parseAmountInput(value: string) {
 }
 
 function getAmountFromDto(option: Pick<PricePolicyOptionDto, "type" | "price" | "unitPrice">) {
-  return option.type === "ADDON" ? option.price ?? 0 : option.unitPrice ?? 0;
+  return option.type === "QUANTITY" ? option.unitPrice ?? 0 : option.price ?? 0;
 }
 
 function getUnitLabel(optionType: PricePolicyOptionType, optionName: string) {
-  if (optionType === "ADDON") {
+  if (optionType !== "QUANTITY") {
     return "원";
   }
 
@@ -400,6 +401,7 @@ export const PricePolicyEditor = forwardRef<
         nextPatch.amount = amount;
       }
     } else if (amount !== null && amount !== original.amount) {
+      nextPatch.type = row.type;
       nextPatch.amount = amount;
     }
 
@@ -790,7 +792,12 @@ export const PricePolicyEditor = forwardRef<
               className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-800 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100"
             >
               <option value="ADDON">전체</option>
-              {addTypeLocked ? null : <option value="QUANTITY">개당</option>}
+              {addTypeLocked ? null : (
+                <>
+                  <option value="QUANTITY">개당</option>
+                  <option value="SELECT">선택형</option>
+                </>
+              )}
             </select>
           </div>
 
@@ -885,7 +892,12 @@ export const PricePolicyEditor = forwardRef<
                     )}
                   >
                     <option value="ADDON">전체</option>
-                    {typeLocked ? null : <option value="QUANTITY">개당</option>}
+                    {typeLocked ? null : (
+                      <>
+                        <option value="QUANTITY">개당</option>
+                        <option value="SELECT">선택형</option>
+                      </>
+                    )}
                   </select>
                 </div>
 

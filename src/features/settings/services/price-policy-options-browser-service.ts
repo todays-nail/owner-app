@@ -1,6 +1,6 @@
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
-export type PricePolicyOptionType = "ADDON" | "QUANTITY";
+export type PricePolicyOptionType = "ADDON" | "QUANTITY" | "SELECT";
 
 export interface PricePolicyOptionDto {
   id: string;
@@ -25,7 +25,7 @@ type OptionRow = {
 };
 
 function mapOptionType(rawType: string): PricePolicyOptionType | null {
-  if (rawType === "ADDON" || rawType === "QUANTITY") {
+  if (rawType === "ADDON" || rawType === "QUANTITY" || rawType === "SELECT") {
     return rawType;
   }
 
@@ -68,7 +68,7 @@ export async function fetchPricePolicyOptions(shopId: string): Promise<PricePoli
     .from("options")
     .select("id,shop_id,type,name,price,unit_price,is_active,created_at")
     .eq("shop_id", shopId)
-    .in("type", ["ADDON", "QUANTITY"])
+    .in("type", ["ADDON", "QUANTITY", "SELECT"])
     .order("created_at", { ascending: true });
 
   if (error) {
@@ -95,7 +95,7 @@ export async function createPricePolicyOption(
     shop_id: shopId,
     type: payload.type,
     name: payload.name,
-    price: payload.type === "ADDON" ? payload.amount : null,
+    price: payload.type === "ADDON" || payload.type === "SELECT" ? payload.amount : null,
     unit_price: payload.type === "QUANTITY" ? payload.amount : null,
     is_active: payload.isActive
   };
