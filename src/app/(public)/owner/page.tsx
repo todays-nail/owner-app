@@ -441,6 +441,36 @@ export default function OwnerMarketingPage() {
         </div>
       </section>
 
+      <section className="bg-white py-24 dark:bg-background-dark/60" id="pricing-policy">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="mb-10 text-center">
+            <span className="text-xs font-bold uppercase tracking-widest text-primary">Pricing Policy</span>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">지금은 무료로 시작하세요</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-sm opacity-60 md:text-base">
+              초기에 빠르게 운영 흐름을 안정화할 수 있도록, 오늘 네일 사장님 서비스는 현재 무료로 제공합니다.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-xl border border-border bg-background-light p-6 text-left dark:border-white/10 dark:bg-zinc-900">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-primary">Policy 01</p>
+              <h3 className="mt-3 text-lg font-bold">현재 이용료 0원</h3>
+              <p className="mt-2 text-sm opacity-60">사장님 페이지 핵심 기능을 비용 부담 없이 바로 시작할 수 있습니다.</p>
+            </div>
+            <div className="rounded-xl border border-border bg-background-light p-6 text-left dark:border-white/10 dark:bg-zinc-900">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-primary">Policy 02</p>
+              <h3 className="mt-3 text-lg font-bold">결제 정보 입력 없음</h3>
+              <p className="mt-2 text-sm opacity-60">신용카드 등록 없이 계정 생성 후 즉시 운영 흐름을 구축할 수 있습니다.</p>
+            </div>
+            <div className="rounded-xl border border-border bg-background-light p-6 text-left dark:border-white/10 dark:bg-zinc-900">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-primary">Policy 03</p>
+              <h3 className="mt-3 text-lg font-bold">초기 파트너 샵 운영 지원</h3>
+              <p className="mt-2 text-sm opacity-60">초기 도입 샵의 예약 운영 셋업과 사용 가이드를 운영팀이 함께 지원합니다.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="bg-background-light py-32 text-center dark:bg-background-dark" id="cta-register">
         <div className="mx-auto max-w-3xl px-6">
           <h2 className="mb-6 text-4xl font-bold tracking-tight">이제 시술에만 집중하세요.</h2>
@@ -455,7 +485,7 @@ export default function OwnerMarketingPage() {
               사장님으로 등록하기
             </Link>
           </div>
-          <p className="mt-8 text-xs opacity-40">신용카드 정보 불필요 · 14일 무료 체험 · 언제든 해지 가능</p>
+          <p className="mt-8 text-xs opacity-40">현재 무료 제공 · 결제 정보 등록 불필요 · 운영팀 온보딩 지원</p>
         </div>
       </section>
 
