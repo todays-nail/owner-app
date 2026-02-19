@@ -44,6 +44,12 @@ Codex 작업 규칙과 프로젝트 컨텍스트를 정의합니다. (이 저장
 - Docker가 실행 중이 아니면 `db:check`에서 `db diff`는 자동 스킵한다.
 - 새 migration 파일(전환 시점 이후)은 `YYYYMMDDHHMMSS_<team>_<description>.sql` 형식을 지킨다. (`team`: `ios` 또는 `web`)
 
+## Notion Alignment (Required)
+
+- DB/API/요구사항 변경 전 Notion 기준 문서(`🧩 기능 명세`, `🙏 요구사항 명세서`, `🚀 MVP`, `📑 시나리오`, `🗒️ 기능 구현`)를 확인한다.
+- 구현 코드와 문서 변경은 같은 사이클에서 동시 반영해 불일치를 남기지 않는다.
+- PR에는 참조한 Notion 링크와 정합성 점검 결과를 반드시 기재한다.
+
 ## Architecture Rules
 
 - Routing: `src/app` App Router 기반. 공개/보호는 Route Group으로 분리한다: `(public)`, `(protected)`.
