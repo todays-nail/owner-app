@@ -425,6 +425,40 @@ export default function UserMarketingPage() {
         </div>
       </section>
 
+      <section className="bg-background-light py-24" id="pricing-guide">
+        <div className="mx-auto max-w-[1200px] px-6">
+          <div className="mb-12 text-center">
+            <span className="text-lg font-bold text-primary">이용 비용 안내</span>
+            <h2 className="mt-2 text-4xl font-bold leading-tight">플랫폼 이용료는 무료입니다</h2>
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-foreground/70">
+              오늘 네일 사용자 앱은 현재 별도 이용료 없이 사용할 수 있습니다.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl border border-border bg-white p-6">
+              <p className="text-xs font-bold uppercase tracking-widest text-primary">01</p>
+              <h3 className="mt-3 text-lg font-bold">앱 이용료 0원</h3>
+              <p className="mt-2 text-sm text-foreground/60">회원가입과 디자인 탐색, 예약 흐름 이용에 별도 플랫폼 요금이 없습니다.</p>
+            </div>
+            <div className="rounded-2xl border border-border bg-white p-6">
+              <p className="text-xs font-bold uppercase tracking-widest text-primary">02</p>
+              <h3 className="mt-3 text-lg font-bold">실제 결제는 샵 시술 가격 기준</h3>
+              <p className="mt-2 text-sm text-foreground/60">
+                최종 결제 금액은 선택한 샵의 시술 메뉴와 옵션 구성에 따라 결정됩니다.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border bg-white p-6">
+              <p className="text-xs font-bold uppercase tracking-widest text-primary">03</p>
+              <h3 className="mt-3 text-lg font-bold">예약금/취소 규정은 샵별 정책 적용</h3>
+              <p className="mt-2 text-sm text-foreground/60">
+                예약금 유무와 취소 수수료 기준은 각 샵 정책을 기준으로 예약 화면에서 안내됩니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="px-6 py-32">
         <div className="relative mx-auto max-w-[1200px] overflow-hidden rounded-hero bg-primary p-12 text-center text-white lg:p-24">
           <div className="relative z-10 space-y-10">
