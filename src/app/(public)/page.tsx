@@ -14,14 +14,8 @@ export default function RootHubPage() {
   return (
     <div className="promo-root landing-readable min-h-screen text-foreground antialiased">
       <div className="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col px-6 pb-16 pt-8 md:px-10">
-        <header className="flex items-center justify-between py-2">
+        <header className="flex items-center py-2">
           <AppLaunchLogo size="sidebar" />
-          <Link
-            className="rounded-lg border border-border bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-50"
-            href="/login"
-          >
-            로그인
-          </Link>
         </header>
 
         <main className="flex flex-1 flex-col justify-center">
