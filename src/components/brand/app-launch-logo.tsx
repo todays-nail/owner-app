@@ -2,10 +2,10 @@ import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 
-type OneulNailLogoSize = "auth" | "sidebar";
+type AppLaunchLogoSize = "auth" | "sidebar";
 
 const SIZE_CLASS_MAP: Record<
-  OneulNailLogoSize,
+  AppLaunchLogoSize,
   {
     icon: string;
     text: string;
@@ -27,21 +27,21 @@ const SIZE_CLASS_MAP: Record<
   }
 };
 
-export interface OneulNailLogoProps {
+export interface AppLaunchLogoProps {
   className?: string;
-  size?: OneulNailLogoSize;
+  size?: AppLaunchLogoSize;
 }
 
-export function OneulNailLogo({ className, size = "auth" }: OneulNailLogoProps) {
+export function AppLaunchLogo({ className, size = "auth" }: AppLaunchLogoProps) {
   const sizeClasses = SIZE_CLASS_MAP[size];
 
   return (
     <span className={cn("inline-flex items-center whitespace-nowrap", className)}>
       <Image
-        src="/brand/oneulnail.svg"
+        src="/images/logo@2x.png"
         alt="오늘 네일 로고"
-        width={48}
-        height={48}
+        width={96}
+        height={140}
         className={cn("shrink-0", sizeClasses.icon)}
         priority={size === "auth"}
       />

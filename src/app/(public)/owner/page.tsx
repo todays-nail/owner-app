@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { OneulNailLogo } from "@/components/brand/oneulnail-logo";
+import { AppLaunchLogo } from "@/components/brand/app-launch-logo";
 import SentenceLines from "@/components/ui/sentence-lines";
 import { createPageMetadata } from "@/lib/metadata";
 
@@ -64,7 +64,7 @@ export default function OwnerMarketingPage() {
       <nav className="fixed top-0 z-50 w-full border-b border-border bg-background-light/80 backdrop-blur-md dark:border-white/10 dark:bg-background-dark/80">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <Link className="flex items-center gap-2" href="/">
-            <OneulNailLogo size="sidebar" />
+            <AppLaunchLogo size="sidebar" />
           </Link>
           <div className="flex items-center gap-2">
             <Link
@@ -462,7 +462,7 @@ export default function OwnerMarketingPage() {
       <footer className="border-t border-border py-12 opacity-60 dark:border-white/10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 md:flex-row">
           <Link className="flex items-center gap-2" href="/">
-            <OneulNailLogo size="sidebar" />
+            <AppLaunchLogo size="sidebar" />
           </Link>
 
           <div className="flex gap-8 text-xs">

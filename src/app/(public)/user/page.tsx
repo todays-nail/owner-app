@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { OneulNailLogo } from "@/components/brand/oneulnail-logo";
+import { AppLaunchLogo } from "@/components/brand/app-launch-logo";
 import SentenceLines from "@/components/ui/sentence-lines";
 import { createPageMetadata } from "@/lib/metadata";
 import ExploreCategoriesCarousel from "@/app/(public)/user/_components/explore-categories-carousel";
@@ -108,7 +108,7 @@ export default function UserMarketingPage() {
       <nav className="fixed left-0 right-0 top-0 z-50 border-b border-border bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
           <Link className="flex items-center gap-2" href="/user">
-            <OneulNailLogo size="sidebar" />
+            <AppLaunchLogo size="sidebar" />
           </Link>
           <ActionLink
             className={buttonText}
@@ -465,7 +465,7 @@ export default function UserMarketingPage() {
         <div className="mx-auto max-w-[1200px] px-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2 text-primary">
-              <OneulNailLogo size="sidebar" />
+              <AppLaunchLogo size="sidebar" />
             </div>
             <p className="max-w-sm text-sm leading-relaxed text-foreground/50">
               네일 라이프의 새로운 기준, 오늘의 네일.

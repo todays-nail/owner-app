@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import {useProtectedUserProfile} from "@/components/auth/protected-user-profile-context";
-import {OneulNailLogo} from "@/components/brand/oneulnail-logo";
+import {AppLaunchLogo} from "@/components/brand/app-launch-logo";
 import {DashboardSignOutButton} from "@/features/auth/dashboard-sign-out-button";
 import {cn} from "@/lib/utils";
 
@@ -57,7 +57,7 @@ export function OwnerSidebar({ activeItem }: OwnerSidebarProps) {
     <aside className="z-20 w-full border-b border-primary/10 bg-white lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:border-b-0 lg:border-r dark:bg-background-dark/50">
       <div className="flex justify-center p-8">
         <h1>
-          <OneulNailLogo size="sidebar" />
+          <AppLaunchLogo size="sidebar" />
         </h1>
       </div>
 
