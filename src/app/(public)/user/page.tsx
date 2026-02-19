@@ -97,7 +97,7 @@ const discoverDesignImages = [
 ];
 
 export const metadata = createPageMetadata({
-  title: "Oneul Nail - AI 피팅 서비스로 미리보고 원하는 시간에 바로 예약",
+  title: "오늘 네일 - AI 피팅 서비스로 미리보고 원하는 시간에 바로 예약",
   description: "내 취향 탐색부터 AI 피팅, 투명한 가격 확인과 예약까지 한 번에.",
   noIndex: false
 });

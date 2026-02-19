@@ -53,7 +53,7 @@ const START_HREF = "/signup";
 const LOGIN_HREF = "/login";
 
 export const metadata = createPageMetadata({
-  title: "오늘 네일 (Oneul Nail) - Premium Nail Shop OS",
+  title: "오늘 네일 - 사장님 운영 플랫폼",
   description: "네일 샵 운영을 위한 예약 운영 플랫폼 오늘 네일",
   noIndex: false
 });
@@ -102,7 +102,7 @@ export default function OwnerMarketingPage() {
                   <div className="h-3 w-3 rounded-full bg-green-400" />
                 </div>
                 <div className="h-6 w-px bg-border dark:bg-white/10" />
-                <div className="text-xs font-semibold opacity-40">ONEUL NAIL OS / DASHBOARD</div>
+                <div className="text-xs font-semibold opacity-40">오늘 네일 대시보드</div>
               </div>
 
               <div className="grid grid-cols-12 gap-6">

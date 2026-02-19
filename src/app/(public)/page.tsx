@@ -5,7 +5,7 @@ import SentenceLines from "@/components/ui/sentence-lines";
 import { AppLaunchLogo } from "@/components/brand/app-launch-logo";
 
 export const metadata = createPageMetadata({
-  title: "오늘 네일 | Oneul Nail",
+  title: "오늘 네일 | 서비스 허브",
   description: "사장님과 사용자를 연결하는 오늘 네일 서비스 허브",
   noIndex: false
 });
