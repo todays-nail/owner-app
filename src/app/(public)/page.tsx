@@ -34,13 +34,13 @@ export default function RootHubPage() {
 
           <div className="mt-12 grid gap-6 md:grid-cols-2">
             <section className="glass-card flex flex-col rounded-[2rem] p-8 md:p-10">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#E85B4E]">Owner</p>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Owner</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight">사장님 페이지</h2>
               <p className="mt-3 flex-1 text-sm leading-relaxed text-[#4A4A4A] md:text-base">
                 <SentenceLines text="예약 운영, 상담 흐름, 예약금/확정 프로세스를 소개하는 사장님 전용 홍보 페이지입니다." />
               </p>
               <Link
-                className="btn-glass mt-8 inline-flex w-fit items-center justify-center rounded-full bg-[#E85B4E] px-8 py-3 text-sm font-bold text-white shadow-lg shadow-[#E85B4E]/25"
+                className="btn-glass mt-8 inline-flex w-fit items-center justify-center rounded-full bg-primary px-8 py-3 text-sm font-bold text-white shadow-lg shadow-primary/25"
                 href="/owner"
               >
                 사장님 페이지로 이동
@@ -49,13 +49,13 @@ export default function RootHubPage() {
             </section>
 
             <section className="glass-card flex flex-col rounded-[2rem] p-8 md:p-10">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#E85B4E]">User</p>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">User</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight">사용자 페이지</h2>
               <p className="mt-3 flex-1 text-sm leading-relaxed text-[#4A4A4A] md:text-base">
                 <SentenceLines text="내 손 피팅, 디자인 탐색, 예약 흐름을 소개하는 사용자 전용 홍보 페이지입니다." />
               </p>
               <Link
-                className="btn-glass mt-8 inline-flex w-fit items-center justify-center rounded-full bg-[#E85B4E] px-8 py-3 text-sm font-bold text-white shadow-lg shadow-[#E85B4E]/25"
+                className="btn-glass mt-8 inline-flex w-fit items-center justify-center rounded-full bg-primary px-8 py-3 text-sm font-bold text-white shadow-lg shadow-primary/25"
                 href="/user"
               >
                 사용자 페이지로 이동
