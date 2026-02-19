@@ -14,7 +14,7 @@ export function BookingsRevenueCards({ items }: BookingsRevenueCardsViewProps) {
           label={item.label}
           value={item.amount}
           icon={item.icon}
-          wrapperClassName="rounded-[28px] border border-[#efe6e2] bg-[#fdfaf9] px-6 py-5 shadow-[0_1px_0_rgba(15,23,42,0.03)] dark:border-white/10 dark:bg-background-dark"
+          wrapperClassName="rounded-[28px] border border-border bg-card px-6 py-5 shadow-[0_1px_0_rgba(15,23,42,0.03)] dark:border-white/10 dark:bg-background-dark"
           labelClassName="mb-2 text-sm font-bold text-slate-400"
           valueClassName="text-[30px] font-extrabold leading-none tracking-tight text-slate-800 dark:text-white"
           iconWrapperClassName={item.iconClassName}

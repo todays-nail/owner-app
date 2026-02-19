@@ -125,7 +125,7 @@ export function ChatPageClient() {
   }, [selectedItem, vm.finalPriceInput, vm.isSubmitting, vm.memoInput]);
 
   return (
-    <div className="flex h-full min-h-0 overflow-hidden bg-[radial-gradient(circle_at_16%_0%,rgba(232,92,79,0.08),transparent_36%),linear-gradient(to_bottom,#fdfbf9,#f7f3f1)]">
+    <div className="flex h-full min-h-0 overflow-hidden bg-gradient-to-b from-background via-background to-muted">
       <section className="z-20 flex w-80 shrink-0 flex-col border-r border-primary/10 bg-white/65 backdrop-blur-md lg:w-[370px]">
         <div className="space-y-3 p-6 pb-3">
           <h1 className="text-xl font-extrabold text-slate-800">견적 요청서</h1>

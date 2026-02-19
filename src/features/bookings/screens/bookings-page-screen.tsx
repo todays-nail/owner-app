@@ -32,8 +32,8 @@ export function BookingsPageScreen() {
       <div className="flex min-h-screen flex-col lg:flex-row">
         <OwnerSidebar activeItem="bookings" />
 
-        <main className="flex h-screen flex-1 flex-col overflow-hidden bg-[#f7f4f3] dark:bg-background-dark/30">
-          <header className="z-10 flex-shrink-0 border-b border-primary/10 bg-[#fbf8f7]/90 px-6 pb-5 pt-6 backdrop-blur-sm dark:bg-background-dark/50 lg:pb-6">
+        <main className="flex h-screen flex-1 flex-col overflow-hidden bg-muted dark:bg-background-dark/30">
+          <header className="z-10 flex-shrink-0 border-b border-primary/10 bg-muted/80 px-6 pb-5 pt-6 backdrop-blur-sm dark:bg-background-dark/50 lg:pb-6">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex flex-wrap items-center gap-3 lg:gap-4">
                 <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">

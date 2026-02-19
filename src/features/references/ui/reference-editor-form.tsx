@@ -306,7 +306,7 @@ export function ReferenceEditorForm({
               대표 이미지 <span className="text-primary">*</span>
             </label>
 
-            <label className="group relative flex aspect-[4/5] w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-6 text-center transition-all hover:border-primary/50 hover:bg-primary/5 dark:border-gray-600 dark:bg-[#2a1d1c]">
+            <label className="group relative flex aspect-[4/5] w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-6 text-center transition-all hover:border-primary/50 hover:bg-primary/5 dark:border-gray-600 dark:bg-surface-dark">
               {representativeImage ? (
                 <>
                   <img

@@ -35,7 +35,7 @@ const SIZE_CLASS_MAP: Record<ChipSize, string> = {
 const VARIANT_CLASS_MAP: Record<ChipVariant, string> = {
   "open-status": "rounded-full border border-emerald-300 bg-emerald-100 text-emerald-700",
   "count-neutral":
-    "rounded-full border border-slate-300 bg-[#f5f8fb] text-slate-500 shadow-sm dark:border-slate-700 dark:bg-white/5",
+    "rounded-full border border-slate-300 bg-slate-100 text-slate-500 shadow-sm dark:border-slate-700 dark:bg-white/5",
   "count-warning": "rounded-full border border-orange-200 bg-orange-50 text-orange-500 shadow-sm",
   "count-success": "rounded-full border border-emerald-200 bg-emerald-50 text-emerald-600 shadow-sm",
   "count-info": "rounded-full border border-sky-200 bg-sky-50 text-sky-600 shadow-sm",

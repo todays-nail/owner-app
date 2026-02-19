@@ -12,12 +12,12 @@ export const metadata = createPageMetadata({
 
 export default function RootHubPage() {
   return (
-    <div className="promo-root landing-readable min-h-screen text-[#1A1A1A] antialiased">
+    <div className="promo-root landing-readable min-h-screen text-foreground antialiased">
       <div className="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col px-6 pb-16 pt-8 md:px-10">
         <header className="flex items-center justify-between py-2">
           <OneulNailLogo size="sidebar" />
           <Link
-            className="rounded-lg border border-[#e5dfd8] bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-50"
+            className="rounded-lg border border-border bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-50"
             href="/login"
           >
             로그인
@@ -27,7 +27,7 @@ export default function RootHubPage() {
         <main className="flex flex-1 flex-col justify-center">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="text-5xl font-black tracking-tight md:text-7xl">오늘 네일</h1>
-            <p className="mt-4 text-base text-[#4A4A4A] md:text-xl">
+            <p className="mt-4 text-base text-muted-foreground md:text-xl">
               <SentenceLines text="서비스 유형을 선택해 원하는 페이지로 이동하세요." />
             </p>
           </div>
@@ -36,7 +36,7 @@ export default function RootHubPage() {
             <section className="glass-card flex flex-col rounded-[2rem] p-8 md:p-10">
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Owner</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight">사장님 페이지</h2>
-              <p className="mt-3 flex-1 text-sm leading-relaxed text-[#4A4A4A] md:text-base">
+              <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground md:text-base">
                 <SentenceLines text="예약 운영, 상담 흐름, 예약금/확정 프로세스를 소개하는 사장님 전용 홍보 페이지입니다." />
               </p>
               <Link
@@ -51,7 +51,7 @@ export default function RootHubPage() {
             <section className="glass-card flex flex-col rounded-[2rem] p-8 md:p-10">
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">User</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight">사용자 페이지</h2>
-              <p className="mt-3 flex-1 text-sm leading-relaxed text-[#4A4A4A] md:text-base">
+              <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground md:text-base">
                 <SentenceLines text="내 손 피팅, 디자인 탐색, 예약 흐름을 소개하는 사용자 전용 홍보 페이지입니다." />
               </p>
               <Link

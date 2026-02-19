@@ -193,7 +193,7 @@ export function OwnerVerificationSubmitForm({ initial }: { initial: InitialValue
       <div className="overflow-hidden rounded-[28px] border border-border bg-card shadow-[0_26px_70px_-35px_hsl(var(--foreground)/0.25)]">
         <div className="grid grid-cols-1 lg:grid-cols-5">
           <aside className="relative lg:col-span-2">
-            <div className="absolute inset-0 bg-gradient-to-b from-[#fff3ef] via-[#fff7f5] to-[#fff3f1]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-background to-primary/5" />
             <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-primary/10 blur-2xl" />
             <div className="absolute -bottom-28 -right-24 h-72 w-72 rounded-full bg-primary/10 blur-2xl" />
 

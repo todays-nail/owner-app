@@ -41,7 +41,7 @@ const VARIANT_STYLE_MAP: Record<
 > = {
   success: {
     icon: "check_circle",
-    iconClassName: "bg-primary/15 text-primary dark:bg-primary/25 dark:text-[#ffaea6]"
+    iconClassName: "bg-primary/15 text-primary dark:bg-primary/25 dark:text-primary/70"
   },
   error: {
     icon: "error",
@@ -163,7 +163,7 @@ export function AppToastProvider({children}: AppToastProviderProps) {
               role="status"
               aria-live="polite"
               className={cn(
-                "inline-flex max-w-[min(92vw,440px)] items-center gap-3 rounded-2xl border border-primary/20 bg-[#fff7f5] px-4 py-3 text-slate-800 shadow-[0_18px_32px_-18px_rgba(131,55,45,0.55)] dark:border-white/10 dark:bg-[#332524] dark:text-slate-100 dark:shadow-[0_20px_36px_-20px_rgba(0,0,0,0.75)]",
+                "inline-flex max-w-[min(92vw,440px)] items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-slate-800 shadow-[0_18px_32px_-18px_rgba(131,55,45,0.55)] dark:border-white/10 dark:bg-surface-dark dark:text-slate-100 dark:shadow-[0_20px_36px_-20px_rgba(0,0,0,0.75)]",
                 toast.isExiting ? "app-toast-exit" : "app-toast-enter"
               )}
             >

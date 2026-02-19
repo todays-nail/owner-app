@@ -96,7 +96,7 @@ export function OwnerSidebar({ activeItem }: OwnerSidebarProps) {
       </nav>
 
       <div className="mt-auto border-t border-primary/5 p-6 lg:absolute lg:bottom-0 lg:left-0 lg:right-0">
-        <div className="mb-6 flex items-center gap-3 rounded-xl bg-[#f8f1f1] p-4">
+        <div className="mb-6 flex items-center gap-3 rounded-xl bg-primary/5 p-4">
           <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/20">
             <span className="material-icons text-xl text-primary" aria-hidden="true">
               person
