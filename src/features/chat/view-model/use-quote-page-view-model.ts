@@ -9,6 +9,7 @@ import {
   listOwnerQuoteRequests,
   upsertOwnerQuoteResponse
 } from "@/features/chat/services/quote-browser-service";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 const CHANGE_ITEM_OPTIONS: Array<{ value: QuoteChangeItem; label: string }> = [
   { value: "EXTENSION", label: "네일 연장" },
@@ -18,6 +19,7 @@ const CHANGE_ITEM_OPTIONS: Array<{ value: QuoteChangeItem; label: string }> = [
 ];
 
 const STATUS_PRIORITY: QuoteTargetStatus[] = ["REQUESTED", "RESPONDED", "SELECTED", "CLOSED"];
+const REALTIME_REFRESH_DEBOUNCE_MS = 250;
 
 export interface QuotePageViewModel {
   mounted: boolean;
@@ -76,6 +78,7 @@ export function useQuotePageViewModel(): QuotePageViewModel {
   const [finalPriceInput, setFinalPriceInput] = React.useState("");
   const [memoInput, setMemoInput] = React.useState("");
   const [changeItemSet, setChangeItemSet] = React.useState<Set<QuoteChangeItem>>(new Set());
+  const refreshDebounceTimerRef = React.useRef<number | null>(null);
 
   const selectedItem = React.useMemo(() => {
     if (items.length === 0) return null;
@@ -121,6 +124,22 @@ export function useQuotePageViewModel(): QuotePageViewModel {
     }
   }, []);
 
+  const scheduleDebouncedRefresh = React.useCallback(() => {
+    if (typeof window === "undefined") {
+      void refresh();
+      return;
+    }
+
+    if (refreshDebounceTimerRef.current !== null) {
+      window.clearTimeout(refreshDebounceTimerRef.current);
+    }
+
+    refreshDebounceTimerRef.current = window.setTimeout(() => {
+      refreshDebounceTimerRef.current = null;
+      void refresh();
+    }, REALTIME_REFRESH_DEBOUNCE_MS);
+  }, [refresh]);
+
   React.useEffect(() => {
     let active = true;
 
@@ -136,6 +155,41 @@ export function useQuotePageViewModel(): QuotePageViewModel {
       active = false;
     };
   }, [refresh]);
+
+  React.useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase) {
+      return;
+    }
+
+    const realtimeChannel = supabase
+      .channel(`owner-quote-realtime-${crypto.randomUUID()}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "quote_request_targets" },
+        () => {
+          scheduleDebouncedRefresh();
+        }
+      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "quote_responses" }, () => {
+        scheduleDebouncedRefresh();
+      });
+
+    realtimeChannel.subscribe((status) => {
+      if (status === "CHANNEL_ERROR") {
+        setErrorMessage((prev) => prev ?? "실시간 동기화 연결에 실패했습니다. 수동 새로고침을 사용해 주세요.");
+      }
+    });
+
+    return () => {
+      if (refreshDebounceTimerRef.current !== null) {
+        window.clearTimeout(refreshDebounceTimerRef.current);
+        refreshDebounceTimerRef.current = null;
+      }
+
+      void supabase.removeChannel(realtimeChannel);
+    };
+  }, [scheduleDebouncedRefresh]);
 
   React.useEffect(() => {
     if (!selectedItem) {
