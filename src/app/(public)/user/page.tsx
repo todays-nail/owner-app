@@ -40,6 +40,7 @@ const defaultAppStoreHref = "https://apps.apple.com/kr/search?term=oneul%20nail"
 const defaultPlayStoreHref = "https://play.google.com/store/search?q=oneul%20nail&c=apps";
 const appStoreHref = process.env.NEXT_PUBLIC_APPSTORE_URL?.trim() || defaultAppStoreHref;
 const playStoreHref = process.env.NEXT_PUBLIC_PLAYSTORE_URL?.trim() || defaultPlayStoreHref;
+const ownerAppRootHref = "https://owner-app-tawny.vercel.app";
 const exploreCategories = [
   "오피스/미니멀",
   "청순/내추럴",
@@ -512,12 +513,12 @@ export default function UserMarketingPage() {
         <div className="mx-auto mt-16 flex max-w-[1200px] flex-col justify-between gap-4 border-t border-border px-6 pt-8 md:flex-row">
           <p className="text-xs text-foreground/40">© 2024 Oneul Nail Inc. All rights reserved.</p>
           <div className="flex gap-6">
-            <a href="https://oneulnail.com" rel="noreferrer" target="_blank">
+            <a href={ownerAppRootHref} rel="noreferrer" target="_blank">
               <span className="material-symbols-outlined cursor-pointer text-xl text-foreground/40 transition-colors hover:text-primary">
                 language
               </span>
             </a>
-            <a href="https://oneulnail.com" rel="noreferrer" target="_blank">
+            <a href={ownerAppRootHref} rel="noreferrer" target="_blank">
               <span className="material-symbols-outlined cursor-pointer text-xl text-foreground/40 transition-colors hover:text-primary">
                 share
               </span>
