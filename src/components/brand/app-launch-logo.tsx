@@ -1,15 +1,11 @@
-"use client";
-
-/* eslint-disable @next/next/no-img-element */
-
-import * as React from "react";
+import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 
-type OneulNailLogoSize = "auth" | "sidebar";
+type AppLaunchLogoSize = "auth" | "sidebar";
 
 const SIZE_CLASS_MAP: Record<
-  OneulNailLogoSize,
+  AppLaunchLogoSize,
   {
     icon: string;
     text: string;
@@ -31,35 +27,31 @@ const SIZE_CLASS_MAP: Record<
   }
 };
 
-export interface OneulNailLogoProps {
+export interface AppLaunchLogoProps {
   className?: string;
-  size?: OneulNailLogoSize;
+  size?: AppLaunchLogoSize;
 }
 
-export function OneulNailLogo({ className, size = "auth" }: OneulNailLogoProps) {
-  const [iconError, setIconError] = React.useState(false);
+export function AppLaunchLogo({ className, size = "auth" }: AppLaunchLogoProps) {
   const sizeClasses = SIZE_CLASS_MAP[size];
 
   return (
     <span className={cn("inline-flex items-center whitespace-nowrap", className)}>
-      {iconError ? null : (
-        <img
-          src="/images/logo@1x.png"
-          srcSet="/images/logo@1x.png 1x, /images/logo@2x.png 2x, /images/logo@3x.png 3x"
-          alt="오늘 네일 로고"
-          width={96}
-          height={140}
-          className={cn("shrink-0", sizeClasses.icon)}
-          onError={() => setIconError(true)}
-        />
-      )}
+      <Image
+        src="/images/logo@2x.png"
+        alt="오늘 네일 로고"
+        width={96}
+        height={140}
+        className={cn("shrink-0", sizeClasses.icon)}
+        priority={size === "auth"}
+      />
 
       <span
         className={cn(
           "inline-flex items-center font-semibold leading-none tracking-tight",
           sizeClasses.textGap,
           sizeClasses.text,
-          !iconError && sizeClasses.textOffsetWithIcon
+          sizeClasses.textOffsetWithIcon
         )}
       >
         <span className="text-foreground">오늘</span>

@@ -85,25 +85,25 @@ function mapColumnToPresentation(columnId: BookingStage): Omit<BookingColumnView
       dotClassName: "bg-slate-400",
       countChipVariant: "count-neutral",
       containerClassName:
-        "border border-[#dce3ea] bg-[#eef2f6] dark:border-white/5 dark:bg-white/5"
+        "border border-slate-200 bg-slate-100 dark:border-white/5 dark:bg-white/5"
     },
     in_service: {
       dotClassName: "bg-orange-400 animate-pulse",
       countChipVariant: "count-warning",
       containerClassName:
-        "border border-orange-200 bg-[#fff7ef] dark:border-white/5 dark:bg-white/5"
+        "border border-orange-200 bg-orange-50 dark:border-white/5 dark:bg-white/5"
     },
     payment_pending: {
       dotClassName: "bg-yellow-500",
       countChipVariant: "count-warning",
       containerClassName:
-        "border border-yellow-200 bg-[#fffcef] dark:border-white/5 dark:bg-white/5"
+        "border border-yellow-200 bg-yellow-50 dark:border-white/5 dark:bg-white/5"
     },
     completed: {
       dotClassName: "bg-emerald-400",
       countChipVariant: "count-success",
       containerClassName:
-        "border border-emerald-100 bg-[#f4f9f6] dark:border-white/5 dark:bg-white/5"
+        "border border-emerald-100 bg-emerald-50 dark:border-white/5 dark:bg-white/5"
     }
   };
 

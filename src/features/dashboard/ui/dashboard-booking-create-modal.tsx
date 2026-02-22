@@ -5,6 +5,7 @@ import {type ChangeEvent, type FormEvent, useEffect, useState} from "react";
 import {Button} from "@/components/ui/button";
 import {BaseModal} from "@/components/ui/base-modal";
 import {Input} from "@/components/ui/input";
+import {Textarea} from "@/components/ui/textarea";
 import {cn} from "@/lib/utils";
 
 export interface DashboardBookingCreateFormValues {
@@ -221,7 +222,7 @@ export function DashboardBookingCreateModal({
           </div>
 
           <FormField label="메모" htmlFor="booking-memo">
-            <textarea
+            <Textarea
               id="booking-memo"
               name="memo"
               value={formValues.memo}

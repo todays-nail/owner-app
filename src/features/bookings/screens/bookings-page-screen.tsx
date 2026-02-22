@@ -7,8 +7,8 @@ import {NotificationBellButton} from "@/components/common/notification-bell-butt
 import {NotificationPopover} from "@/components/common/notification-popover";
 import {OwnerSidebar} from "@/components/shell/owner-sidebar";
 import {Chip} from "@/components/ui/chip";
-import {MOCK_NOTIFICATION_ITEMS} from "@/features/notifications/model/mock-notifications";
 import type {NotificationItem} from "@/features/notifications/model/types";
+import {useOwnerNotifications} from "@/features/notifications/view-model/use-owner-notifications";
 import {BookingsBoardClient} from "@/features/bookings/ui/bookings-board-client";
 import {BookingsRevenueCards} from "@/features/bookings/ui/bookings-revenue-cards";
 import {useBookingsPageViewModel} from "@/features/bookings/view-model/use-bookings-page-view-model";
@@ -16,33 +16,8 @@ import {useBookingsPageViewModel} from "@/features/bookings/view-model/use-booki
 export function BookingsPageScreen() {
   const router = useRouter();
   const vm = useBookingsPageViewModel();
-  const [notificationItems, setNotificationItems] = useState<NotificationItem[]>(() =>
-    MOCK_NOTIFICATION_ITEMS.map((item) => ({ ...item }))
-  );
+  const notificationsVm = useOwnerNotifications(80);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const unreadCount = notificationItems.filter((item) => !item.isRead).length;
-
-  const handleMarkRead = (id: string) => {
-    setNotificationItems((prevItems) =>
-      prevItems.map((item) => (item.id === id ? { ...item, isRead: true } : item))
-    );
-  };
-
-  const handleMarkAllRead = (ids: string[]) => {
-    if (ids.length === 0) {
-      return;
-    }
-
-    const targetIds = new Set(ids);
-
-    setNotificationItems((prevItems) =>
-      prevItems.map((item) =>
-        targetIds.has(item.id)
-          ? { ...item, isRead: true }
-          : item
-      )
-    );
-  };
 
   const handleNotificationItemClick = (item: NotificationItem) => {
     if (!item.href) {
@@ -57,8 +32,8 @@ export function BookingsPageScreen() {
       <div className="flex min-h-screen flex-col lg:flex-row">
         <OwnerSidebar activeItem="bookings" />
 
-        <main className="flex h-screen flex-1 flex-col overflow-hidden bg-[#f7f4f3] dark:bg-background-dark/30">
-          <header className="z-10 flex-shrink-0 border-b border-primary/10 bg-[#fbf8f7]/90 px-6 pb-5 pt-6 backdrop-blur-sm dark:bg-background-dark/50 lg:pb-6">
+        <main className="flex h-screen flex-1 flex-col overflow-hidden bg-muted dark:bg-background-dark/30">
+          <header className="z-10 flex-shrink-0 border-b border-primary/10 bg-muted/80 px-6 pb-5 pt-6 backdrop-blur-sm dark:bg-background-dark/50 lg:pb-6">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex flex-wrap items-center gap-3 lg:gap-4">
                 <h2 className="flex items-center gap-3 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
@@ -76,17 +51,21 @@ export function BookingsPageScreen() {
 
               <div className="flex items-center gap-3">
                 <NotificationPopover
-                  items={notificationItems}
+                  items={notificationsVm.items}
                   isOpen={isNotificationOpen}
                   onOpenChange={setIsNotificationOpen}
                   onItemClick={handleNotificationItemClick}
-                  onMarkRead={handleMarkRead}
-                  onMarkAllRead={handleMarkAllRead}
+                  onMarkRead={(id) => {
+                    void notificationsVm.markRead(id);
+                  }}
+                  onMarkAllRead={() => {
+                    void notificationsVm.markAllRead();
+                  }}
                   trigger={({ isOpen, controlsId, toggle }) => (
                     <NotificationBellButton
                       variant="bookings"
-                      unreadCount={unreadCount}
-                      showUnreadDot={unreadCount > 0}
+                      unreadCount={notificationsVm.unreadCount}
+                      showUnreadDot={notificationsVm.unreadCount > 0}
                       ariaExpanded={isOpen}
                       ariaControls={controlsId}
                       onClick={toggle}

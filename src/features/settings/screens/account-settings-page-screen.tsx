@@ -14,7 +14,7 @@ export function AccountSettingsPageScreen({
       <div className="flex min-h-screen flex-col lg:flex-row">
         <OwnerSidebar activeItem="settings" />
 
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[#f7f4f3] dark:bg-background-dark/30">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-muted dark:bg-background-dark/30">
           <AccountSettingsPageClient initialData={initialData} />
         </main>
       </div>

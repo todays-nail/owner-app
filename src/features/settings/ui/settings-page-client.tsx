@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 
+import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import type { ShopGalleryImageDto, ShopSettingsDto, Weekday } from "@/features/settings/model/types";
 import { generateBookingSlotsForCurrentUser } from "@/features/settings/services/generate-booking-slots-browser-service";
 import { updateShopSettingsForCurrentUser } from "@/features/settings/services/update-shop-settings-browser-service";
@@ -253,7 +255,7 @@ function ReadonlyInput({ value }: { value: string }) {
         value={value}
         readOnly
         disabled
-        className="w-full rounded-lg border border-gray-200 bg-gray-100 px-3 py-2.5 text-sm text-gray-400 dark:border-[#4b3d3c] dark:bg-[#372a29] dark:text-gray-500"
+        className="w-full rounded-lg border border-gray-200 bg-gray-100 px-3 py-2.5 text-sm text-gray-400 dark:border-border dark:bg-muted/40 dark:text-gray-500"
       />
       <span className="material-icons-round pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
         lock
@@ -719,7 +721,7 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
                 </div>
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-stone-700 dark:text-stone-300">휴무 요일</label>
-                  <select
+                  <Select
                     value={getClosedDaySelectValue(form.closedWeekdays)}
                     onChange={(event) => handleClosedWeekdaySelectChange(event.target.value)}
                     className="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2.5 text-sm text-stone-800 transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-stone-700 dark:bg-stone-800/50 dark:text-stone-100"
@@ -730,7 +732,7 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
                         {weekday.label}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
               </div>
 
@@ -755,7 +757,7 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
 
               <div>
                 <label className="mb-2 block text-sm font-semibold text-stone-700 dark:text-stone-300">샵 소개</label>
-                <textarea
+                <Textarea
                   rows={4}
                   value={form.intro}
                   onChange={(event) => handleStringChange("intro", event.target.value)}
@@ -1013,7 +1015,7 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
               <div>
                 <label className="mb-2 block text-sm font-semibold text-stone-700 dark:text-stone-300">정산 계좌</label>
                 <div className="flex gap-2">
-                  <select
+                  <Select
                     value={form.settlementBank}
                     onChange={(event) => handleStringChange("settlementBank", event.target.value)}
                     className="w-1/3 rounded-lg border border-stone-200 bg-stone-50 px-3 py-2.5 text-sm text-stone-800 transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-stone-700 dark:bg-stone-800/50 dark:text-stone-100"
@@ -1023,7 +1025,7 @@ export function SettingsPageClient({ initialData }: { initialData: ShopSettingsD
                         {bank}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                   <input
                     type="text"
                     value={form.settlementAccount}

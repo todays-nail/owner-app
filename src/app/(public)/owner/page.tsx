@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { AppLaunchLogo } from "@/components/brand/app-launch-logo";
 import SentenceLines from "@/components/ui/sentence-lines";
 import { createPageMetadata } from "@/lib/metadata";
 
@@ -52,7 +53,7 @@ const START_HREF = "/signup";
 const LOGIN_HREF = "/login";
 
 export const metadata = createPageMetadata({
-  title: "오늘 네일 (Oneul Nail) - Premium Nail Shop OS",
+  title: "오늘 네일 - 사장님 운영 플랫폼",
   description: "네일 샵 운영을 위한 예약 운영 플랫폼 오늘 네일",
   noIndex: false
 });
@@ -60,17 +61,14 @@ export const metadata = createPageMetadata({
 export default function OwnerMarketingPage() {
   return (
     <div className="landing-readable bg-background-light font-display text-zinc-900 antialiased dark:bg-background-dark dark:text-zinc-100">
-      <nav className="fixed top-0 z-50 w-full border-b border-[#e5dfd8] bg-background-light/80 backdrop-blur-md dark:border-white/10 dark:bg-background-dark/80">
+      <nav className="fixed top-0 z-50 w-full border-b border-border bg-background-light/80 backdrop-blur-md dark:border-white/10 dark:bg-background-dark/80">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <Link className="flex items-center gap-2" href="/">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
-              <span className="material-symbols-outlined text-sm">auto_awesome</span>
-            </div>
-            <span className="text-lg font-bold tracking-tight">오늘 네일</span>
+            <AppLaunchLogo size="sidebar" />
           </Link>
           <div className="flex items-center gap-2">
             <Link
-              className="rounded-lg border border-[#e5dfd8] bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-white/20 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+              className="rounded-lg border border-border bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-white/20 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
               href="/user"
             >
               사용자 페이지
@@ -96,15 +94,15 @@ export default function OwnerMarketingPage() {
           </p>
 
           <div className="relative mx-auto max-w-5xl">
-            <div className="rounded-xl border border-[#e5dfd8] bg-white p-4 shadow-2xl dark:border-white/5 dark:bg-zinc-800 md:p-8">
-              <div className="mb-8 flex items-center gap-4 border-b border-[#e5dfd8] pb-4 dark:border-white/5">
+            <div className="rounded-xl border border-border bg-white p-4 shadow-2xl dark:border-white/5 dark:bg-zinc-800 md:p-8">
+              <div className="mb-8 flex items-center gap-4 border-b border-border pb-4 dark:border-white/5">
                 <div className="flex gap-2">
                   <div className="h-3 w-3 rounded-full bg-red-400" />
                   <div className="h-3 w-3 rounded-full bg-yellow-400" />
                   <div className="h-3 w-3 rounded-full bg-green-400" />
                 </div>
-                <div className="h-6 w-px bg-[#e5dfd8] dark:bg-white/10" />
-                <div className="text-xs font-semibold opacity-40">ONEUL NAIL OS / DASHBOARD</div>
+                <div className="h-6 w-px bg-border dark:bg-white/10" />
+                <div className="text-xs font-semibold opacity-40">오늘 네일 대시보드</div>
               </div>
 
               <div className="grid grid-cols-12 gap-6">
@@ -130,12 +128,12 @@ export default function OwnerMarketingPage() {
                 </div>
 
                 <div className="col-span-4 space-y-4">
-                  <div className="rounded-lg border border-[#e5dfd8] bg-zinc-50 p-4 text-left dark:border-white/5 dark:bg-zinc-900">
+                  <div className="rounded-lg border border-border bg-zinc-50 p-4 text-left dark:border-white/5 dark:bg-zinc-900">
                     <p className="mb-2 text-[10px] font-bold uppercase tracking-widest opacity-50">Next up</p>
                     <p className="text-sm font-bold">김지민 고객님 (14:00)</p>
                     <p className="text-xs opacity-50">그라데이션 + 파츠 추가</p>
                   </div>
-                  <div className="rounded-lg border border-[#e5dfd8] bg-zinc-50 p-4 text-left dark:border-white/5 dark:bg-zinc-900">
+                  <div className="rounded-lg border border-border bg-zinc-50 p-4 text-left dark:border-white/5 dark:bg-zinc-900">
                     <p className="mb-2 text-[10px] font-bold uppercase tracking-widest opacity-50">
                       Unconfirmed
                     </p>
@@ -149,7 +147,7 @@ export default function OwnerMarketingPage() {
         </div>
       </header>
 
-      <section className="bg-[#f2eee9] py-24 dark:bg-zinc-900/50" id="pain-points">
+      <section className="bg-muted py-24 dark:bg-zinc-900/50" id="pain-points">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-3xl font-bold tracking-tight">이런 하루, 익숙하지 않으세요?</h2>
@@ -160,7 +158,7 @@ export default function OwnerMarketingPage() {
             {challenges.map((challenge) => (
               <div
                 key={challenge.title}
-                className="rounded-xl border border-[#e5dfd8] bg-white p-8 shadow-sm dark:border-white/5 dark:bg-zinc-800"
+                className="rounded-xl border border-border bg-white p-8 shadow-sm dark:border-white/5 dark:bg-zinc-800"
               >
                 <div className="mb-6 text-primary">
                   <span className="material-symbols-outlined text-4xl">{challenge.icon}</span>
@@ -239,12 +237,12 @@ export default function OwnerMarketingPage() {
         </div>
       </section>
 
-      <section className="overflow-hidden bg-gradient-to-b from-[#fff5f2] to-white py-32 dark:from-zinc-900 dark:to-background-dark">
+      <section className="overflow-hidden bg-gradient-to-b from-primary/5 to-white py-32 dark:from-zinc-900 dark:to-background-dark">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mb-20 text-center">
             <h2 className="mb-4 text-4xl font-bold tracking-tight">상담이 곧바로 예약으로 이어집니다</h2>
             <p className="mx-auto max-w-2xl text-lg opacity-60">
-              채팅형 커스텀 견적부터 수락과 동시에 예약금 발송까지.
+              비채팅 견적 요청서부터 수락과 동시에 예약금 발송까지.
             </p>
           </div>
 
@@ -255,7 +253,7 @@ export default function OwnerMarketingPage() {
                   <div className="mb-3 flex h-6 w-12 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
                     STEP 1
                   </div>
-                  <h4 className="mb-4 text-base font-bold">커스텀 견적 요청</h4>
+                  <h4 className="mb-4 text-base font-bold">커스텀 견적 요청서</h4>
                   <div className="flex-1 rounded-lg border border-dashed border-zinc-200 bg-zinc-50 p-3 dark:border-white/10 dark:bg-zinc-900/50">
                     <div className="mb-3 flex items-center gap-2">
                       <span className="material-symbols-outlined text-lg text-primary">image</span>
@@ -286,9 +284,9 @@ export default function OwnerMarketingPage() {
                   <div className="mb-3 flex h-6 w-12 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
                     STEP 2
                   </div>
-                  <h4 className="mb-4 text-base font-bold">샵 제안</h4>
+                  <h4 className="mb-4 text-base font-bold">샵 견적 응답</h4>
                   <div className="flex-1 space-y-3">
-                    <div className="rounded-lg border border-[#e5dfd8] bg-zinc-50 p-3 dark:border-white/5 dark:bg-zinc-900">
+                    <div className="rounded-lg border border-border bg-zinc-50 p-3 dark:border-white/5 dark:bg-zinc-900">
                       <p className="mb-1 text-[10px] uppercase tracking-tighter opacity-40">Expected Price</p>
                       <p className="text-sm font-bold">₩ 85,000</p>
                     </div>
@@ -317,12 +315,12 @@ export default function OwnerMarketingPage() {
                   <div className="mb-3 flex h-6 w-12 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
                     STEP 3
                   </div>
-                  <h4 className="mb-4 text-base font-bold">사용자 선택</h4>
+                  <h4 className="mb-4 text-base font-bold">사용자 샵 선택</h4>
                   <div className="flex-1">
                     <div className="mb-4 rounded-lg bg-zinc-50 p-3 dark:bg-zinc-900">
                       <p className="mb-3 text-[10px] opacity-50">Time Selection</p>
                       <div className="grid grid-cols-2 gap-2">
-                        <div className="rounded border border-[#e5dfd8] py-2 text-center text-[10px] dark:border-white/10">
+                        <div className="rounded border border-border py-2 text-center text-[10px] dark:border-white/10">
                           14:00
                         </div>
                         <div className="rounded border-2 border-primary bg-primary/5 py-2 text-center text-[10px] font-bold text-primary">
@@ -409,7 +407,7 @@ export default function OwnerMarketingPage() {
         </div>
       </section>
 
-      <section className="bg-[#f2eee9] py-24 dark:bg-zinc-900/50" id="trend-assistant">
+      <section className="bg-muted py-24 dark:bg-zinc-900/50" id="trend-assistant">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mb-16 flex flex-col items-end justify-between gap-6 md:flex-row">
             <div>
@@ -443,6 +441,36 @@ export default function OwnerMarketingPage() {
         </div>
       </section>
 
+      <section className="bg-white py-24 dark:bg-background-dark/60" id="pricing-policy">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="mb-10 text-center">
+            <span className="text-xs font-bold uppercase tracking-widest text-primary">Pricing Policy</span>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">지금은 무료로 시작하세요</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-sm opacity-60 md:text-base">
+              초기에 빠르게 운영 흐름을 안정화할 수 있도록, 오늘 네일 사장님 서비스는 현재 무료로 제공합니다.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-xl border border-border bg-background-light p-6 text-left dark:border-white/10 dark:bg-zinc-900">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-primary">Policy 01</p>
+              <h3 className="mt-3 text-lg font-bold">현재 이용료 0원</h3>
+              <p className="mt-2 text-sm opacity-60">사장님 페이지 핵심 기능을 비용 부담 없이 바로 시작할 수 있습니다.</p>
+            </div>
+            <div className="rounded-xl border border-border bg-background-light p-6 text-left dark:border-white/10 dark:bg-zinc-900">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-primary">Policy 02</p>
+              <h3 className="mt-3 text-lg font-bold">결제 정보 입력 없음</h3>
+              <p className="mt-2 text-sm opacity-60">신용카드 등록 없이 계정 생성 후 즉시 운영 흐름을 구축할 수 있습니다.</p>
+            </div>
+            <div className="rounded-xl border border-border bg-background-light p-6 text-left dark:border-white/10 dark:bg-zinc-900">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-primary">Policy 03</p>
+              <h3 className="mt-3 text-lg font-bold">초기 파트너 샵 운영 지원</h3>
+              <p className="mt-2 text-sm opacity-60">초기 도입 샵의 예약 운영 셋업과 사용 가이드를 운영팀이 함께 지원합니다.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="bg-background-light py-32 text-center dark:bg-background-dark" id="cta-register">
         <div className="mx-auto max-w-3xl px-6">
           <h2 className="mb-6 text-4xl font-bold tracking-tight">이제 시술에만 집중하세요.</h2>
@@ -457,17 +485,14 @@ export default function OwnerMarketingPage() {
               사장님으로 등록하기
             </Link>
           </div>
-          <p className="mt-8 text-xs opacity-40">신용카드 정보 불필요 · 14일 무료 체험 · 언제든 해지 가능</p>
+          <p className="mt-8 text-xs opacity-40">현재 무료 제공 · 결제 정보 등록 불필요 · 운영팀 온보딩 지원</p>
         </div>
       </section>
 
-      <footer className="border-t border-[#e5dfd8] py-12 opacity-60 dark:border-white/10">
+      <footer className="border-t border-border py-12 opacity-60 dark:border-white/10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 md:flex-row">
           <Link className="flex items-center gap-2" href="/">
-            <div className="flex h-6 w-6 items-center justify-center rounded bg-primary text-white">
-              <span className="material-symbols-outlined text-[10px]">auto_awesome</span>
-            </div>
-            <span className="text-sm font-bold tracking-tight">오늘 네일</span>
+            <AppLaunchLogo size="sidebar" />
           </Link>
 
           <div className="flex gap-8 text-xs">

@@ -9,7 +9,7 @@ export function ChatPageScreen() {
       <div className="flex min-h-screen flex-col lg:flex-row">
         <OwnerSidebar activeItem="chat" />
 
-        <main className="flex h-screen min-w-0 flex-1 flex-col overflow-hidden bg-[#f7f4f3] dark:bg-background-dark/30">
+        <main className="flex h-screen min-w-0 flex-1 flex-col overflow-hidden bg-muted dark:bg-background-dark/30">
           <ChatPageClient />
         </main>
       </div>

@@ -34,7 +34,7 @@ const typeVisualMap: Record<
     icon: "calendar_month",
     iconContainerClassName: "bg-primary/10 text-primary"
   },
-  chat: {
+  quote: {
     icon: "chat_bubble",
     iconContainerClassName: "bg-sky-100 text-sky-600"
   },

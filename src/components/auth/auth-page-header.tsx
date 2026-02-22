@@ -1,4 +1,4 @@
-import { OneulNailLogo } from "@/components/brand/oneulnail-logo";
+import { AppLaunchLogo } from "@/components/brand/app-launch-logo";
 import { cn } from "@/lib/utils";
 
 export interface AuthPageHeaderProps {
@@ -18,7 +18,7 @@ export function AuthPageHeader({
 }: AuthPageHeaderProps) {
   return (
     <div className={cn("text-center", className)}>
-      <OneulNailLogo className="mx-auto" />
+      <AppLaunchLogo className="mx-auto" />
       <h1
         className={cn(
           "mt-7 text-[1.95rem] font-semibold leading-tight text-foreground",

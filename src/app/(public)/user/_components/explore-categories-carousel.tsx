@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 const chipButtonBase =
   "shrink-0 rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:translate-y-px";
 const chipButtonActive = `${chipButtonBase} bg-primary text-white shadow-sm shadow-primary/20`;
-const chipButtonInactive = `${chipButtonBase} bg-background-light text-[#171211] hover:bg-white`;
+const chipButtonInactive = `${chipButtonBase} bg-background-light text-foreground hover:bg-white`;
 
 type ExploreCategoriesCarouselProps = {
   categories: string[];
@@ -85,7 +85,7 @@ export default function ExploreCategoriesCarousel({
       {canScrollRight ? (
         <button
           aria-label="다음 카테고리 보기"
-          className="absolute right-0 top-1/2 inline-flex size-7 -translate-y-1/2 items-center justify-center rounded-full border border-[#e9e3e0] bg-white text-[#6f625d] shadow-sm transition-all duration-200 hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:translate-y-[calc(-50%+1px)]"
+          className="absolute right-0 top-1/2 inline-flex size-7 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white text-muted-foreground shadow-sm transition-all duration-200 hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:translate-y-[calc(-50%+1px)]"
           onClick={scrollToNext}
           type="button"
         >
@@ -96,7 +96,7 @@ export default function ExploreCategoriesCarousel({
       {canScrollLeft ? (
         <button
           aria-label="이전 카테고리 보기"
-          className="absolute left-0 top-1/2 inline-flex size-7 -translate-y-1/2 items-center justify-center rounded-full border border-[#e9e3e0] bg-white text-[#6f625d] shadow-sm transition-all duration-200 hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:translate-y-[calc(-50%+1px)]"
+          className="absolute left-0 top-1/2 inline-flex size-7 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white text-muted-foreground shadow-sm transition-all duration-200 hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:translate-y-[calc(-50%+1px)]"
           onClick={scrollToPrev}
           type="button"
         >

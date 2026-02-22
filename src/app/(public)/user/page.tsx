@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { AppLaunchLogo } from "@/components/brand/app-launch-logo";
 import SentenceLines from "@/components/ui/sentence-lines";
 import { createPageMetadata } from "@/lib/metadata";
 import ExploreCategoriesCarousel from "@/app/(public)/user/_components/explore-categories-carousel";
@@ -39,6 +40,7 @@ const defaultAppStoreHref = "https://apps.apple.com/kr/search?term=oneul%20nail"
 const defaultPlayStoreHref = "https://play.google.com/store/search?q=oneul%20nail&c=apps";
 const appStoreHref = process.env.NEXT_PUBLIC_APPSTORE_URL?.trim() || defaultAppStoreHref;
 const playStoreHref = process.env.NEXT_PUBLIC_PLAYSTORE_URL?.trim() || defaultPlayStoreHref;
+const ownerAppRootHref = "https://owner-app-tawny.vercel.app";
 const exploreCategories = [
   "오피스/미니멀",
   "청순/내추럴",
@@ -56,7 +58,7 @@ const exploreCategories = [
 const buttonBase =
   "inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40";
 const buttonText =
-  "text-sm font-bold text-[#171211] transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md";
+  "text-sm font-bold text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-md";
 const buttonPrimary = `${buttonBase} rounded-xl bg-primary text-white shadow-lg shadow-primary/20 hover:brightness-[0.98]`;
 const storeBadgeLink =
   "inline-flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40";
@@ -64,9 +66,9 @@ const appStoreBadgeImage = "h-14 w-auto";
 const playStoreBadgeImage = "h-[5rem] w-auto";
 const timeButtonBase =
   "cursor-default rounded-lg border py-3 text-sm focus-visible:outline-none";
-const timeButtonDefault = `${timeButtonBase} border-[#f4f1f0] font-medium`;
+const timeButtonDefault = `${timeButtonBase} border-border font-medium`;
 const timeButtonSelected = `${timeButtonBase} border-primary bg-primary font-bold text-white`;
-const timeButtonDisabled = `${timeButtonBase} border-[#f4f1f0] font-medium opacity-30`;
+const timeButtonDisabled = `${timeButtonBase} border-border font-medium opacity-30`;
 
 const discoverDesignImages = [
   {
@@ -96,23 +98,18 @@ const discoverDesignImages = [
 ];
 
 export const metadata = createPageMetadata({
-  title: "Oneul Nail - AI 피팅 서비스로 미리보고 원하는 시간에 바로 예약",
+  title: "오늘 네일 - AI 피팅 서비스로 미리보고 원하는 시간에 바로 예약",
   description: "내 취향 탐색부터 AI 피팅, 투명한 가격 확인과 예약까지 한 번에.",
   noIndex: false
 });
 
 export default function UserMarketingPage() {
   return (
-    <div className="landing-readable bg-background-light font-display text-[#171211] [scroll-behavior:smooth] dark:bg-background-dark">
-      <nav className="fixed left-0 right-0 top-0 z-50 border-b border-[#f4f1f0] bg-white/80 backdrop-blur-xl">
+    <div className="landing-readable bg-background-light font-display text-foreground [scroll-behavior:smooth] dark:bg-background-dark">
+      <nav className="fixed left-0 right-0 top-0 z-50 border-b border-border bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
           <Link className="flex items-center gap-2" href="/user">
-            <div className="size-6 text-primary">
-              <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 6H42L36 24L42 42H6L12 24L6 6Z" />
-              </svg>
-            </div>
-            <h2 className="text-lg font-bold tracking-tight">Oneul Nail</h2>
+            <AppLaunchLogo size="sidebar" />
           </Link>
           <ActionLink
             className={buttonText}
@@ -126,11 +123,11 @@ export default function UserMarketingPage() {
       <section className="px-6 pb-20 pt-32">
         <div className="mx-auto grid max-w-[1200px] grid-cols-1 items-center gap-12 lg:grid-cols-2">
           <div className="space-y-8">
-            <h1 className="text-[clamp(1.7rem,6.7vw,4.5rem)] font-black leading-[1.1] tracking-tight text-[#171211]">
+            <h1 className="text-[clamp(1.7rem,6.7vw,4.5rem)] font-black leading-[1.1] tracking-tight text-foreground">
               <span className="block whitespace-nowrap">AI 피팅 서비스로 미리보고</span>
               <span className="block whitespace-nowrap text-primary">원하는 시간에 바로 예약</span>
             </h1>
-            <p className="max-w-lg text-lg leading-relaxed text-[#171211]/70">
+            <p className="max-w-lg text-lg leading-relaxed text-foreground/70">
               <SentenceLines text="내 취향 탐색부터 AI 피팅, 투명한 가격 확인과 예약까지 한 번에. 이제 실패 없는 네일 라이프를 시작하세요." />
             </p>
             <div className="flex flex-wrap items-center gap-4">
@@ -163,8 +160,8 @@ export default function UserMarketingPage() {
           </div>
 
           <div className="relative flex justify-center">
-            <div className="relative h-[600px] w-[300px] overflow-hidden rounded-[3rem] border-[8px] border-[#171211] bg-[#171211] shadow-2xl">
-              <div className="absolute top-0 z-20 flex h-6 w-full justify-center bg-[#171211]">
+            <div className="relative h-[600px] w-[300px] overflow-hidden rounded-device border-[8px] border-foreground bg-foreground shadow-2xl">
+              <div className="absolute top-0 z-20 flex h-6 w-full justify-center bg-foreground">
                 <div className="h-4 w-20 rounded-b-xl bg-black" />
               </div>
               <div className="relative h-full w-full bg-white">
@@ -207,7 +204,7 @@ export default function UserMarketingPage() {
       <section className="bg-background-light py-24">
         <div className="mx-auto grid max-w-[1200px] grid-cols-1 items-center gap-20 px-6 lg:grid-cols-2">
           <div className="order-2 flex justify-center lg:order-1">
-            <div className="w-full max-w-sm rounded-3xl border border-[#f4f1f0] bg-white p-8 shadow-xl">
+            <div className="w-full max-w-sm rounded-3xl border border-border bg-white p-8 shadow-xl">
               <h3 className="mb-6 text-xl font-bold">견적서</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between rounded-lg bg-background-light p-4">
@@ -215,22 +212,22 @@ export default function UserMarketingPage() {
                   <span className="font-bold">45,000원</span>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase text-[#171211]/50">추가 옵션</label>
-                  <div className="flex items-center justify-between border-b border-[#f4f1f0] py-2 text-sm">
+                  <label className="text-xs font-bold uppercase text-foreground/50">추가 옵션</label>
+                  <div className="flex items-center justify-between border-b border-border py-2 text-sm">
                     <span className="flex items-center gap-2">
                       <span className="material-symbols-outlined text-sm text-primary">check_circle</span>
                       아트 디자인 (2개)
                     </span>
                     <span className="font-semibold">+10,000원</span>
                   </div>
-                  <div className="flex items-center justify-between border-b border-[#f4f1f0] py-2 text-sm">
+                  <div className="flex items-center justify-between border-b border-border py-2 text-sm">
                     <span className="flex items-center gap-2">
                       <span className="material-symbols-outlined text-sm text-primary">check_circle</span>
                       자샵 제거
                     </span>
                     <span className="font-semibold">+5,000원</span>
                   </div>
-                  <div className="flex items-center justify-between border-b border-[#f4f1f0] py-2 text-sm text-[#171211]/40">
+                  <div className="flex items-center justify-between border-b border-border py-2 text-sm text-foreground/40">
                     <span className="flex items-center gap-2">
                       <span className="material-symbols-outlined text-sm">add_circle</span>
                       타샵 제거
@@ -238,7 +235,7 @@ export default function UserMarketingPage() {
                     <span className="font-semibold">+10,000원</span>
                   </div>
                 </div>
-                <div className="mt-6 border-t border-dashed border-[#f4f1f0] pt-6">
+                <div className="mt-6 border-t border-dashed border-border pt-6">
                   <div className="flex items-center justify-between">
                     <span className="text-lg font-bold">최종 예상 금액</span>
                     <span className="text-2xl font-black text-primary">60,000원</span>
@@ -255,7 +252,7 @@ export default function UserMarketingPage() {
               <br />
               투명한 가격 확인
             </h2>
-            <p className="mt-6 text-lg text-[#171211]/70">
+            <p className="mt-6 text-lg text-foreground/70">
               <SentenceLines text="시술 항목별 가격을 미리 확인하고 직접 옵션을 추가해보세요. 샵에 방문해서 당황하는 일 없이, 내가 생각한 예산 안에서 결제까지" />
             </p>
           </div>
@@ -271,7 +268,7 @@ export default function UserMarketingPage() {
               <br />
               AI 피팅 서비스
             </h2>
-            <p className="mt-6 text-lg text-[#171211]/70">
+            <p className="mt-6 text-lg text-foreground/70">
               <SentenceLines text="사진 한 장이면 끝. 내 손의 톤과 모양에 어울리는지 확인 가능합니다. 나에게 꼭 맞는 컬러와 디자인을 실패 없이 선택하세요." />
             </p>
           </div>
@@ -279,7 +276,7 @@ export default function UserMarketingPage() {
           <div className="group relative">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <p className="text-center text-sm font-bold text-[#171211]/50">Before</p>
+                <p className="text-center text-sm font-bold text-foreground/50">Before</p>
                 <div className="relative aspect-[3/4] overflow-hidden rounded-2xl">
                   <Image
                     alt="A clean natural hand before nail art"
@@ -299,14 +296,14 @@ export default function UserMarketingPage() {
                     className="object-cover"
                     fill
                     sizes="(max-width: 1024px) 50vw, 25vw"
-                    src="/images/연장네일.png"
+                    src="/images/extension-nail.png"
                   />
                   <div className="absolute inset-0 rounded-2xl border-4 border-primary/30 bg-primary/10" />
                 </div>
               </div>
             </div>
 
-            <div className="absolute -bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-[#171211] px-6 py-3 text-white shadow-lg">
+            <div className="absolute -bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-foreground px-6 py-3 text-white shadow-lg">
               <span className="material-symbols-outlined animate-pulse text-sm text-primary">camera</span>
               <span className="text-sm font-bold">1.2초 만에 피팅 완료</span>
             </div>
@@ -316,7 +313,7 @@ export default function UserMarketingPage() {
 
       <section className="bg-background-light py-24" id="booking">
         <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-8 px-6 md:grid-cols-2">
-          <div className="space-y-8 rounded-3xl border border-[#f4f1f0] bg-white p-10">
+          <div className="space-y-8 rounded-3xl border border-border bg-white p-10">
             <div>
               <span className="text-sm font-bold text-primary">04 실시간 예약</span>
               <h3 className="mt-1 text-2xl font-bold">원하는 시간에 바로 픽</h3>
@@ -325,7 +322,7 @@ export default function UserMarketingPage() {
             <div className="space-y-6">
               <div className="mb-4 flex items-center justify-between">
                 <span className="font-bold">2026년 5월 24일 (일)</span>
-                <span className="material-symbols-outlined text-[#171211]/30">calendar_month</span>
+                <span className="material-symbols-outlined text-foreground/30">calendar_month</span>
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <button className={timeButtonDefault} type="button">11:00</button>
@@ -338,7 +335,7 @@ export default function UserMarketingPage() {
             </div>
           </div>
 
-          <div className="space-y-8 rounded-3xl border border-[#f4f1f0] bg-white p-10">
+          <div className="space-y-8 rounded-3xl border border-border bg-white p-10">
             <div>
               <span className="text-sm font-bold text-primary">05 상태 관리</span>
               <h3 className="mt-1 text-2xl font-bold">예약부터 완료까지 한눈에</h3>
@@ -353,7 +350,7 @@ export default function UserMarketingPage() {
                 </div>
                 <div>
                   <p className="font-bold">예약 완료</p>
-                  <p className="text-xs text-[#171211]/50">5월 20일 14:20</p>
+                  <p className="text-xs text-foreground/50">5월 20일 14:20</p>
                 </div>
               </div>
 
@@ -395,15 +392,15 @@ export default function UserMarketingPage() {
               </div>
 
               <div className="flex flex-row-reverse gap-2">
-                <div className="size-8 shrink-0 rounded-full bg-[#171211]/10 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-xs text-[#171211]">person</span>
+                <div className="size-8 shrink-0 rounded-full bg-foreground/10 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-xs text-foreground">person</span>
                 </div>
                 <div className="rounded-2xl rounded-tr-none bg-primary p-4 text-sm text-white">
-                  네, 확인했습니다! 예약 가능한가요?
+                  응답 확인 완료 · 이 샵으로 선택할게요.
                 </div>
               </div>
 
-              <div className="mt-6 space-y-4 rounded-3xl border border-[#f4f1f0] bg-white p-6 text-center shadow-lg">
+              <div className="mt-6 space-y-4 rounded-3xl border border-border bg-white p-6 text-center shadow-lg">
                 <p className="text-sm font-bold">나만의 커스텀 제안이 도착했어요</p>
                 <div className="rounded-xl border border-primary/20 bg-primary/5 px-6 py-3">
                   <span className="text-xl font-black text-primary">75,000원</span>
@@ -416,21 +413,55 @@ export default function UserMarketingPage() {
           </div>
 
           <div className="order-1 lg:order-2">
-            <span className="text-lg font-bold text-primary">06 1:1 커스텀 견적</span>
+            <span className="text-lg font-bold text-primary">06 비채팅 커스텀 견적</span>
             <h2 className="mt-2 text-4xl font-bold leading-tight">
               원하는 디자인,
               <br />
               맞춤형 가격 제안
             </h2>
-            <p className="mt-6 text-lg text-[#171211]/70">
-              <SentenceLines text="인스타에서 본 그 디자인, 얼마일지 궁금하시죠? 사진을 올리면 주변 샵에서 직접 견적을 제안합니다. 나에게 딱 맞는 가격과 실력을 갖춘 샵을 찾아보세요." />
+            <p className="mt-6 text-lg text-foreground/70">
+              <SentenceLines text="인스타에서 본 그 디자인, 얼마일지 궁금하시죠? 사진을 올리면 주변 샵에서 직접 견적을 제안합니다. 응답 리스트를 비교하고 원하는 샵을 선택해 예약까지 이어가세요." />
             </p>
           </div>
         </div>
       </section>
 
+      <section className="bg-background-light py-24" id="pricing-guide">
+        <div className="mx-auto max-w-[1200px] px-6">
+          <div className="mb-12 text-center">
+            <span className="text-lg font-bold text-primary">이용 비용 안내</span>
+            <h2 className="mt-2 text-4xl font-bold leading-tight">플랫폼 이용료는 무료입니다</h2>
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-foreground/70">
+              오늘 네일 사용자 앱은 현재 별도 이용료 없이 사용할 수 있습니다.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl border border-border bg-white p-6">
+              <p className="text-xs font-bold uppercase tracking-widest text-primary">01</p>
+              <h3 className="mt-3 text-lg font-bold">앱 이용료 0원</h3>
+              <p className="mt-2 text-sm text-foreground/60">회원가입과 디자인 탐색, 예약 흐름 이용에 별도 플랫폼 요금이 없습니다.</p>
+            </div>
+            <div className="rounded-2xl border border-border bg-white p-6">
+              <p className="text-xs font-bold uppercase tracking-widest text-primary">02</p>
+              <h3 className="mt-3 text-lg font-bold">실제 결제는 샵 시술 가격 기준</h3>
+              <p className="mt-2 text-sm text-foreground/60">
+                최종 결제 금액은 선택한 샵의 시술 메뉴와 옵션 구성에 따라 결정됩니다.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-border bg-white p-6">
+              <p className="text-xs font-bold uppercase tracking-widest text-primary">03</p>
+              <h3 className="mt-3 text-lg font-bold">예약금/취소 규정은 샵별 정책 적용</h3>
+              <p className="mt-2 text-sm text-foreground/60">
+                예약금 유무와 취소 수수료 기준은 각 샵 정책을 기준으로 예약 화면에서 안내됩니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="px-6 py-32">
-        <div className="relative mx-auto max-w-[1200px] overflow-hidden rounded-[2.5rem] bg-primary p-12 text-center text-white lg:p-24">
+        <div className="relative mx-auto max-w-[1200px] overflow-hidden rounded-hero bg-primary p-12 text-center text-white lg:p-24">
           <div className="relative z-10 space-y-10">
             <h2 className="text-4xl font-black tracking-tight lg:text-6xl">고민말고, AI로 오늘 네일</h2>
             <div className="flex flex-wrap items-center justify-center gap-6">
@@ -465,16 +496,13 @@ export default function UserMarketingPage() {
         </div>
       </section>
 
-      <footer className="border-t border-[#f4f1f0] bg-white py-20">
+      <footer className="border-t border-border bg-white py-20">
         <div className="mx-auto max-w-[1200px] px-6">
           <div className="space-y-6">
             <div className="flex items-center gap-2 text-primary">
-              <svg className="size-6" fill="currentColor" viewBox="0 0 48 48">
-                <path d="M6 6H42L36 24L42 42H6L12 24L6 6Z" />
-              </svg>
-              <h2 className="text-xl font-bold tracking-tight text-[#171211]">Oneul Nail</h2>
+              <AppLaunchLogo size="sidebar" />
             </div>
-            <p className="max-w-sm text-sm leading-relaxed text-[#171211]/50">
+            <p className="max-w-sm text-sm leading-relaxed text-foreground/50">
               네일 라이프의 새로운 기준, 오늘의 네일.
               <br />
               사용자 중심의 기술로 뷰티 경험을 혁신합니다.
@@ -482,16 +510,16 @@ export default function UserMarketingPage() {
           </div>
         </div>
 
-        <div className="mx-auto mt-16 flex max-w-[1200px] flex-col justify-between gap-4 border-t border-[#f4f1f0] px-6 pt-8 md:flex-row">
-          <p className="text-xs text-[#171211]/40">© 2024 Oneul Nail Inc. All rights reserved.</p>
+        <div className="mx-auto mt-16 flex max-w-[1200px] flex-col justify-between gap-4 border-t border-border px-6 pt-8 md:flex-row">
+          <p className="text-xs text-foreground/40">© 2024 Oneul Nail Inc. All rights reserved.</p>
           <div className="flex gap-6">
-            <a href="https://oneulnail.com" rel="noreferrer" target="_blank">
-              <span className="material-symbols-outlined cursor-pointer text-xl text-[#171211]/40 transition-colors hover:text-primary">
+            <a href={ownerAppRootHref} rel="noreferrer" target="_blank">
+              <span className="material-symbols-outlined cursor-pointer text-xl text-foreground/40 transition-colors hover:text-primary">
                 language
               </span>
             </a>
-            <a href="https://oneulnail.com" rel="noreferrer" target="_blank">
-              <span className="material-symbols-outlined cursor-pointer text-xl text-[#171211]/40 transition-colors hover:text-primary">
+            <a href={ownerAppRootHref} rel="noreferrer" target="_blank">
+              <span className="material-symbols-outlined cursor-pointer text-xl text-foreground/40 transition-colors hover:text-primary">
                 share
               </span>
             </a>
