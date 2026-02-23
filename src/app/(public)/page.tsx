@@ -168,6 +168,9 @@ export default function RootLandingPage() {
               <a className={styles.primaryButton} href={feedbackMailtoHref}>
                 의견 보내기
               </a>
+              <a className={styles.secondaryButton} href="/support">
+                고객지원 안내
+              </a>
             </article>
           </section>
         </main>
