@@ -28,10 +28,9 @@ Codex 작업 규칙과 프로젝트 컨텍스트를 정의합니다. (이 저장
 - 이 저장소는 `shared-staging` 대상으로 직접 `db push`를 허용한다.
 - `shared-schema` 저장소 CI도 동일한 `shared-staging/prod`를 사용한다.
 - `shared-prod` 환경은 유지한다. 해커톤/초기 단계에서는 승인자(`Required reviewers`)를 비워둘 수 있고, 운영 전환 시 1명 이상 권장한다.
-- 공용 마이그레이션 canonical은 submodule `shared-schema/migrations`다.
-- 서브모듈 초기화/업데이트: `git submodule update --init --recursive`
+- 공용 마이그레이션 canonical은 `todays-nail/shared-schema` 저장소다.
 - 실행 대상 경로는 `supabase/migrations`이며, `pnpm db:sync:from-shared`로 동기화한다.
-- 동기화 기준 브랜치 고정 체크: `pnpm db:shared:branch:check` (`shared-schema` HEAD가 `origin/main` 계열인지 검증)
+- 동기화 기준 고정 체크: `pnpm db:shared:branch:check` (`SHARED_SCHEMA_REF` fetch/resolve 가능 여부 검증)
 - 환경 변수 계약:
   - `SUPABASE_DB_URL_SHARED_STAGING`
   - `SUPABASE_DB_URL_SHARED_PROD`
