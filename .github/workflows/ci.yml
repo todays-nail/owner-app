@@ -9,21 +9,11 @@ on:
 jobs:
   schema-validation:
     runs-on: ubuntu-latest
+    env:
+      SHARED_SCHEMA_REPO_URL: https://github.com/todays-nail/shared-schema.git
+      SHARED_SCHEMA_REF: 1c1a08472bd9f0ef0f77e730ec7557bd0ac4a829
     steps:
-      - name: Validate SUBMODULE_PAT secret
-        run: |
-          if [ -z "${{ secrets.SUBMODULE_PAT }}" ]; then
-            echo "::error::Missing Actions secret SUBMODULE_PAT."
-            echo "::error::SUBMODULE_PAT must have read access to todays-nail/shared-schema for private submodule checkout."
-            echo "::error::Add it in Settings > Secrets and variables > Actions, then re-run this workflow."
-            exit 1
-          fi
-
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.SUBMODULE_PAT }}
-          persist-credentials: true
-          submodules: recursive
 
       - name: Use Node.js 24
         uses: actions/setup-node@v4
@@ -40,20 +30,7 @@ jobs:
     needs: schema-validation
     runs-on: ubuntu-latest
     steps:
-      - name: Validate SUBMODULE_PAT secret
-        run: |
-          if [ -z "${{ secrets.SUBMODULE_PAT }}" ]; then
-            echo "::error::Missing Actions secret SUBMODULE_PAT."
-            echo "::error::SUBMODULE_PAT must have read access to todays-nail/shared-schema for private submodule checkout."
-            echo "::error::Add it in Settings > Secrets and variables > Actions, then re-run this workflow."
-            exit 1
-          fi
-
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.SUBMODULE_PAT }}
-          persist-credentials: true
-          submodules: recursive
 
       - name: Use Node.js 24
         uses: actions/setup-node@v4
