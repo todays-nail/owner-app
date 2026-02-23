@@ -7,6 +7,8 @@ export type LegalSection = {
 
 export const LEGAL_OPERATOR_NAME = "오늘네일 운영팀";
 export const LEGAL_CONTACT_EMAIL = "galaxydh4110@gmail.com";
+export const LEGAL_SUPPORT_RESPONSE_TIME = "영업일 기준 1~2일 이내";
+export const LEGAL_THIRD_PARTY_AI_PROVIDER = "OpenAI";
 
 export const TERMS_EFFECTIVE_DATE = "2026년 2월 19일";
 export const PRIVACY_EFFECTIVE_DATE = "2026년 2월 19일";
@@ -124,7 +126,8 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
     id: "privacy-method",
     title: "2. 개인정보 수집 방법",
     paragraphs: [
-      "회원가입 및 로그인, 프로필 편집, AI 기능 사용, 푸시 알림 등록 과정에서 이용자가 직접 입력하거나 기기/시스템으로부터 자동 수집됩니다."
+      "회원가입 및 로그인, 프로필 편집, AI 기능 사용, 푸시 알림 등록 과정에서 이용자가 직접 입력하거나 기기/시스템으로부터 자동 수집됩니다.",
+      "AI 생성 기능은 생성 버튼 클릭 시점의 사전 안내 및 동의 절차를 거친 뒤에만 제3자 AI 서비스로 전송됩니다."
     ]
   },
   {
@@ -154,7 +157,15 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
     title: "5. 제3자 제공 및 처리위탁",
     paragraphs: [
       "운영팀은 원칙적으로 이용자의 개인정보를 외부에 판매하거나 임의 제공하지 않습니다.",
-      "서비스 운영을 위해 클라우드 인프라, 인증 연동, 알림 전송 등의 업무를 외부 서비스 사업자와 연계하여 처리할 수 있습니다."
+      "서비스 운영을 위해 클라우드 인프라, 인증 연동, 알림 전송 등의 업무를 외부 서비스 사업자와 연계하여 처리할 수 있습니다.",
+      `AI 생성 기능 이용 시, 이용자가 동의한 범위에서 ${LEGAL_THIRD_PARTY_AI_PROVIDER} 등 제3자 AI 서비스로 생성 처리에 필요한 데이터가 전송될 수 있습니다.`
+    ],
+    items: [
+      "전송 항목: 손 사진, 디자인(레퍼런스) 사진, 생성 설정값(예: 모양/연장 옵션)",
+      `전송 대상: ${LEGAL_THIRD_PARTY_AI_PROVIDER}(AI 생성 처리), Supabase(저장/요청 전달 처리)`,
+      "전송 목적: AI 네일 생성 결과 제공 및 요청 처리",
+      "전송 시점: 이용자가 앱 내 사전 안내를 확인하고 동의한 후 AI 생성을 요청한 경우",
+      "이용자 통제: 앱 설정에서 AI 데이터 전송 동의를 철회할 수 있으며, 철회 후에는 AI 생성 시 재동의가 필요"
     ]
   },
   {

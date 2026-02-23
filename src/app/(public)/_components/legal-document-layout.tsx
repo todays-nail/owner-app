@@ -87,9 +87,12 @@ export function LegalDocumentLayout({
         ))}
       </div>
 
-      <footer className="mt-10 border-t border-border/70 pt-6 text-sm text-muted-foreground">
+      <footer className="mt-10 flex flex-wrap gap-4 border-t border-border/70 pt-6 text-sm text-muted-foreground">
         <Link className="font-medium text-foreground underline underline-offset-4" href={alternateHref}>
           {alternateLabel}
+        </Link>
+        <Link className="font-medium text-foreground underline underline-offset-4" href="/support">
+          고객지원
         </Link>
       </footer>
     </main>
