@@ -83,6 +83,13 @@ Codex 작업 규칙과 프로젝트 컨텍스트를 정의합니다. (이 저장
 - 병합(merge) 또는 PR 생성 전에 반드시 `main` 브랜치의 최신 변경 사항을 현재 작업 브랜치에 먼저 반영한다.
 - 반영 과정에서 발생한 충돌/병합 이슈는 현재 브랜치에서 해결한 뒤에만 PR을 올린다.
 
+## Release Tag Policy
+
+- Release 기준은 브랜치가 아닌 버전 태그를 사용한다.
+- owner-app 릴리즈 태그 형식: `release/v<ios-marketing-version>+<ios-build>` (예: `release/v1.0+6`).
+- 태그는 `main`에 머지된 릴리즈 대응 커밋에 annotated tag로 생성한다.
+- 기존 날짜 태그(`rel-*`)는 레거시 참조용으로만 유지하고 신규 릴리즈 기준으로 사용하지 않는다.
+
 ## Git Commit Convention
 
 효율적인 이력 관리와 협업을 위해 커밋 규칙을 준수한다.
